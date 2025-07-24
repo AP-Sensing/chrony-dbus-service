@@ -1,6 +1,6 @@
 ExclusiveArch:  x86_64
 Name:           chrony-dbus-service
-Version:        0.0.1
+Version:        0.1.0
 Release:        %{?aps_release_id}%{!?aps_release_id:1}
 License:        GPL-2.0
 Group:          Unspecified
@@ -67,5 +67,5 @@ install -m 644 systemd/42-%{name}.preset $RPM_BUILD_ROOT/usr/lib/systemd/system-
 %attr(644, root, root) /usr/lib/systemd/system-preset/42-%{name}.preset
 
 %changelog
-* Wed Jul 23 2025 Samuel Stirtzel <s.stirtzel@googlemail.com> - 0.0.1
-- Initial test version 0.0.1
+* Wed Jul 23 2025 Samuel Stirtzel <s.stirtzel@googlemail.com> - 0.1.0
+- Initial test version 0.1.0

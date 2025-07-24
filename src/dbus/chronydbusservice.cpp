@@ -56,6 +56,15 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         std::cout << "<< deleteServers exit" << "\n";
     };
 
+    clearManualTimeList >> [this]()
+    {
+        std::cout << ">> clearManualTimeList enter" << "\n";
+        const bool success = ::chrony::client::process_cmd_clear_manual_list();
+        if (success) { respond_with(clearManualTimeList()); }
+        else { respond_with(simppl::dbus::Error("Chronyd communication error", "Invalid request or no response from chronyd!")); }
+        std::cout << "<< clearManualTimeList exit" << "\n";
+    };
+
     setManualTimeEnabled >> [this](bool enabled)
     {
         std::cout << ">> setManualTimeEnabled enter" << "\n";

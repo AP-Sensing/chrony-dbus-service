@@ -27,8 +27,13 @@ int main()
 
     stub.setManualTime("2025-07-17 09:00:00");
 
-    const std::vector<std::string> manualTimeList = stub.getManualTimeList();
+    std::vector<std::string> manualTimeList = stub.getManualTimeList();
     for (const auto &timeStr : manualTimeList) { std::cout << "Received manual time entry: " << timeStr << "\n"; }
+
+    stub.clearManualTimeList();
+
+    manualTimeList = stub.getManualTimeList();
+    std::cout << "Manual time list size after clearing: " << manualTimeList.size() << "\n";
 
     std::vector<AddServersData> newServers{};
     AddServersData s1;

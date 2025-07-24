@@ -74,12 +74,20 @@ namespace org::freedesktop
 {
 INTERFACE(ChronyDBus)
 {
+    /// Returns a list of NTP servers that chrony uses to sync time
     Method<out<std::vector<ChronySourceData>>, _throw<simppl::dbus::Error>> getSources;
+    /// Adds a list of NTP servers for time sync
     Method<in<std::vector<AddServersData>>, _throw<simppl::dbus::Error>> addServers;
+    /// Deletes a list of servers with the given address string
     Method<in<std::vector<std::string>>, _throw<simppl::dbus::Error>> deleteServers;
+    /// Enables or disables manual time control (if enabled and a manual time is set, then that time is used as a reference instead of NTP
+    /// servers)
+    /// @note Disabling manual time currently doesn't delete manual time entries
     Method<in<bool>, _throw<simppl::dbus::Error>> setManualTimeEnabled;
+    Method<_throw<simppl::dbus::Error>> clearManualTimeList;
+    /// Lists all manual time entries with the format "yyyy-mm-dd HH:MM:SS"
     Method<out<std::vector<std::string>>, _throw<simppl::dbus::Error>> getManualTimeList;
-    // format is "yyyy-mm-dd HH:MM:SS"
+    /// Adds a manual time entry with the format "yyyy-mm-dd HH:MM:SS"
     Method<in<std::string>, _throw<simppl::dbus::Error>> setManualTime;
 
     // constructor
@@ -88,6 +96,7 @@ INTERFACE(ChronyDBus)
           INIT(addServers),
           INIT(deleteServers),
           INIT(setManualTimeEnabled),
+          INIT(clearManualTimeList),
           INIT(getManualTimeList),
           INIT(setManualTime)
     {

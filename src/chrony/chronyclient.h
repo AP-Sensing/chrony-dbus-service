@@ -477,7 +477,7 @@ static std::tuple<std::vector<ChronySourceData>, bool> process_cmd_sources()
     uint32_t i, mode, n_sources;
 
     request.command = htons(REQ_N_SOURCES);
-    if (!request_reply(&request, &reply, RPY_N_SOURCES, 0)) return {retVal, false};
+    if (!::chrony::client::request_reply(&request, &reply, RPY_N_SOURCES, 0)) return {retVal, false};
 
     n_sources = ntohl(reply.data.n_sources.n_sources);
     std::cout << "process_cmd_sources(): n_sources: " << n_sources << "\n";
@@ -486,7 +486,7 @@ static std::tuple<std::vector<ChronySourceData>, bool> process_cmd_sources()
     {
         request.command = htons(REQ_SOURCE_DATA);
         request.data.source_data.index = htonl(i);
-        if (!request_reply(&request, &reply, RPY_SOURCE_DATA, 0)) return {retVal, false};
+        if (!::chrony::client::request_reply(&request, &reply, RPY_SOURCE_DATA, 0)) return {retVal, false};
 
         ::chrony::util::UTI_IPNetworkToHost(&reply.data.source_data.ip_addr, &ip_addr);
         std::cout << "process_cmd_sources(): source i: " << i << " ip_addr.addr.in4: " << ::chrony::util::UTI_IPToString(&ip_addr) << "\n";
@@ -571,6 +571,28 @@ static int process_cmd_delete(const std::string &serverAddress)
     return result;
 }
 
+static bool process_cmd_clear_manual_list()
+{
+    CMD_Request request;
+    CMD_Reply reply;
+    std::uint32_t n_samples;
+    bool result = true;
+
+    request.command = htons(REQ_MANUAL_LIST);
+    if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0)) result = false;
+
+    n_samples = ntohl(reply.data.manual_list.n_samples);
+
+    for (std::uint32_t sampleIndex = 0; sampleIndex < n_samples; ++sampleIndex)
+    {
+        request.command = htons(REQ_MANUAL_DELETE);
+        // always delete the first element as elements get reordered after one is deleted
+        request.data.manual_delete.index = htonl(0);
+        if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1)) { result = false; }
+    }
+    return result;
+}
+
 static std::tuple<std::vector<std::string>, bool> process_cmd_manual_list()
 {
     CMD_Request request;
@@ -581,7 +603,7 @@ static std::tuple<std::vector<std::string>, bool> process_cmd_manual_list()
     std::vector<std::string> result;
 
     request.command = htons(REQ_MANUAL_LIST);
-    if (!request_reply(&request, &reply, RPY_MANUAL_LIST2, 0)) return {result, false};
+    if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0)) return {result, false};
 
     n_samples = ntohl(reply.data.manual_list.n_samples);
 
@@ -617,7 +639,7 @@ static int process_cmd_settime(const std::string &newTimeString)
         ts.tv_nsec = 0;
         ::chrony::util::UTI_TimespecHostToNetwork(&ts, &request.data.settime.ts);
         request.command = htons(REQ_SETTIME);
-        if (request_reply(&request, &reply, RPY_MANUAL_TIMESTAMP2, 1))
+        if (::chrony::client::request_reply(&request, &reply, RPY_MANUAL_TIMESTAMP2, 1))
         {
             offset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.offset);
             dfreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.dfreq_ppm);
