@@ -47,6 +47,7 @@ int main()
         stub.addServers(newServers);
 
         const std::vector<std::string> delServers = {{"time1.uni-paderborn.de"}};
+        for (const auto &serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
         stub.deleteServers(delServers);
     }
     catch (const simppl::dbus::Error &e)

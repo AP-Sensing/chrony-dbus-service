@@ -31,7 +31,9 @@
   */
 
 #include <iostream>
+#include <optional>
 #include <random>
+#include <tuple>
 
 #include "chronynameserv.h"
 #include "chronypktlength.h"
@@ -62,6 +64,59 @@ namespace chrony
 #define INACTIVE_AUTHKEY 0
 namespace client
 {
+using ChronyCallResult = std::tuple<int, std::optional<std::string>>;
+template <typename Value> using ChronyCallResultT = std::tuple<int, std::optional<std::string>, Value>;
+static std::string statusToErrorString(std::uint32_t status)
+{
+    switch (ntohs(status))
+    {
+        case STT_SUCCESS:
+            return "200 OK";
+        case STT_ACCESSALLOWED:
+            return "208 Access allowed";
+        case STT_ACCESSDENIED:
+            return "209 Access denied";
+        case STT_FAILED:
+            return "500 Failure";
+        case STT_UNAUTH:
+            return "501 Not authorised";
+        case STT_INVALID:
+            return "502 Invalid command";
+        case STT_NOSUCHSOURCE:
+            return "503 No such source";
+        case STT_INVALIDTS:
+            return "504 Duplicate or stale logon detected";
+        case STT_NOTENABLED:
+            return "505 Facility not enabled in daemon";
+        case STT_BADSUBNET:
+            return "507 Bad subnet";
+        case STT_NOHOSTACCESS:
+            return "510 No command access from this host";
+        case STT_SOURCEALREADYKNOWN:
+            return "511 Source already present";
+        case STT_TOOMANYSOURCES:
+            return "512 Too many sources present";
+        case STT_NORTC:
+            return "513 RTC driver not running";
+        case STT_BADRTCFILE:
+            return "514 Can't write RTC parameters";
+        case STT_INVALIDAF:
+            return "515 Invalid address family";
+        case STT_BADSAMPLE:
+            return "516 Sample index out of range";
+        case STT_BADPKTVERSION:
+            return "517 Protocol version mismatch";
+        case STT_BADPKTLENGTH:
+            return "518 Packet length mismatch";
+        case STT_INACTIVE:
+            return "519 Client logging is not active in the daemon";
+        case STT_INVALIDNAME:
+            return "521 Invalid name";
+        default:
+            return "520 Got unexpected error from daemon";
+    }
+}
+
 static std::vector<::chrony::socket::Address> server_addresses{
     ::chrony::socket::Address{.type = ::chrony::socket::SCK_ADDR_UNIX, .addr = {.path = "/var/run/chrony/chronyd.sock"}}};
 
@@ -467,7 +522,7 @@ static int request_reply(CMD_Request *request, CMD_Reply *reply, int requested_r
     return 1;
 }
 
-static std::tuple<std::vector<ChronySourceData>, bool> process_cmd_sources()
+static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
 {
     std::vector<ChronySourceData> retVal;
     std::cout << "process_cmd_sources(): enter" << "\n";
@@ -477,7 +532,8 @@ static std::tuple<std::vector<ChronySourceData>, bool> process_cmd_sources()
     uint32_t i, mode, n_sources;
 
     request.command = htons(REQ_N_SOURCES);
-    if (!::chrony::client::request_reply(&request, &reply, RPY_N_SOURCES, 0)) return {retVal, false};
+    if (!::chrony::client::request_reply(&request, &reply, RPY_N_SOURCES, 0))
+        return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), retVal};
 
     n_sources = ntohl(reply.data.n_sources.n_sources);
     std::cout << "process_cmd_sources(): n_sources: " << n_sources << "\n";
@@ -486,7 +542,8 @@ static std::tuple<std::vector<ChronySourceData>, bool> process_cmd_sources()
     {
         request.command = htons(REQ_SOURCE_DATA);
         request.data.source_data.index = htonl(i);
-        if (!::chrony::client::request_reply(&request, &reply, RPY_SOURCE_DATA, 0)) return {retVal, false};
+        if (!::chrony::client::request_reply(&request, &reply, RPY_SOURCE_DATA, 0))
+            return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), retVal};
 
         ::chrony::util::UTI_IPNetworkToHost(&reply.data.source_data.ip_addr, &ip_addr);
         std::cout << "process_cmd_sources(): source i: " << i << " ip_addr.addr.in4: " << ::chrony::util::UTI_IPToString(&ip_addr) << "\n";
@@ -503,12 +560,11 @@ static std::tuple<std::vector<ChronySourceData>, bool> process_cmd_sources()
         if (ip_addr.family == IPADDR_ID) continue;
     }
 
-    return {retVal, true};
+    return {1, std::nullopt, retVal};
 }
 
-static int process_cmd_add_source(const AddServersData &data)
+static ChronyCallResult process_cmd_add_source(const AddServersData &data)
 {
-    int result = 0;
     CMD_Request request;
     CMD_Reply reply;
 
@@ -550,9 +606,12 @@ static int process_cmd_add_source(const AddServersData &data)
     request.data.ntp_source.max_delay_quant = ::chrony::util::UTI_FloatHostToNetwork(0.0);
     memset(request.data.ntp_source.reserved, 0, sizeof(request.data.ntp_source.reserved));
 
-    result = ::chrony::client::request_reply(&request, &reply, RPY_NULL, 1);
+    if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1))
+    {
+        return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
+    }
 
-    return result;
+    return {1, std::nullopt};
 }
 
 static int parse_source_address(const char *word, IPAddr *address)
@@ -564,9 +623,8 @@ static int parse_source_address(const char *word, IPAddr *address)
     return 0;
 }
 
-static int process_cmd_delete(const std::string &serverAddress)
+static ChronyCallResult process_cmd_delete(const std::string &serverAddress)
 {
-    int result = 0;
     IPAddr address;
     CMD_Request request;
     CMD_Reply reply;
@@ -575,23 +633,24 @@ static int process_cmd_delete(const std::string &serverAddress)
     if (!::chrony::client::parse_source_address(serverAddress.c_str(), &address))
     {
         std::cerr << "process_cmd_delete(): Could not parse serverAddress" << "\n";
-        result = 0;
-        return result;
+        return {0, "Error: Could not parse server address"};
     }
     else { chrony::util::UTI_IPHostToNetwork(&address, &request.data.del_source.ip_addr); }
-    result = ::chrony::client::request_reply(&request, &reply, RPY_NULL, 1);
-    return result;
+    if (::chrony::client::request_reply(&request, &reply, RPY_NULL, 1)) { return {1, std::nullopt}; }
+    else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
 }
 
-static bool process_cmd_clear_manual_list()
+static ChronyCallResult process_cmd_clear_manual_list()
 {
     CMD_Request request;
     CMD_Reply reply;
     std::uint32_t n_samples;
-    bool result = true;
 
     request.command = htons(REQ_MANUAL_LIST);
-    if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0)) result = false;
+    if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0))
+    {
+        return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
+    };
 
     n_samples = ntohl(reply.data.manual_list.n_samples);
 
@@ -600,12 +659,15 @@ static bool process_cmd_clear_manual_list()
         request.command = htons(REQ_MANUAL_DELETE);
         // always delete the first element as elements get reordered after one is deleted
         request.data.manual_delete.index = htonl(0);
-        if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1)) { result = false; }
+        if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1))
+        {
+            return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
+        }
     }
-    return result;
+    return {1, std::nullopt};
 }
 
-static std::tuple<std::vector<std::string>, bool> process_cmd_manual_list()
+static ChronyCallResultT<std::vector<std::string>> process_cmd_manual_list()
 {
     CMD_Request request;
     CMD_Reply reply;
@@ -615,7 +677,10 @@ static std::tuple<std::vector<std::string>, bool> process_cmd_manual_list()
     std::vector<std::string> result;
 
     request.command = htons(REQ_MANUAL_LIST);
-    if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0)) return {result, false};
+    if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0))
+    {
+        return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), result};
+    }
 
     n_samples = ntohl(reply.data.manual_list.n_samples);
 
@@ -626,10 +691,10 @@ static std::tuple<std::vector<std::string>, bool> process_cmd_manual_list()
         result.push_back(::chrony::util::UTI_TimeToLogForm(when.tv_sec));
     }
 
-    return {result, true};
+    return {1, std::nullopt, result};
 }
 
-static int process_cmd_settime(const std::string &newTimeString)
+static ChronyCallResult process_cmd_settime(const std::string &newTimeString)
 {
     struct timespec ts;
     time_t new_time;
@@ -644,7 +709,11 @@ static int process_cmd_settime(const std::string &newTimeString)
     std::cout << "Setting time to: " << timeTemp.tm_hour << ":" << timeTemp.tm_min << ":" << timeTemp.tm_sec << "\n";
     new_time = mktime(&timeTemp);
 
-    if (new_time == -1) { printf("510 - Could not parse date string\n"); }
+    if (new_time == -1)
+    {
+        printf("510 - Could not parse date string\n");
+        return {0, "Error: Could not parse date string"};
+    }
     else
     {
         ts.tv_sec = new_time;
@@ -657,10 +726,10 @@ static int process_cmd_settime(const std::string &newTimeString)
             dfreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.dfreq_ppm);
             new_afreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.new_afreq_ppm);
             printf("Clock was %.2f seconds fast.  Frequency change = %.2fppm, new frequency = %.2fppm\n", offset, dfreq_ppm, new_afreq_ppm);
-            return 1;
+            return {1, std::nullopt};
         }
+        else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
     }
-    return 0;
 }
 }  // namespace client
 }  // namespace chrony
