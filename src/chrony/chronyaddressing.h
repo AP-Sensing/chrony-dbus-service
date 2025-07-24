@@ -64,5 +64,4 @@ typedef struct
     int if_index;
     int sock_fd;
 } NTP_Local_Address;
-
 #endif /* GOT_ADDRESSING_H */

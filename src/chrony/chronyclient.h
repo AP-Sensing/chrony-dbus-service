@@ -520,6 +520,12 @@ static int process_cmd_add_source(const AddServersData &data)
     assert(data.name.size() < sizeof(request.data.ntp_source.name));
     strlcpy((char *)request.data.ntp_source.name, data.name.c_str(), data.name.size() + 1);  // strlcopy copies size-1
 
+    // default ipv4
+    std::uint32_t additionalFlags = static_cast<std::uint32_t>(AddServersData::ServerFlags::IPv4);
+
+    // set nts enabled flag if the nts keyId is != 0
+    additionalFlags = additionalFlags | (data.ntsKeyId != 0 ? static_cast<std::uint32_t>(AddServersData::ServerFlags::NTSEnabled) : 0);
+
     request.data.ntp_source.port = htonl(data.port);
     request.data.ntp_source.minpoll = htonl(SRC_DEFAULT_MINPOLL);
     request.data.ntp_source.maxpoll = htonl(SRC_DEFAULT_MAXPOLL);
@@ -538,7 +544,7 @@ static int process_cmd_add_source(const AddServersData &data)
     request.data.ntp_source.min_delay = ::chrony::util::UTI_FloatHostToNetwork(0.0);
     request.data.ntp_source.asymmetry = ::chrony::util::UTI_FloatHostToNetwork(SRC_DEFAULT_ASYMMETRY);
     request.data.ntp_source.offset = ::chrony::util::UTI_FloatHostToNetwork(0.0);
-    request.data.ntp_source.flags = htonl(static_cast<uint32_t>(data.flags));
+    request.data.ntp_source.flags = htonl(static_cast<uint32_t>(data.flags) | additionalFlags);
     request.data.ntp_source.filter_length = htonl(0);
     request.data.ntp_source.cert_set = htonl(data.ntsCertificateSet);
     request.data.ntp_source.max_delay_quant = ::chrony::util::UTI_FloatHostToNetwork(0.0);
@@ -549,24 +555,30 @@ static int process_cmd_add_source(const AddServersData &data)
     return result;
 }
 
+static int parse_source_address(const char *word, IPAddr *address)
+{
+    if (::chrony::util::UTI_StringToIdIP(word, address)) return 1;
+
+    if (::chrony::nameserv::DNS_Name2IPAddress(word, address, 1) == chrony::nameserv::DNS_Success) return 1;
+
+    return 0;
+}
+
 static int process_cmd_delete(const std::string &serverAddress)
 {
     int result = 0;
     IPAddr address;
     CMD_Request request;
     CMD_Reply reply;
-    if (::chrony::util::UTI_StringToIP(serverAddress.c_str(), &address) != 0)
-    {
-        if (::chrony::nameserv::DNS_Name2IPAddress(serverAddress.c_str(), &address, 1) != ::chrony::nameserv::DNS_Success)
-        {
-            std::cerr << "Could not parse serverAddress for process_cmd_delete" << "\n";
-            result = 0;
-            return result;
-        }
-    }
 
     request.command = htons(REQ_DEL_SOURCE);
-    ::chrony::util::UTI_IPHostToNetwork(&address, &request.data.del_source.ip_addr);
+    if (!::chrony::client::parse_source_address(serverAddress.c_str(), &address))
+    {
+        std::cerr << "process_cmd_delete(): Could not parse serverAddress" << "\n";
+        result = 0;
+        return result;
+    }
+    else { chrony::util::UTI_IPHostToNetwork(&address, &request.data.del_source.ip_addr); }
     result = ::chrony::client::request_reply(&request, &reply, RPY_NULL, 1);
     return result;
 }

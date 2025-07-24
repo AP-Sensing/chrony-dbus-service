@@ -43,6 +43,7 @@ struct AddServersData
 {
     enum class ServerFlags : std::uint16_t
     {
+        None = 0x0,
         Online = 0x1,
         AutoOffline = 0x2,
         IBurst = 0x4,
@@ -63,11 +64,11 @@ struct AddServersData
     typedef make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, std::uint32_t, ServerFlags>::type serializer_type;
 
     std::string name;
-    std::uint16_t port;
-    std::uint16_t nts_port;
-    std::uint32_t ntsKeyId;
-    std::uint32_t ntsCertificateSet;
-    ServerFlags flags;
+    std::uint16_t port = 123;
+    std::uint16_t nts_port = 4460;
+    std::uint32_t ntsKeyId = 0;
+    std::uint32_t ntsCertificateSet = 0;
+    ServerFlags flags = ServerFlags::Online;
 };
 
 namespace org::freedesktop
