@@ -1,19 +1,14 @@
 #include "chronydbusservice.h"
 
-// #include <netdb.h>
-// #include <resolv.h>
 #include <netinet/in.h>
-
-// #include <algorithm>
-// #include <cstdint>
-#include <cstdint>
-#include <ctime>
-#include <iostream>
-#include <string>
-// #include <random>
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
 
+#include <cstdint>
+#include <ctime>
+#include <format>
+#include <iostream>
+#include <string>
 #include <vector>
 
 #include "../chrony/chronycandm.h"
