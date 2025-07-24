@@ -1,0 +1,43 @@
+---
+BasedOnStyle: Google
+AllowShortBlocksOnASingleLine: Always
+AlwaysBreakTemplateDeclarations: No
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: MultiLine
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: true
+  BeforeWhile: true
+  IndentBraces: true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Allman
+BreakInheritanceList: AfterComma
+ColumnLimit: 140
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+IndentWidth: 4
+PackConstructorInitializers: Never
+PenaltyBreakBeforeFirstCallParameter: 10
+PenaltyBreakOpenParenthesis: 100
+TabWidth: 4
+IncludeCategories:
+  - Regex:           '^((<|")(gtest|gmock|isl|json)/)'
+    Priority:        1
+  - Regex:           '^<[a-zA-Z0-9\/_]+(\.h|\.hpp)>'
+    Priority:        2
+  - Regex:           '^<[a-zA-Z0-9\/_]+>'
+    Priority:        3
+  - Regex:           '.*'
+    Priority:        4
+    SortPriority:    0

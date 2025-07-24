@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<suppressions>
+    <!-- Exclude Paths -->
+    <suppress>
+        <id>*</id>
+        <fileName>*/build/*</fileName>
+    </suppress>
+</suppressions>
