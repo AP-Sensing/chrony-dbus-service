@@ -1,11 +1,15 @@
 #ifndef CHRONYDBUSSERVICE_H
 #define CHRONYDBUSSERVICE_H
 
+#include <simppl/dispatcher.h>
+#include <simppl/skeleton.h>
 
-class ChronyDBusService
+#include "dbusinterface.h"
+
+class ChronyDBusService : simppl::dbus::Skeleton<org::freedesktop::ChronyDBus>
 {
-public:
-    ChronyDBusService();
+   public:
+    ChronyDBusService(simppl::dbus::Dispatcher &disp);
 };
 
-#endif // CHRONYDBUSSERVICE_H
+#endif  // CHRONYDBUSSERVICE_H

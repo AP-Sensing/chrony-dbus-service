@@ -1,8 +1,1 @@
-#include "chronydbustest.h"
-
-
-
-ChronyDBusTest::ChronyDBusTest()
-{
-
-}
+// #include "chronydbustest.h"

@@ -113,149 +113,172 @@
 #define N_REQUEST_TYPES 75
 
 /* Structure used to exchange timespecs independent of time_t size */
-typedef struct {
-  uint32_t tv_sec_high;
-  uint32_t tv_sec_low;
-  uint32_t tv_nsec;
+typedef struct
+{
+    uint32_t tv_sec_high;
+    uint32_t tv_sec_low;
+    uint32_t tv_nsec;
 } Timespec;
 
 /* This is used in tv_sec_high for 32-bit timestamps */
 #define TV_NOHIGHSEC 0x7fffffff
 
 /* Structure for 64-bit integers (not requiring 64-bit alignment) */
-typedef struct {
-  uint32_t high;
-  uint32_t low;
+typedef struct
+{
+    uint32_t high;
+    uint32_t low;
 } Integer64;
 
 /* 32-bit floating-point format consisting of 7-bit signed exponent
    and 25-bit signed coefficient without hidden bit.
    The result is calculated as: 2^(exp - 25) * coef */
-typedef struct {
-  int32_t f;
+typedef struct
+{
+    int32_t f;
 } Float;
 
 /* The EOR (end of record) fields are used by the offsetof operator in
    pktlength.c, to get the number of bytes that ought to be
    transmitted for each packet type. */
 
-typedef struct {
-  int32_t EOR;
+typedef struct
+{
+    int32_t EOR;
 } REQ_Null;
 
-typedef struct {
-  IPAddr mask;
-  IPAddr address;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr mask;
+    IPAddr address;
+    int32_t EOR;
 } REQ_Online;
 
-typedef struct {
-  IPAddr mask;
-  IPAddr address;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr mask;
+    IPAddr address;
+    int32_t EOR;
 } REQ_Offline;
 
-typedef struct {
-  IPAddr mask;
-  IPAddr address;
-  int32_t n_good_samples;
-  int32_t n_total_samples;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr mask;
+    IPAddr address;
+    int32_t n_good_samples;
+    int32_t n_total_samples;
+    int32_t EOR;
 } REQ_Burst;
 
-typedef struct {
-  IPAddr address;
-  int32_t new_minpoll;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    int32_t new_minpoll;
+    int32_t EOR;
 } REQ_Modify_Minpoll;
 
-typedef struct {
-  IPAddr address;
-  int32_t new_maxpoll;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    int32_t new_maxpoll;
+    int32_t EOR;
 } REQ_Modify_Maxpoll;
 
-typedef struct {
-  int32_t pad;
-  int32_t EOR;
+typedef struct
+{
+    int32_t pad;
+    int32_t EOR;
 } REQ_Dump;
 
-typedef struct {
-  IPAddr address;
-  Float new_max_delay;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    Float new_max_delay;
+    int32_t EOR;
 } REQ_Modify_Maxdelay;
 
-typedef struct {
-  IPAddr address;
-  Float new_max_delay_ratio;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    Float new_max_delay_ratio;
+    int32_t EOR;
 } REQ_Modify_Maxdelayratio;
 
-typedef struct {
-  IPAddr address;
-  Float new_max_delay_dev_ratio;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    Float new_max_delay_dev_ratio;
+    int32_t EOR;
 } REQ_Modify_Maxdelaydevratio;
 
-typedef struct {
-  IPAddr address;
-  int32_t new_min_stratum;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    int32_t new_min_stratum;
+    int32_t EOR;
 } REQ_Modify_Minstratum;
 
-typedef struct {
-  IPAddr address;
-  int32_t new_poll_target;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    int32_t new_poll_target;
+    int32_t EOR;
 } REQ_Modify_Polltarget;
 
-typedef struct {
-  Float new_max_update_skew;
-  int32_t EOR;
+typedef struct
+{
+    Float new_max_update_skew;
+    int32_t EOR;
 } REQ_Modify_Maxupdateskew;
 
-typedef struct {
-  int32_t limit;
-  Float threshold;
-  int32_t EOR;
+typedef struct
+{
+    int32_t limit;
+    Float threshold;
+    int32_t EOR;
 } REQ_Modify_Makestep;
 
-typedef struct {
-  Timespec ts;
-  int32_t EOR;
+typedef struct
+{
+    Timespec ts;
+    int32_t EOR;
 } REQ_Settime;
 
-typedef struct {
-  int32_t on_off;
-  int32_t stratum;
-  Float distance;
-  int32_t orphan;
-  Float activate;
-  Float wait_synced;
-  Float wait_unsynced;
-  int32_t EOR;
+typedef struct
+{
+    int32_t on_off;
+    int32_t stratum;
+    Float distance;
+    int32_t orphan;
+    Float activate;
+    Float wait_synced;
+    Float wait_unsynced;
+    int32_t EOR;
 } REQ_Local;
 
-typedef struct {
-  int32_t option;
-  int32_t EOR;
+typedef struct
+{
+    int32_t option;
+    int32_t EOR;
 } REQ_Manual;
 
-typedef struct {
-  int32_t index;
-  int32_t EOR;
+typedef struct
+{
+    int32_t index;
+    int32_t EOR;
 } REQ_Source_Data;
 
-typedef struct {
-  IPAddr ip;
-  int32_t subnet_bits;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr ip;
+    int32_t subnet_bits;
+    int32_t EOR;
 } REQ_Allow_Deny;
 
-typedef struct {
-  IPAddr ip;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr ip;
+    int32_t EOR;
 } REQ_Ac_Check;
 
 /* Source types in NTP source requests */
@@ -280,119 +303,134 @@ typedef struct {
 #define REQ_ADDSRC_IPV4 0x2000
 #define REQ_ADDSRC_IPV6 0x4000
 
-typedef struct {
-  uint32_t type;
-  uint8_t name[256];
-  uint32_t port;
-  int32_t minpoll;
-  int32_t maxpoll;
-  int32_t presend_minpoll;
-  uint32_t min_stratum;
-  uint32_t poll_target;
-  uint32_t version;
-  uint32_t max_sources;
-  int32_t min_samples;
-  int32_t max_samples;
-  uint32_t authkey;
-  uint32_t nts_port;
-  Float max_delay;
-  Float max_delay_ratio;
-  Float max_delay_dev_ratio;
-  Float min_delay;
-  Float asymmetry;
-  Float offset;
-  uint32_t flags;
-  int32_t filter_length;
-  uint32_t cert_set;
-  Float max_delay_quant;
-  uint32_t reserved[1];
-  int32_t EOR;
+typedef struct
+{
+    uint32_t type;
+    uint8_t name[256];
+    uint32_t port;
+    int32_t minpoll;
+    int32_t maxpoll;
+    int32_t presend_minpoll;
+    uint32_t min_stratum;
+    uint32_t poll_target;
+    uint32_t version;
+    uint32_t max_sources;
+    int32_t min_samples;
+    int32_t max_samples;
+    uint32_t authkey;
+    uint32_t nts_port;
+    Float max_delay;
+    Float max_delay_ratio;
+    Float max_delay_dev_ratio;
+    Float min_delay;
+    Float asymmetry;
+    Float offset;
+    uint32_t flags;
+    int32_t filter_length;
+    uint32_t cert_set;
+    Float max_delay_quant;
+    uint32_t reserved[1];
+    int32_t EOR;
 } REQ_NTP_Source;
 
-typedef struct {
-  IPAddr ip_addr;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr ip_addr;
+    int32_t EOR;
 } REQ_Del_Source;
 
-typedef struct {
-  Float dfreq;
-  int32_t EOR;
+typedef struct
+{
+    Float dfreq;
+    int32_t EOR;
 } REQ_Dfreq;
 
-typedef struct {
-  Float doffset;
-  int32_t EOR;
+typedef struct
+{
+    Float doffset;
+    int32_t EOR;
 } REQ_Doffset;
 
-typedef struct {
-  uint32_t index;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t index;
+    int32_t EOR;
 } REQ_Sourcestats;
 
 /* This is based on the response size rather than the
    request size */
 #define MAX_CLIENT_ACCESSES 8
 
-typedef struct {
-  uint32_t first_index;
-  uint32_t n_clients;
-  uint32_t min_hits;
-  uint32_t reset;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t first_index;
+    uint32_t n_clients;
+    uint32_t min_hits;
+    uint32_t reset;
+    int32_t EOR;
 } REQ_ClientAccessesByIndex;
 
-typedef struct {
-  int32_t index;
-  int32_t EOR;
+typedef struct
+{
+    int32_t index;
+    int32_t EOR;
 } REQ_ManualDelete;
 
-typedef struct {
-  Float distance;
-  int32_t EOR;
+typedef struct
+{
+    Float distance;
+    int32_t EOR;
 } REQ_ReselectDistance;
 
 #define REQ_SMOOTHTIME_RESET 0
 #define REQ_SMOOTHTIME_ACTIVATE 1
 
-typedef struct {
-  int32_t option;
-  int32_t EOR;
+typedef struct
+{
+    int32_t option;
+    int32_t EOR;
 } REQ_SmoothTime;
 
-typedef struct {
-  IPAddr ip_addr;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr ip_addr;
+    int32_t EOR;
 } REQ_NTPData;
 
-typedef struct {
-  IPAddr ip_addr;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr ip_addr;
+    int32_t EOR;
 } REQ_NTPSourceName;
 
-typedef struct {
-  IPAddr ip_addr;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr ip_addr;
+    int32_t EOR;
 } REQ_AuthData;
 
-typedef struct {
-  uint32_t index;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t index;
+    int32_t EOR;
 } REQ_SelectData;
 
 /* Mask and options reuse the REQ_ADDSRC flags */
-typedef struct {
-  IPAddr address;
-  uint32_t ref_id;
-  uint32_t mask;
-  uint32_t options;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    uint32_t ref_id;
+    uint32_t mask;
+    uint32_t options;
+    int32_t EOR;
 } REQ_Modify_SelectOpts;
 
-typedef struct {
-  IPAddr address;
-  uint32_t ref_id;
-  Float new_offset;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr address;
+    uint32_t ref_id;
+    Float new_offset;
+    int32_t EOR;
 } REQ_Modify_Offset;
 
 /* ================================================== */
@@ -453,60 +491,62 @@ typedef struct {
 
 /* ================================================== */
 
-typedef struct {
-  uint8_t version; /* Protocol version */
-  uint8_t pkt_type; /* What sort of packet this is */
-  uint8_t res1;
-  uint8_t res2;
-  uint16_t command; /* Which command is being issued */
-  uint16_t attempt; /* How many resends the client has done
-                             (count up from zero for same sequence
-                             number) */
-  uint32_t sequence; /* Client's sequence number */
-  uint32_t pad1;
-  uint32_t pad2;
+typedef struct
+{
+    uint8_t version;  /* Protocol version */
+    uint8_t pkt_type; /* What sort of packet this is */
+    uint8_t res1;
+    uint8_t res2;
+    uint16_t command;  /* Which command is being issued */
+    uint16_t attempt;  /* How many resends the client has done
+                                (count up from zero for same sequence
+                                number) */
+    uint32_t sequence; /* Client's sequence number */
+    uint32_t pad1;
+    uint32_t pad2;
 
-  union {
-    REQ_Null null;
-    REQ_Online online;
-    REQ_Offline offline;
-    REQ_Burst burst;
-    REQ_Modify_Minpoll modify_minpoll;
-    REQ_Modify_Maxpoll modify_maxpoll;
-    REQ_Dump dump;
-    REQ_Modify_Maxdelay modify_maxdelay;
-    REQ_Modify_Maxdelayratio modify_maxdelayratio;
-    REQ_Modify_Maxdelaydevratio modify_maxdelaydevratio;
-    REQ_Modify_Minstratum modify_minstratum;
-    REQ_Modify_Polltarget modify_polltarget;
-    REQ_Modify_Maxupdateskew modify_maxupdateskew;
-    REQ_Modify_Makestep modify_makestep;
-    REQ_Settime settime;
-    REQ_Local local;
-    REQ_Manual manual;
-    REQ_Source_Data source_data;
-    REQ_Allow_Deny allow_deny;
-    REQ_Ac_Check ac_check;
-    REQ_NTP_Source ntp_source;
-    REQ_Del_Source del_source;
-    REQ_Dfreq dfreq;
-    REQ_Doffset doffset;
-    REQ_Sourcestats sourcestats;
-    REQ_ClientAccessesByIndex client_accesses_by_index;
-    REQ_ManualDelete manual_delete;
-    REQ_ReselectDistance reselect_distance;
-    REQ_SmoothTime smoothtime;
-    REQ_NTPData ntp_data;
-    REQ_NTPSourceName ntp_source_name;
-    REQ_AuthData auth_data;
-    REQ_SelectData select_data;
-    REQ_Modify_SelectOpts modify_select_opts;
-    REQ_Modify_Offset modify_offset;
-  } data; /* Command specific parameters */
+    union
+    {
+        REQ_Null null;
+        REQ_Online online;
+        REQ_Offline offline;
+        REQ_Burst burst;
+        REQ_Modify_Minpoll modify_minpoll;
+        REQ_Modify_Maxpoll modify_maxpoll;
+        REQ_Dump dump;
+        REQ_Modify_Maxdelay modify_maxdelay;
+        REQ_Modify_Maxdelayratio modify_maxdelayratio;
+        REQ_Modify_Maxdelaydevratio modify_maxdelaydevratio;
+        REQ_Modify_Minstratum modify_minstratum;
+        REQ_Modify_Polltarget modify_polltarget;
+        REQ_Modify_Maxupdateskew modify_maxupdateskew;
+        REQ_Modify_Makestep modify_makestep;
+        REQ_Settime settime;
+        REQ_Local local;
+        REQ_Manual manual;
+        REQ_Source_Data source_data;
+        REQ_Allow_Deny allow_deny;
+        REQ_Ac_Check ac_check;
+        REQ_NTP_Source ntp_source;
+        REQ_Del_Source del_source;
+        REQ_Dfreq dfreq;
+        REQ_Doffset doffset;
+        REQ_Sourcestats sourcestats;
+        REQ_ClientAccessesByIndex client_accesses_by_index;
+        REQ_ManualDelete manual_delete;
+        REQ_ReselectDistance reselect_distance;
+        REQ_SmoothTime smoothtime;
+        REQ_NTPData ntp_data;
+        REQ_NTPSourceName ntp_source_name;
+        REQ_AuthData auth_data;
+        REQ_SelectData select_data;
+        REQ_Modify_SelectOpts modify_select_opts;
+        REQ_Modify_Offset modify_offset;
+    } data; /* Command specific parameters */
 
-  /* Padding used to prevent traffic amplification.  It only defines the
-     maximum size of the packet, there is no hole after the data field. */
-  uint8_t padding[MAX_PADDING_LENGTH];
+    /* Padding used to prevent traffic amplification.  It only defines the
+       maximum size of the packet, there is no hole after the data field. */
+    uint8_t padding[MAX_PADDING_LENGTH];
 
 } CMD_Request;
 
@@ -564,18 +604,20 @@ typedef struct {
 #define STT_BADPKTLENGTH 19
 #define STT_INVALIDNAME 21
 
-typedef struct {
-  int32_t EOR;
+typedef struct
+{
+    int32_t EOR;
 } RPY_Null;
 
-typedef struct {
-  uint32_t n_sources;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t n_sources;
+    int32_t EOR;
 } RPY_N_Sources;
 
 #define RPY_SD_MD_CLIENT 0
-#define RPY_SD_MD_PEER   1
-#define RPY_SD_MD_REF    2
+#define RPY_SD_MD_PEER 1
+#define RPY_SD_MD_REF 2
 
 #define RPY_SD_ST_SELECTED 0
 #define RPY_SD_ST_NONSELECTABLE 1
@@ -584,213 +626,228 @@ typedef struct {
 #define RPY_SD_ST_UNSELECTED 4
 #define RPY_SD_ST_SELECTABLE 5
 
-typedef struct {
-  IPAddr ip_addr;
-  int16_t poll;
-  uint16_t stratum;
-  uint16_t state;
-  uint16_t mode;
-  uint16_t flags;
-  uint16_t reachability;
-  uint32_t  since_sample;
-  Float orig_latest_meas;
-  Float latest_meas;
-  Float latest_meas_err;
-  int32_t EOR;
+typedef struct
+{
+    IPAddr ip_addr;
+    int16_t poll;
+    uint16_t stratum;
+    uint16_t state;
+    uint16_t mode;
+    uint16_t flags;
+    uint16_t reachability;
+    uint32_t since_sample;
+    Float orig_latest_meas;
+    Float latest_meas;
+    Float latest_meas_err;
+    int32_t EOR;
 } RPY_Source_Data;
 
-typedef struct {
-  uint32_t ref_id;
-  IPAddr ip_addr;
-  uint16_t stratum;
-  uint16_t leap_status;
-  Timespec ref_time;
-  Float current_correction;
-  Float last_offset;
-  Float rms_offset;
-  Float freq_ppm;
-  Float resid_freq_ppm;
-  Float skew_ppm;
-  Float root_delay;
-  Float root_dispersion;
-  Float last_update_interval;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t ref_id;
+    IPAddr ip_addr;
+    uint16_t stratum;
+    uint16_t leap_status;
+    Timespec ref_time;
+    Float current_correction;
+    Float last_offset;
+    Float rms_offset;
+    Float freq_ppm;
+    Float resid_freq_ppm;
+    Float skew_ppm;
+    Float root_delay;
+    Float root_dispersion;
+    Float last_update_interval;
+    int32_t EOR;
 } RPY_Tracking;
 
-typedef struct {
-  uint32_t ref_id;
-  IPAddr ip_addr;
-  uint32_t n_samples;
-  uint32_t n_runs;
-  uint32_t span_seconds;
-  Float sd;
-  Float resid_freq_ppm;
-  Float skew_ppm;
-  Float est_offset;
-  Float est_offset_err;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t ref_id;
+    IPAddr ip_addr;
+    uint32_t n_samples;
+    uint32_t n_runs;
+    uint32_t span_seconds;
+    Float sd;
+    Float resid_freq_ppm;
+    Float skew_ppm;
+    Float est_offset;
+    Float est_offset_err;
+    int32_t EOR;
 } RPY_Sourcestats;
 
-typedef struct {
-  Timespec ref_time;
-  uint16_t n_samples;
-  uint16_t n_runs;
-  uint32_t span_seconds;
-  Float rtc_seconds_fast;
-  Float rtc_gain_rate_ppm;
-  int32_t EOR;
+typedef struct
+{
+    Timespec ref_time;
+    uint16_t n_samples;
+    uint16_t n_runs;
+    uint32_t span_seconds;
+    Float rtc_seconds_fast;
+    Float rtc_gain_rate_ppm;
+    int32_t EOR;
 } RPY_Rtc;
 
-typedef struct {
-  Float offset;
-  Float dfreq_ppm;
-  Float new_afreq_ppm;
-  int32_t EOR;
+typedef struct
+{
+    Float offset;
+    Float dfreq_ppm;
+    Float new_afreq_ppm;
+    int32_t EOR;
 } RPY_ManualTimestamp;
 
-typedef struct {
-  IPAddr ip;
-  uint32_t ntp_hits;
-  uint32_t nke_hits;
-  uint32_t cmd_hits;
-  uint32_t ntp_drops;
-  uint32_t nke_drops;
-  uint32_t cmd_drops;
-  int8_t ntp_interval;
-  int8_t nke_interval;
-  int8_t cmd_interval;
-  int8_t ntp_timeout_interval;
-  uint32_t last_ntp_hit_ago;
-  uint32_t last_nke_hit_ago;
-  uint32_t last_cmd_hit_ago;
+typedef struct
+{
+    IPAddr ip;
+    uint32_t ntp_hits;
+    uint32_t nke_hits;
+    uint32_t cmd_hits;
+    uint32_t ntp_drops;
+    uint32_t nke_drops;
+    uint32_t cmd_drops;
+    int8_t ntp_interval;
+    int8_t nke_interval;
+    int8_t cmd_interval;
+    int8_t ntp_timeout_interval;
+    uint32_t last_ntp_hit_ago;
+    uint32_t last_nke_hit_ago;
+    uint32_t last_cmd_hit_ago;
 } RPY_ClientAccesses_Client;
 
-typedef struct {
-  uint32_t n_indices;      /* how many indices there are in the server's table */
-  uint32_t next_index;     /* the index 1 beyond those processed on this call */
-  uint32_t n_clients;      /* the number of valid entries in the following array */
-  RPY_ClientAccesses_Client clients[MAX_CLIENT_ACCESSES];
-  int32_t EOR;
+typedef struct
+{
+    uint32_t n_indices;  /* how many indices there are in the server's table */
+    uint32_t next_index; /* the index 1 beyond those processed on this call */
+    uint32_t n_clients;  /* the number of valid entries in the following array */
+    RPY_ClientAccesses_Client clients[MAX_CLIENT_ACCESSES];
+    int32_t EOR;
 } RPY_ClientAccessesByIndex;
 
-typedef struct {
-  Integer64 ntp_hits;
-  Integer64 nke_hits;
-  Integer64 cmd_hits;
-  Integer64 ntp_drops;
-  Integer64 nke_drops;
-  Integer64 cmd_drops;
-  Integer64 log_drops;
-  Integer64 ntp_auth_hits;
-  Integer64 ntp_interleaved_hits;
-  Integer64 ntp_timestamps;
-  Integer64 ntp_span_seconds;
-  Integer64 ntp_daemon_rx_timestamps;
-  Integer64 ntp_daemon_tx_timestamps;
-  Integer64 ntp_kernel_rx_timestamps;
-  Integer64 ntp_kernel_tx_timestamps;
-  Integer64 ntp_hw_rx_timestamps;
-  Integer64 ntp_hw_tx_timestamps;
-  Integer64 reserved[4];
-  int32_t EOR;
+typedef struct
+{
+    Integer64 ntp_hits;
+    Integer64 nke_hits;
+    Integer64 cmd_hits;
+    Integer64 ntp_drops;
+    Integer64 nke_drops;
+    Integer64 cmd_drops;
+    Integer64 log_drops;
+    Integer64 ntp_auth_hits;
+    Integer64 ntp_interleaved_hits;
+    Integer64 ntp_timestamps;
+    Integer64 ntp_span_seconds;
+    Integer64 ntp_daemon_rx_timestamps;
+    Integer64 ntp_daemon_tx_timestamps;
+    Integer64 ntp_kernel_rx_timestamps;
+    Integer64 ntp_kernel_tx_timestamps;
+    Integer64 ntp_hw_rx_timestamps;
+    Integer64 ntp_hw_tx_timestamps;
+    Integer64 reserved[4];
+    int32_t EOR;
 } RPY_ServerStats;
 
 #define MAX_MANUAL_LIST_SAMPLES 16
 
-typedef struct {
-  Timespec when;
-  Float slewed_offset;
-  Float orig_offset;
-  Float residual;
+typedef struct
+{
+    Timespec when;
+    Float slewed_offset;
+    Float orig_offset;
+    Float residual;
 } RPY_ManualListSample;
 
-typedef struct {
-  uint32_t n_samples;
-  RPY_ManualListSample samples[MAX_MANUAL_LIST_SAMPLES];
-  int32_t EOR;
+typedef struct
+{
+    uint32_t n_samples;
+    RPY_ManualListSample samples[MAX_MANUAL_LIST_SAMPLES];
+    int32_t EOR;
 } RPY_ManualList;
 
-typedef struct {
-  int32_t online;
-  int32_t offline;
-  int32_t burst_online;
-  int32_t burst_offline;
-  int32_t unresolved;
-  int32_t EOR;
+typedef struct
+{
+    int32_t online;
+    int32_t offline;
+    int32_t burst_online;
+    int32_t burst_offline;
+    int32_t unresolved;
+    int32_t EOR;
 } RPY_Activity;
 
 #define RPY_SMT_FLAG_ACTIVE 0x1
 #define RPY_SMT_FLAG_LEAPONLY 0x2
 
-typedef struct {
-  uint32_t flags;
-  Float offset;
-  Float freq_ppm;
-  Float wander_ppm;
-  Float last_update_ago;
-  Float remaining_time;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t flags;
+    Float offset;
+    Float freq_ppm;
+    Float wander_ppm;
+    Float last_update_ago;
+    Float remaining_time;
+    int32_t EOR;
 } RPY_Smoothing;
 
 #define RPY_NTP_FLAGS_TESTS 0x3ff
 #define RPY_NTP_FLAG_INTERLEAVED 0x4000
 #define RPY_NTP_FLAG_AUTHENTICATED 0x8000
 
-typedef struct {
-  IPAddr remote_addr;
-  IPAddr local_addr;
-  uint16_t remote_port;
-  uint8_t leap;
-  uint8_t version;
-  uint8_t mode;
-  uint8_t stratum;
-  int8_t poll;
-  int8_t precision;
-  Float root_delay;
-  Float root_dispersion;
-  uint32_t ref_id;
-  Timespec ref_time;
-  Float offset;
-  Float peer_delay;
-  Float peer_dispersion;
-  Float response_time;
-  Float jitter_asymmetry;
-  uint16_t flags;
-  uint8_t tx_tss_char;
-  uint8_t rx_tss_char;
-  uint32_t total_tx_count;
-  uint32_t total_rx_count;
-  uint32_t total_valid_count;
-  uint32_t total_good_count;
-  uint32_t total_kernel_tx_ts;
-  uint32_t total_kernel_rx_ts;
-  uint32_t total_hw_tx_ts;
-  uint32_t total_hw_rx_ts;
-  uint32_t reserved[4];
-  int32_t EOR;
+typedef struct
+{
+    IPAddr remote_addr;
+    IPAddr local_addr;
+    uint16_t remote_port;
+    uint8_t leap;
+    uint8_t version;
+    uint8_t mode;
+    uint8_t stratum;
+    int8_t poll;
+    int8_t precision;
+    Float root_delay;
+    Float root_dispersion;
+    uint32_t ref_id;
+    Timespec ref_time;
+    Float offset;
+    Float peer_delay;
+    Float peer_dispersion;
+    Float response_time;
+    Float jitter_asymmetry;
+    uint16_t flags;
+    uint8_t tx_tss_char;
+    uint8_t rx_tss_char;
+    uint32_t total_tx_count;
+    uint32_t total_rx_count;
+    uint32_t total_valid_count;
+    uint32_t total_good_count;
+    uint32_t total_kernel_tx_ts;
+    uint32_t total_kernel_rx_ts;
+    uint32_t total_hw_tx_ts;
+    uint32_t total_hw_rx_ts;
+    uint32_t reserved[4];
+    int32_t EOR;
 } RPY_NTPData;
 
-typedef struct {
-  uint8_t name[256];
-  int32_t EOR;
+typedef struct
+{
+    uint8_t name[256];
+    int32_t EOR;
 } RPY_NTPSourceName;
 
 #define RPY_AD_MD_NONE 0
 #define RPY_AD_MD_SYMMETRIC 1
 #define RPY_AD_MD_NTS 2
 
-typedef struct {
-  uint16_t mode;
-  uint16_t key_type;
-  uint32_t key_id;
-  uint16_t key_length;
-  uint16_t ke_attempts;
-  uint32_t last_ke_ago;
-  uint16_t cookies;
-  uint16_t cookie_length;
-  uint16_t nak;
-  uint16_t pad;
-  int32_t EOR;
+typedef struct
+{
+    uint16_t mode;
+    uint16_t key_type;
+    uint32_t key_id;
+    uint16_t key_length;
+    uint16_t ke_attempts;
+    uint32_t last_ke_ago;
+    uint16_t cookies;
+    uint16_t cookie_length;
+    uint16_t nak;
+    uint16_t pad;
+    int32_t EOR;
 } RPY_AuthData;
 
 #define RPY_SD_OPTION_NOSELECT 0x1
@@ -798,55 +855,58 @@ typedef struct {
 #define RPY_SD_OPTION_TRUST 0x4
 #define RPY_SD_OPTION_REQUIRE 0x8
 
-typedef struct {
-  uint32_t ref_id;
-  IPAddr ip_addr;
-  uint8_t state_char;
-  uint8_t authentication;
-  uint8_t leap;
-  uint8_t pad;
-  uint16_t conf_options;
-  uint16_t eff_options;
-  uint32_t last_sample_ago;
-  Float score;
-  Float lo_limit;
-  Float hi_limit;
-  int32_t EOR;
+typedef struct
+{
+    uint32_t ref_id;
+    IPAddr ip_addr;
+    uint8_t state_char;
+    uint8_t authentication;
+    uint8_t leap;
+    uint8_t pad;
+    uint16_t conf_options;
+    uint16_t eff_options;
+    uint32_t last_sample_ago;
+    Float score;
+    Float lo_limit;
+    Float hi_limit;
+    int32_t EOR;
 } RPY_SelectData;
 
-typedef struct {
-  uint8_t version;
-  uint8_t pkt_type;
-  uint8_t res1;
-  uint8_t res2;
-  uint16_t command; /* Which command is being replied to */
-  uint16_t reply; /* Which format of reply this is */
-  uint16_t status; /* Status of command processing */
-  uint16_t pad1; /* Padding for compatibility and 4 byte alignment */
-  uint16_t pad2;
-  uint16_t pad3;
-  uint32_t sequence; /* Echo of client's sequence number */
-  uint32_t pad4;
-  uint32_t pad5;
+typedef struct
+{
+    uint8_t version;
+    uint8_t pkt_type;
+    uint8_t res1;
+    uint8_t res2;
+    uint16_t command; /* Which command is being replied to */
+    uint16_t reply;   /* Which format of reply this is */
+    uint16_t status;  /* Status of command processing */
+    uint16_t pad1;    /* Padding for compatibility and 4 byte alignment */
+    uint16_t pad2;
+    uint16_t pad3;
+    uint32_t sequence; /* Echo of client's sequence number */
+    uint32_t pad4;
+    uint32_t pad5;
 
-  union {
-    RPY_Null null;
-    RPY_N_Sources n_sources;
-    RPY_Source_Data source_data;
-    RPY_ManualTimestamp manual_timestamp;
-    RPY_Tracking tracking;
-    RPY_Sourcestats sourcestats;
-    RPY_Rtc rtc;
-    RPY_ClientAccessesByIndex client_accesses_by_index;
-    RPY_ServerStats server_stats;
-    RPY_ManualList manual_list;
-    RPY_Activity activity;
-    RPY_Smoothing smoothing;
-    RPY_NTPData ntp_data;
-    RPY_NTPSourceName ntp_source_name;
-    RPY_AuthData auth_data;
-    RPY_SelectData select_data;
-  } data; /* Reply specific parameters */
+    union
+    {
+        RPY_Null null;
+        RPY_N_Sources n_sources;
+        RPY_Source_Data source_data;
+        RPY_ManualTimestamp manual_timestamp;
+        RPY_Tracking tracking;
+        RPY_Sourcestats sourcestats;
+        RPY_Rtc rtc;
+        RPY_ClientAccessesByIndex client_accesses_by_index;
+        RPY_ServerStats server_stats;
+        RPY_ManualList manual_list;
+        RPY_Activity activity;
+        RPY_Smoothing smoothing;
+        RPY_NTPData ntp_data;
+        RPY_NTPSourceName ntp_source_name;
+        RPY_AuthData auth_data;
+        RPY_SelectData select_data;
+    } data; /* Reply specific parameters */
 
 } CMD_Reply;
 

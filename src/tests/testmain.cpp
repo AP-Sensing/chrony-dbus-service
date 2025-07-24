@@ -1,55 +1,44 @@
-#include <iostream>
-
-#include "chronydbustest.h"
-
-#include <iostream>
-#include <cassert>
-
 #include <simppl/dispatcher.h>
 #include <simppl/stub.h>
-#include <simppl/skeleton.h>
+
+#include <cassert>
+#include <iostream>
+#include <string>
+#include <vector>
 
 #include "../dbus/dbusinterface.h"
-using namespace std;
-
 /// @todo add gtest
+// #include "chronydbustest.h"
+using namespace std;
 
 int main()
 {
+    /// @todo start DBus and export the session address
+    /// @todo start chrony -xd
+    /// @todo start chrony-dbus-service
     simppl::dbus::Dispatcher disp("bus:session");
     simppl::dbus::Stub<org::freedesktop::ChronyDBus> stub(disp, "chronyDBusServer");
 
-    std::vector<ChronySourceData> sources = stub.getSources();
+    const std::vector<ChronySourceData> sources = stub.getSources();
 
-    for(const auto &source : sources)
-    {
-        std::cout << "Received source: " << source.ipAddress << std::endl;
-    }
+    for (const auto &source : sources) { std::cout << "Received source: " << source.ipAddress << "\n"; }
 
     stub.setManualTimeEnabled(true);
 
     stub.setManualTime("2025-07-17 09:00:00");
 
-    std::vector<std::string> manualTimeList = stub.getManualTimeList();
-    for(const auto &timeStr : manualTimeList)
-    {
-        std::cout << "Received manual time entry: " << timeStr << std::endl;
-    }
+    const std::vector<std::string> manualTimeList = stub.getManualTimeList();
+    for (const auto &timeStr : manualTimeList) { std::cout << "Received manual time entry: " << timeStr << "\n"; }
 
-    std::vector<AddServersData> newServers {};
-    AddServersData s1, s2;
-    s1.name="127.0.0.1";
+    std::vector<AddServersData> newServers{};
+    AddServersData s1;
+    s1.name = "127.0.0.1";
     newServers.push_back(s1);
-    s2.name="127.0.0.2";
-    newServers.push_back(s2);
 
-    for(const auto & server : newServers)
-    {
-        std::cout << "adding new server: " << server.name << std::endl;
-    }
+    for (const auto &server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
     stub.addServers(newServers);
 
-    std::vector<std::string> delServers = {{"127.0.0.1"},{"127.0.0.2"}};
+    const std::vector<std::string> delServers = {{"127.0.0.1"}};
     stub.deleteServers(delServers);
 
     return 0;

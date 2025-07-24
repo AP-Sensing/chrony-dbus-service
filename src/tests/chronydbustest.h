@@ -1,11 +1,10 @@
 #ifndef CHRONYDBUSTEST_H
 #define CHRONYDBUSTEST_H
 
-
 class ChronyDBusTest
 {
-public:
-    ChronyDBusTest();
+   public:
+    ChronyDBusTest() = default;
 };
 
-#endif // CHRONYDBUSTEST_H
+#endif  // CHRONYDBUSTEST_H

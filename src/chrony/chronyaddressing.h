@@ -3,20 +3,20 @@
 
  **********************************************************************
  * Copyright (C) Richard P. Curnow  1997-2002
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- * 
+ *
  **********************************************************************
 
   =======================================================================
@@ -36,30 +36,33 @@
 #define IPADDR_INET6 2
 #define IPADDR_ID 3
 
-typedef struct {
-  union { 
-    uint32_t in4;
-    uint8_t in6[16];
-    uint32_t id;
-  } addr;
-  uint16_t family;
-  uint16_t _pad;
+typedef struct
+{
+    union
+    {
+        uint32_t in4;
+        uint8_t in6[16];
+        uint32_t id;
+    } addr;
+    uint16_t family;
+    uint16_t _pad;
 } IPAddr;
 
-typedef struct {
-  IPAddr ip_addr;
-  uint16_t port;
+typedef struct
+{
+    IPAddr ip_addr;
+    uint16_t port;
 } IPSockAddr;
 
 typedef IPSockAddr NTP_Remote_Address;
 
 #define INVALID_IF_INDEX -1
 
-typedef struct {
-  IPAddr ip_addr;
-  int if_index;
-  int sock_fd;
+typedef struct
+{
+    IPAddr ip_addr;
+    int if_index;
+    int sock_fd;
 } NTP_Local_Address;
 
 #endif /* GOT_ADDRESSING_H */
-

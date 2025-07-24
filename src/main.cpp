@@ -1,10 +1,13 @@
-#include <iostream>
+#include <simppl/dispatcher.h>
 
 #include "dbus/chronydbusservice.h"
-using namespace std;
 
 int main()
 {
-    ChronyDBusService cds;
+    simppl::dbus::Dispatcher disp("bus:session");
+    const ChronyDBusService chronyService(disp);
+
+    disp.run();
+
     return 0;
 }
