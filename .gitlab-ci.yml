@@ -122,60 +122,6 @@ build release test gcc:
     paths:
       - $BUILD_WORKSPACE
 
-# Clang Release Build Tests=OFF
-# TODO see https://gitlab.bbn.apsensing.com/templates/meta_repo_template_executable/-/issues/11
-.build release clang:
-  extends:
-    - .container_image_no_nightly_run_template
-  stage: "🏗️ Build Stage 1"
-  script:
-    - rm -rf $BUILD_WORKSPACE # Ensure we start clean
-    - export CC=/usr/bin/clang
-    - export CXX=/usr/bin/clang++
-    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF
-    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-  artifacts:
-    name: "${CI_JOB_STAGE}_${CI_COMMIT_SHORT_SHA}"
-    expose_as: "Release Build"
-    paths:
-      - $BUILD_WORKSPACE
-
-# Clang Debug Build Tests=OFF
-build debug clang:
-  extends:
-    - .container_image_no_nightly_run_template
-  stage: "🏗️ Build Stage 1"
-  script:
-    - rm -rf $BUILD_WORKSPACE # Ensure we start clean
-    - export CC=/usr/bin/clang
-    - export CXX=/usr/bin/clang++
-    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Debug -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF
-    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-  artifacts:
-    name: "${CI_JOB_STAGE}_${CI_COMMIT_SHORT_SHA}"
-    expose_as: "Debug Build"
-    paths:
-      - $BUILD_WORKSPACE
-
-# Clang Release Build Tests=ON
-# TODO see https://gitlab.bbn.apsensing.com/templates/meta_repo_template_executable/-/issues/11
-.build release test clang:
-  extends:
-    - .container_image_no_nightly_run_template
-  stage: "🏗️ Build Stage 1"
-  script:
-    - rm -rf $BUILD_WORKSPACE # Ensure we start clean
-    - export CC=/usr/bin/clang
-    - export CXX=/usr/bin/clang++
-    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=ON
-    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-    - cd $BUILD_WORKSPACE
-    - ctest $CTEST
-  artifacts:
-    name: "${CI_JOB_STAGE}_${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - $BUILD_WORKSPACE
-
 ######################################
 # 🚧 Build Stage 2
 ######################################
@@ -192,7 +138,7 @@ build-srpm:
     - rm -rf ~/rpmbuild/
     - rpmdev-setuptree
     - cp -r SPECS/* ~/rpmbuild/SPECS/
-    - tar -czf ~/rpmbuild/SOURCES/chrony-dbus-service-0.0.1.tar.gz .
+    - tar -czf ~/rpmbuild/SOURCES/chrony-dbus-service-0.1.0.tar.gz .
     - rpmbuild -bs ~/rpmbuild/SPECS/*.spec
     - mkdir -p RPM
     - mv ~/rpmbuild/SRPMS/*.rpm RPM
