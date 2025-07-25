@@ -1,0 +1,15 @@
+[Unit]
+Description=A template auto start service file that restarts the executable (Interrogator) once it crashes after 10 seconds again.
+After=chronyd.service
+
+[Service]
+ExecStart=/usr/bin/chrony-dbus-service
+Restart=always
+RestartSec=10s
+KillMode=process
+TimeoutSec=infinity
+User=root
+Group=root
+
+[Install]
+WantedBy=network.target

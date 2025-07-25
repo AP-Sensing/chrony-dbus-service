@@ -157,6 +157,13 @@ if(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK)
 endif()
 
 ##########################################
+# Packaging
+##########################################
+
+include(GNUInstallDirs)
+add_subdirectory(packaging)
+
+##########################################
 # Compiler-options
 ##########################################
 

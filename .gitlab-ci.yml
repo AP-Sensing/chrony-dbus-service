@@ -127,24 +127,34 @@ build release test gcc:
 ######################################
 
 # Build (S)RPM
-build-srpm:
-  stage: "🚧 Build Stage 2"
+build (s)rpm:
   extends:
-    - .container_image_no_nightly_run_template
-  tags:
-    - container
+    - .container_image_template
+    - .skip_manual_for_pr_template
+  stage: "🚧 Build Stage 2"
   script:
-    - sudo dnf install -y rpmdevtools sed systemd cmake g++
-    - rm -rf ~/rpmbuild/
-    - rpmdev-setuptree
-    - cp -r SPECS/* ~/rpmbuild/SPECS/
-    - tar -czf ~/rpmbuild/SOURCES/chrony-dbus-service-0.1.0.tar.gz .
-    - rpmbuild -bs ~/rpmbuild/SPECS/*.spec
-    - mkdir -p RPM
-    - mv ~/rpmbuild/SRPMS/*.rpm RPM
+    - sudo dnf install -y rpmdevtools
+    - sed -i "s/set(CPACK_RPM_PACKAGE_RELEASE \"[0-9]\+\")/set(CPACK_RPM_PACKAGE_RELEASE \"${CI_PIPELINE_IID}\")/" packaging/rpm/cpack_config.cmake
+    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=RPM
+    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
+    - pushd $BUILD_WORKSPACE
+    - ../scripts/build_rpm.sh
+    - popd
+    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=SRPM
+    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
+    - pushd $BUILD_WORKSPACE
+    - ../scripts/build_rpm.sh
+    - popd
+    - mkdir -p $BUILD_WORKSPACE/RPM
+    - rm -rf $BUILD_WORKSPACE/RPM/*
+    - mv $BUILD_WORKSPACE/*.rpm $BUILD_WORKSPACE/RPM
+  needs:
+    - "build release gcc"
   artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_SHORT_SHA}"
+    expose_as: "Release Build S_RPM"
     paths:
-      - RPM/*
+      - $BUILD_WORKSPACE/RPM/
 
 
 # Build Doxygen Docs

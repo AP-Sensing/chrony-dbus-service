@@ -1,0 +1,3 @@
+# Definition: https://www.freedesktop.org/software/systemd/man/systemd.preset.html
+
+enable chrony-dbus-service.service

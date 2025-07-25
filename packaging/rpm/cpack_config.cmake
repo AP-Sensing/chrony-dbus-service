@@ -1,0 +1,50 @@
+cmake_minimum_required(VERSION 3.22)
+
+# CPack RPM configuration.
+# To extract the resulting RPM run: rpm2cpio <rpm_name>.src.rpm | cpio -idmv
+
+set(COMPONENT_NAME "${PROJECT_NAME}")
+string(TOUPPER "${COMPONENT_NAME}" COMPONENT_NAME_UPPER)
+
+set(CPACK_GENERATOR "RPM")
+
+if("${APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE}" STREQUAL "RPM")
+    set(CPACK_RPM_PACKAGE_SOURCES OFF)
+    message(STATUS "Using RPM package configuration.")
+elseif("${APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE}" STREQUAL "SRPM")
+    set(CPACK_RPM_PACKAGE_SOURCES ON)
+    message(STATUS "Using SRPM package configuration.")
+else()
+    message(FATAL_ERROR "Unsupported value for APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE (${APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE})!")
+endif()
+
+set(CPACK_RPM_COMPONENT_INSTALL ON)
+set(CPACK_RPM_PACKAGE_NAME "chrony-dbus-service")
+set(CPACK_RPM_PACKAGE_SUMMARY "${PROJECT_DESCRIPTION}")
+set(CPACK_RPM_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
+set(CPACK_RPM_PACKAGE_VERSION "${PROJECT_INTERNAL_VERSION_MAJOR}.${PROJECT_INTERNAL_VERSION_MINOR}.${PROJECT_INTERNAL_VERSION_PATCH}")
+set(CPACK_RPM_PACKAGE_RELEASE "0")
+set(CPACK_RPM_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_RPM_PACKAGE_RELEASE_DIST "PhotonPonyOS")
+set(CPACK_RPM_PACKAGE_LICENSE "GPL-2.0")
+set(CPACK_RPM_PACKAGE_VENDOR "AP Sensing")
+set(CPACK_RPM_PACKAGE_URL "https://github.com/AP-Sensing/crony-dbus-service")
+
+set(CPACK_RPM_PACKAGE_REQUIRES "systemd dbus-1")
+set(CPACK_RPM_PACKAGE_PROVIDES "${CPACK_RPM_PACKAGE_NAME}=${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}")
+set(CPACK_RPM_FILE_NAME "${CPACK_RPM_PACKAGE_NAME}-${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}.rpm")
+
+set(CPACK_RPM_PACKAGE_REQUIRES_POST "systemd")
+
+set(CPACK_RPM_PRE_INSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/rpm/pre_script.sh")
+set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/rpm/post_script.sh")
+set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/rpm/preun_script.sh")
+set(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/rpm/postrun_script.sh")
+set(CPACK_RPM_SPEC_MORE_DEFINE "%{?systemd_requires}")
+set(CPACK_RPM_BUILDREQUIRES "systemd-rpm-macros")
+
+# Skip paths to avoid conflicts with other packages.
+# Source: https://gitlab.kitware.com/cmake/cmake/-/issues/23457
+list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/etc/sudoers.d")
+
+include(CPack)
