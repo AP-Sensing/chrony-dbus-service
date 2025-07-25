@@ -16,7 +16,8 @@ function(add_chrony_dbus_service_test_executable)
                                                GTest::gtest_main
                                                GTest::gtest
                                                GTest::gmock
-                                               simppl)
+                                               simppl
+                                               ${DBUS_LIBRARIES})
     gtest_discover_tests(${TEST_NAME}
                          TEST_PREFIX "aps_chronydbusservice_"
                          XML_OUTPUT_DIR "${PROJECT_BINARY_DIR}/results")
@@ -32,8 +33,7 @@ endfunction()
 ##########################################
 
 add_chrony_dbus_service_test_executable(NAME "chronydbusservice_test"
-                                 SRCS "${PROJECT_SOURCE_DIR}/src/tests/testmain.cpp"
-                                      "${PROJECT_SOURCE_DIR}/src/tests/chronydbustest.h"
+                                 SRCS "${PROJECT_SOURCE_DIR}/src/tests/chronydbustest.h"
                                       "${PROJECT_SOURCE_DIR}/src/tests/chronydbustest.cpp"
                                  LIBS simppl
                                       ${DBUS_LIBRARIES})

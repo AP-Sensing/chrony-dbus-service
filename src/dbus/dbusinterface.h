@@ -31,7 +31,7 @@ struct ChronySourceData
 
     typedef make_serializer<std::string, std::int16_t, std::uint16_t, SelectionState, SourceMode, std::uint32_t>::type serializer_type;
 
-    std::string ipAddress;
+    std::string name;
     std::int16_t pollratePow2;
     std::uint16_t stratum;
     SelectionState selectionState;
@@ -83,23 +83,23 @@ INTERFACE(ChronyDBus)
     Method<in<std::vector<std::string>>, _throw<simppl::dbus::Error>> deleteServers;
     /// Enables or disables manual time control (if enabled and a manual time is set, then that time is used as a reference instead of NTP
     /// servers)
-    /// @note Disabling manual time currently doesn't delete manual time entries
-    Method<in<bool>, _throw<simppl::dbus::Error>> setManualTimeEnabled;
+    /// Adds a manual time entry with the format "yyyy-mm-dd HH:MM:SS"
+    Method<in<std::string>, _throw<simppl::dbus::Error>> addManualTime;
     Method<_throw<simppl::dbus::Error>> clearManualTimeList;
     /// Lists all manual time entries with the format "yyyy-mm-dd HH:MM:SS"
     Method<out<std::vector<std::string>>, _throw<simppl::dbus::Error>> getManualTimeList;
-    /// Adds a manual time entry with the format "yyyy-mm-dd HH:MM:SS"
-    Method<in<std::string>, _throw<simppl::dbus::Error>> setManualTime;
+    /// @note Disabling manual time currently doesn't delete manual time entries
+    Method<in<bool>, _throw<simppl::dbus::Error>> setManualTimeEnabled;
 
     // constructor
     ChronyDBus()
         : INIT(getSources),
           INIT(addServers),
           INIT(deleteServers),
-          INIT(setManualTimeEnabled),
+          INIT(addManualTime),
           INIT(clearManualTimeList),
           INIT(getManualTimeList),
-          INIT(setManualTime)
+          INIT(setManualTimeEnabled)
     {
     }
 };

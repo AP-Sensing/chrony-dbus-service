@@ -25,7 +25,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (success) { respond_with(getSources(sourceList)); }
         else
         {
-            std::cout << "!! getSources error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            std::cerr << "!! getSources error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              errStr.value_or("Invalid request or no response from chronyd!").c_str()));
         }
@@ -41,7 +41,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
             const auto [success, errStr] = chrony::client::process_cmd_add_source(server);
             if (!success)
             {
-                std::cout << "!! addservers error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+                std::cerr << "!! addservers error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
                 respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                                  errStr.value_or("Invalid request or no response from chronyd!").c_str()));
                 return;
@@ -59,7 +59,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
             const auto [success, errStr] = chrony::client::process_cmd_delete(server);
             if (!success)
             {
-                std::cout << "!! deleteServers error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+                std::cerr << "!! deleteServers error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
                 respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                                  errStr.value_or("Invalid request or no response from chronyd!").c_str()));
                 return;
@@ -69,6 +69,23 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         std::cout << "<< deleteServers exit" << "\n";
     };
 
+
+    addManualTime >> [this](const std::string &time)
+    {
+        std::cout << ">> addManualTime enter" << "\n";
+
+        /// @todo remove all other manual entries?
+        const auto [success, errStr] = chrony::client::process_cmd_settime(time);
+        if (success) { respond_with(addManualTime()); }
+        else
+        {
+            std::cerr << "!! addManualTime error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
+                                             errStr.value_or("Invalid request or no response from chronyd!").c_str()));
+        }
+        std::cout << "<< addManualTime exit" << "\n";
+    };
+
     clearManualTimeList >> [this]()
     {
         std::cout << ">> clearManualTimeList enter" << "\n";
@@ -76,11 +93,25 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (success) { respond_with(clearManualTimeList()); }
         else
         {
-            std::cout << "!! clearManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            std::cerr << "!! clearManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              errStr.value_or("Invalid request or no response from chronyd!").c_str()));
         }
         std::cout << "<< clearManualTimeList exit" << "\n";
+    };
+
+    getManualTimeList >> [this]()
+    {
+        std::cout << ">> getManualTimeList enter" << "\n" << "\n";
+        const auto [success, errStr, list] = chrony::client::process_cmd_manual_list();
+        if (success) { respond_with(getManualTimeList(list)); }
+        else
+        {
+            std::cerr << "!! getManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
+                                             errStr.value_or("Invalid request or no response from chronyd!").c_str()));
+        }
+        std::cout << ">> getManualTimeList exit" << "\n";
     };
 
     setManualTimeEnabled >> [this](bool enabled)
@@ -98,40 +129,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (success) { respond_with(setManualTimeEnabled()); }
         else
         {
-            std::cout << "!! setManualTimeEnabled error: " << std::format("Error: chronyd returned status: {}", reply.status) << "\n";
+            std::cerr << "!! setManualTimeEnabled error: " << std::format("Error: chronyd returned status: {}", reply.status) << "\n";
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              std::format("Error: chronyd returned status: {}", reply.status).c_str()));
         }
         std::cout << "<< setManualTimeEnabled exit" << "\n";
-    };
-
-    getManualTimeList >> [this]()
-    {
-        std::cout << ">> getManualTimeList enter" << "\n" << "\n";
-        const auto [success, errStr, list] = chrony::client::process_cmd_manual_list();
-        if (success) { respond_with(getManualTimeList(list)); }
-        else
-        {
-            std::cout << "!! getManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
-                                             errStr.value_or("Invalid request or no response from chronyd!").c_str()));
-        }
-        std::cout << ">> getManualTimeList exit" << "\n";
-    };
-
-    setManualTime >> [this](const std::string &time)
-    {
-        std::cout << ">> setManualTime enter" << "\n";
-
-        /// @todo remove all other manual entries?
-        const auto [success, errStr] = chrony::client::process_cmd_settime(time);
-        if (success) { respond_with(setManualTime()); }
-        else
-        {
-            std::cout << "!! setManualTime error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
-                                             errStr.value_or("Invalid request or no response from chronyd!").c_str()));
-        }
-        std::cout << "<< setManualTime exit" << "\n";
     };
 }

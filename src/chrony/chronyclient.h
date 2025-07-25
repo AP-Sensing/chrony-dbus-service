@@ -548,7 +548,7 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
         ::chrony::util::UTI_IPNetworkToHost(&reply.data.source_data.ip_addr, &ip_addr);
         std::cout << "process_cmd_sources(): source i: " << i << " ip_addr.addr.in4: " << ::chrony::util::UTI_IPToString(&ip_addr) << "\n";
         ChronySourceData data;
-        data.ipAddress = ::chrony::util::UTI_IPToString(&ip_addr);
+        data.name = ::chrony::util::UTI_IPToString(&ip_addr);
         mode = ntohs(reply.data.source_data.mode);
         data.sourceMode = static_cast<ChronySourceData::SourceMode>(mode);
         data.selectionState = static_cast<ChronySourceData::SelectionState>(ntohs(reply.data.source_data.state));
