@@ -1,3 +1,15 @@
+/* This file is licensed under the MIT-0 license:
+Copyright 2025 Samuel Stirtzel <s.stirtzel@googlemail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 #ifndef DBUSINTERFACE_H
 #define DBUSINTERFACE_H
 #include <simppl/any.h>
@@ -14,28 +26,32 @@ struct ChronySourceData
 {
     enum class SourceMode : std::uint16_t
     {
-        Server = 0,
-        Peer = 1,
-        ReferenceClock = 2
+        Server = 0,         ///< Source is an NTP server
+        Peer = 1,           ///< Used if chrony is configured to relay time to other peers
+        ReferenceClock = 2  ///< Source is a reference clock e.g. a GPS or an IEEE 1588 PTP hardware clock with PHC driver
     };
 
     enum class SelectionState : std::uint16_t
     {
-        Selected = 0,
-        Unselectable = 1,
-        FalseTicker = 2,
-        TooMuchJitter = 3,
-        NotSelected = 4,
-        SelectableCombined = 5,
+        Selected = 0,            ///< Source is used to sync time
+        Unselectable = 1,        ///< Source is configured to be never used unless manually specified
+        FalseTicker = 2,         ///< Source is probably not accurate
+        TooMuchJitter = 3,       ///< Source has too much variance in the
+        NotSelected = 4,         ///< Source is available for selection but currently not selected
+        SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
 
     typedef make_serializer<std::string, std::int16_t, std::uint16_t, SelectionState, SourceMode, std::uint32_t>::type serializer_type;
 
+    /// can be either a hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789)
     std::string name;
+    /// pow(2, X) seconds, e.g. pollratePow2 = -1 -> 0.5 seconds
     std::int16_t pollratePow2;
+    /// stratum is the distance to a reference clock in the measurement chain, stratum 1 is directly connected to a reference clock
     std::uint16_t stratum;
     SelectionState selectionState;
     SourceMode sourceMode;
+    /// last synchronization time, this can be 10 minutes or more depending on the /etc/chrony.conf
     std::uint32_t secondsSinceLastsample;
 };
 
@@ -43,31 +59,37 @@ struct AddServersData
 {
     enum class ServerFlags : std::uint16_t
     {
-        None = 0x0,
-        Online = 0x1,
-        AutoOffline = 0x2,
-        IBurst = 0x4,
-        Prefer = 0x8,
-        NoSelect = 0x10,
-        Trusted = 0x20,
-        Required = 0x40,
-        Interleaved = 0x80,
-        Burst = 0x100,
-        NTSEnabled = 0x200,
-        Copy = 0x400,
-        MonoRoot = 0x800,
-        NetCorrection = 0x1000,
-        IPv4 = 0x2000,
-        IPv6 = 0x4000
+        None = 0x0,              ///< just for completeness
+        Online = 0x1,            ///< default for added sources
+        AutoOffline = 0x2,       ///< sets the server as offline if it is unreachable e.g. for unstable connections
+        IBurst = 0x4,            ///< start syncing sooner by using a burst of requests
+        Prefer = 0x8,            ///< sources with this flag will be selected before ones without it
+        NoSelect = 0x10,         ///< source will never be selected if it has this flag
+        Trusted = 0x20,          ///< used to force sync to a source with wrong time
+        Required = 0x40,         ///< for sources that need to be selected
+        Interleaved = 0x80,      ///< NTP interleaved mode
+        Burst = 0x100,           ///< syncs in bursts but limited to the pollrate
+        NTSEnabled = 0x200,      ///< Network Time Security
+        Copy = 0x400,            ///< for multiple instances of chrony on the same host
+        MonoRoot = 0x800,        ///< NTP extension field mono root
+        NetCorrection = 0x1000,  ///< NTP extension field net correction
+        IPv4 = 0x2000,           ///< added source is IPv4 reachable
+        IPv6 = 0x4000            ///< added source is IPv6 reachable
     };
 
     typedef make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, std::uint32_t, ServerFlags>::type serializer_type;
 
+    /// can be either a hostname or IP address
     std::string name;
+    /// NTP default port is 123
     std::uint16_t port = 123;
+    /// NTS default port is 4460
     std::uint16_t nts_port = 4460;
+    /// this id needs to be the same as the one provided in /etc/chrony.conf or a /etc/chrony.d/ conf fragment
     std::uint32_t ntsKeyId = 0;
+    /// defaults to 0, set 0 also includes the system CAs by default
     std::uint32_t ntsCertificateSet = 0;
+    /// config flags determine how chronyd communicates with this server
     ServerFlags flags = ServerFlags::Online;
 };
 

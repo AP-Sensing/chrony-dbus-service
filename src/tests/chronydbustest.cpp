@@ -1,6 +1,7 @@
 #include "chronydbustest.h"
 
 #include <gtest/gtest.h>
+
 #include <simppl/dispatcher.h>
 #include <simppl/error.h>
 #include <simppl/stub.h>
@@ -31,7 +32,6 @@ TEST(ChronyDBusService, GetSources)
 
 TEST(ChronyDBusService, AddClearManualTime)
 {
-
     try
     {
         simppl::dbus::Dispatcher dispatch("bus:session");
@@ -45,8 +45,11 @@ TEST(ChronyDBusService, AddClearManualTime)
 
         std::vector<std::string> manualTimeList = stub.getManualTimeList();
         bool foundTarget = false;
-        //there can be multiple manual times set but we only care about targetTime
-        for (const auto &timeStr : manualTimeList) { if(timeStr == targetTime) foundTarget = true; }
+        // there can be multiple manual times set but we only care about targetTime
+        for (const auto &timeStr : manualTimeList)
+        {
+            if (timeStr == targetTime) foundTarget = true;
+        }
 
         EXPECT_TRUE(foundTarget);
 
@@ -64,7 +67,6 @@ TEST(ChronyDBusService, AddClearManualTime)
 
 TEST(ChronyDBusService, AddDeleteServers)
 {
-
     try
     {
         simppl::dbus::Dispatcher dispatch("bus:session");
@@ -81,12 +83,9 @@ TEST(ChronyDBusService, AddDeleteServers)
         const std::vector<ChronySourceData> sourcesAfterAdd = stub.getSources();
         bool foundAddedServer = false;
 
-        for(const auto &sourceData : sourcesAfterAdd)
+        for (const auto &sourceData : sourcesAfterAdd)
         {
-           if(sourceData.name == s1.name)
-           {
-               foundAddedServer = true;
-           }
+            if (sourceData.name == s1.name) { foundAddedServer = true; }
         }
         EXPECT_TRUE(foundAddedServer);
 
@@ -98,15 +97,11 @@ TEST(ChronyDBusService, AddDeleteServers)
         const std::vector<ChronySourceData> sourcesAfterDelete = stub.getSources();
         bool foundDeletedServer = true;
 
-        for(const auto &sourceData : sourcesAfterDelete)
+        for (const auto &sourceData : sourcesAfterDelete)
         {
-           if(sourceData.name == s1.name)
-           {
-               foundDeletedServer = true;
-           }
+            if (sourceData.name == s1.name) { foundDeletedServer = true; }
         }
         EXPECT_FALSE(foundDeletedServer);
-
     }
     catch (const simppl::dbus::Error &e)
     {

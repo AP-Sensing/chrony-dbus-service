@@ -4,6 +4,7 @@
 
 int main()
 {
+    /// @todo maybe add systemd socket activation support?
     simppl::dbus::Dispatcher disp("bus:session");
     const ChronyDBusService chronyService(disp);
 

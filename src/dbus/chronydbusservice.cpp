@@ -69,7 +69,6 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         std::cout << "<< deleteServers exit" << "\n";
     };
 
-
     addManualTime >> [this](const std::string &time)
     {
         std::cout << ">> addManualTime enter" << "\n";
