@@ -163,24 +163,13 @@ void UTI_IPNetworkToHost(const IPAddr *src, IPAddr *dest)
     }
 }
 
-char *UTI_PathToDir(const char *path)
+std::string UTI_PathToDir(const std::string &path)
 {
-    char *dir;
-    size_t dir_len;
+    size_t slash = path.find_last_of('/');
 
-    const char *slash = strrchr(path, '/');
-
-    if (!slash) return strdup(".");
-
-    if (slash == path) return strdup("/");
-
-    dir_len = slash - path;
-
-    dir = (char *)malloc(dir_len + 1);
-    memcpy(dir, path, dir_len);
-    dir[dir_len] = '\0';
-
-    return dir;
+    if (!slash) return ".";
+    if (slash == path.size()) return "/";
+    return path.substr(0, slash);
 }
 std::string UTI_IPToString(const IPAddr *addr)
 {

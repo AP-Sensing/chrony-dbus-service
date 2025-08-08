@@ -159,32 +159,19 @@ static int open_unix_socket2(const std::string &af_unix_address, const std::stri
 
 static int open_socket(struct ::chrony::socket::Address *addr)
 {
-    char *dir, *local_addr;
-    size_t local_addr_len;
-
     switch (addr->type)
     {
         case socket::SCK_ADDR_UNIX:
             /* Construct path of our socket.  Use the same directory as the server
                  socket and include our process ID to allow multiple chronyc instances
                  running at the same time. */
-
+            // sock_fd = open_unix_socket(addressPath.c_str(), local_addr, SOCK_DGRAM,  SCK_FLAG_ALL_PERMISSIONS);
             {
-                const std::string addressPath{addr->addr.path};
-
-                dir = (char *)malloc(addressPath.size());
-                strlcpy(dir, addressPath.c_str(), addressPath.size() + 1);
-                /// @todo fix leak here: UTI_PathToDir mallocs without freeing
-                dir = ::chrony::util::UTI_PathToDir(addressPath.c_str());
-                local_addr_len = strlen(dir) + 50;
-                local_addr = (char *)malloc(local_addr_len);
-
-                snprintf(local_addr, local_addr_len, "%s/chronyc.%d.sock", dir, (int)getpid());
-
-                // sock_fd = open_unix_socket(addressPath.c_str(), local_addr, SOCK_DGRAM,  SCK_FLAG_ALL_PERMISSIONS);
-                sock_fd = open_unix_socket2(addressPath, local_addr);
-                free(dir);
-                free(local_addr);
+                std::string addressPath{addr->addr.path};
+                std::string tmpDir = ::chrony::util::UTI_PathToDir(addressPath);
+                sock_fd =
+                    open_unix_socket2(addressPath,
+                                      std::format("{}/chronyc.{}.sock", ::chrony::util::UTI_PathToDir(addressPath), (int)getpid()).c_str());
             }
             break;
         default:

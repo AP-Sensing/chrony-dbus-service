@@ -1,5 +1,3 @@
-#include "chronydbustest.h"
-
 #include <gtest/gtest.h>
 
 #include <simppl/dispatcher.h>
@@ -7,9 +5,11 @@
 #include <simppl/stub.h>
 
 #include <cassert>
+// NOLINTNEXTLINE(misc-include-cleaner)
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "../dbus/dbusinterface.h"
@@ -51,7 +51,7 @@ TEST(ChronyDBusService, AddClearManualTime)
         // there can be multiple manual times set but we only care about targetTime
         for (const auto &timeStr : manualTimeList)
         {
-            if (timeStr == targetTime) foundTarget = true;
+            if (timeStr == targetTime) { foundTarget = true; }
         }
 
         EXPECT_TRUE(foundTarget);
@@ -83,6 +83,7 @@ TEST(ChronyDBusService, AddDeleteServers)
 
         for (const auto &server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
         stub.addServers(newServers);
+        // NOLINTNEXTLINE(misc-include-cleaner)
         std::this_thread::sleep_for(250ms);
         const std::vector<ChronySourceData> sourcesAfterAdd = stub.getSources();
         bool foundAddedServer = false;
@@ -97,7 +98,7 @@ TEST(ChronyDBusService, AddDeleteServers)
         const std::vector<std::string> delServers = {{s1.name}};
         for (const auto &serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
         stub.deleteServers(delServers);
-
+        // NOLINTNEXTLINE(misc-include-cleaner)
         std::this_thread::sleep_for(250ms);
 
         const std::vector<ChronySourceData> sourcesAfterDelete = stub.getSources();
