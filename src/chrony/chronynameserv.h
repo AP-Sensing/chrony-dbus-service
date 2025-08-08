@@ -34,6 +34,7 @@
 
 #include <cstdint>
 
+#include "chronysocket.h"
 #include "chronyutil.h"
 
 // all content in this namespace was originally copied from chrony https://gitlab.com/chrony/chrony
@@ -122,6 +123,31 @@ DNS_Status DNS_Name2IPAddress(const char *name, IPAddr *ip_addrs, int max_addrs)
 
     return !max_addrs || ip_addrs[0].family != IPADDR_UNSPEC ? DNS_Success : DNS_Failure;
 }
+
+int DNS_IPAddress2Name(IPAddr *ip_addr, char *name, int len)
+{
+    std::string result = "";
+#ifdef FEAT_IPV6
+    struct sockaddr_in6 saddr;
+#else
+    struct sockaddr_in saddr;
+#endif
+    IPSockAddr ip_saddr;
+    socklen_t slen;
+    char hbuf[NI_MAXHOST];
+
+    ip_saddr.ip_addr = *ip_addr;
+    ip_saddr.port = 0;
+
+    slen = chrony::socket::SCK_IPSockAddrToSockaddr(&ip_saddr, (struct sockaddr *)&saddr, sizeof(saddr));
+    if (!getnameinfo((struct sockaddr *)&saddr, slen, hbuf, sizeof(hbuf), NULL, 0, 0)) result = hbuf;
+
+    if (result.empty()) result = chrony::util::UTI_IPToString(ip_addr);
+    if (snprintf(name, len, "%s", result.c_str()) >= len) return 0;
+
+    return 1;
+}
+
 }  // namespace nameserv
 }  // namespace chrony
 

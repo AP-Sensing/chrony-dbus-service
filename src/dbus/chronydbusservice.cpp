@@ -37,7 +37,9 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         std::cout << ">> addservers enter" << "\n";
         for (const auto &server : serverList)
         {
-            std::cout << "Adding server: " << server.name << " port: " << server.port << "\n";
+            std::cout << std::format("Adding server: {} port: {} flags: {}", server.name, server.port,
+                                     static_cast<std::uint16_t>(server.flags))
+                      << "\n";
             const auto [success, errStr] = chrony::client::process_cmd_add_source(server);
             if (!success)
             {

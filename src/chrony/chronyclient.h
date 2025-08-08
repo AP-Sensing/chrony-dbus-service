@@ -171,9 +171,11 @@ static int open_socket(struct ::chrony::socket::Address *addr)
 
             {
                 const std::string addressPath{addr->addr.path};
+
                 dir = (char *)malloc(addressPath.size());
                 strlcpy(dir, addressPath.c_str(), addressPath.size() + 1);
-                dir = ::chrony::util::UTI_PathToDir(dir);
+                /// @todo fix leak here: UTI_PathToDir mallocs without freeing
+                dir = ::chrony::util::UTI_PathToDir(addressPath.c_str());
                 local_addr_len = strlen(dir) + 50;
                 local_addr = (char *)malloc(local_addr_len);
 
@@ -548,7 +550,12 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
         ::chrony::util::UTI_IPNetworkToHost(&reply.data.source_data.ip_addr, &ip_addr);
         std::cout << "process_cmd_sources(): source i: " << i << " ip_addr.addr.in4: " << ::chrony::util::UTI_IPToString(&ip_addr) << "\n";
         ChronySourceData data;
-        data.name = ::chrony::util::UTI_IPToString(&ip_addr);
+        {
+            char tmpName[256];
+            // try to get the hostname for the ip_addr
+            if (chrony::nameserv::DNS_IPAddress2Name(&ip_addr, tmpName, sizeof(tmpName))) { data.name = tmpName; }
+            else { data.name = ::chrony::util::UTI_IPToString(&ip_addr); }
+        }
         mode = ntohs(reply.data.source_data.mode);
         data.sourceMode = static_cast<ChronySourceData::SourceMode>(mode);
         data.selectionState = static_cast<ChronySourceData::SelectionState>(ntohs(reply.data.source_data.state));
@@ -567,18 +574,25 @@ static ChronyCallResult process_cmd_add_source(const AddServersData &data)
 {
     CMD_Request request;
     CMD_Reply reply;
+    IPAddr ip_addr;
 
     // only currently support source servers
     request.command = htons(REQ_ADD_SOURCE);
 
     // set params not exported to the default values provided by include/chrony/cmdparse.c
     request.data.ntp_source.type = htonl(REQ_ADDSRC_SERVER);
-    assert(data.name.size() < sizeof(request.data.ntp_source.name));
+
+    if (strlen(data.name.c_str()) >= sizeof(request.data.ntp_source.name)
+        || chrony::nameserv::DNS_Name2IPAddress(data.name.c_str(), &ip_addr, 1) != chrony::nameserv::DNS_Success)
+    {
+        return {0, std::format("Error: Invalid host/IP address")};
+    }
     strlcpy((char *)request.data.ntp_source.name, data.name.c_str(), data.name.size() + 1);  // strlcopy copies size-1
 
-    // default ipv4
-    std::uint32_t additionalFlags = static_cast<std::uint32_t>(AddServersData::ServerFlags::IPv4);
-
+    std::uint32_t additionalFlags = 0;
+    // set ipv4 / ipv6 flags depending on the address family of the resolved ip_addr
+    additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET4 ? AddServersData::ServerFlags::IPv4 : 0);
+    additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET6 ? AddServersData::ServerFlags::IPv6 : 0);
     // set nts enabled flag if the nts keyId is != 0
     additionalFlags = additionalFlags | (data.ntsKeyId != 0 ? static_cast<std::uint32_t>(AddServersData::ServerFlags::NTSEnabled) : 0);
 

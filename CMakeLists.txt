@@ -167,6 +167,10 @@ add_subdirectory(packaging)
 # Compiler-options
 ##########################################
 
+# Enable chrony ipv6 support
+add_compile_definitions("FEAT_IPV6")
+
+
 # -pipe: Run compiler and assembler in parallel and do not use a temporary file for the assembler input. This can improve compilation performance. (This does not affect code generation.)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror=format-security -pipe")
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY)

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 
 /*
  * original copyright
@@ -161,12 +162,13 @@ void UTI_IPNetworkToHost(const IPAddr *src, IPAddr *dest)
             dest->family = IPADDR_UNSPEC;
     }
 }
-char *UTI_PathToDir(char *path)
+
+char *UTI_PathToDir(const char *path)
 {
-    char *dir, *slash;
+    char *dir;
     size_t dir_len;
 
-    slash = strrchr(path, '/');
+    const char *slash = strrchr(path, '/');
 
     if (!slash) return strdup(".");
 
@@ -201,15 +203,11 @@ std::string UTI_IPToString(const IPAddr *addr)
             break;
         case IPADDR_INET6:
             ip6 = {addr->addr.in6, addr->addr.in6 + sizeof(addr->addr.in6)};
-#ifdef FEAT_IPV6
-            inet_ntop(AF_INET6, ip6, result, BUFFER_LENGTH);
-#else
             {
                 std::vector<std::string> ip6_vec;
                 for (a = 0; a < 8; a++) ip6_vec.push_back(std::format("{:04x}", (uint16_t)(ip6[2 * a] << 8 | ip6[2 * a + 1])));
                 result = std::accumulate(ip6_vec.begin(), ip6_vec.end(), std::string(":"));
             }
-#endif
             break;
         case IPADDR_ID:
             result = std::format("ID#{:x}", addr->addr.id);

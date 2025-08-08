@@ -57,7 +57,7 @@ struct ChronySourceData
 
 struct AddServersData
 {
-    enum class ServerFlags : std::uint16_t
+    enum ServerFlags : std::uint16_t
     {
         None = 0x0,              ///< just for completeness
         Online = 0x1,            ///< default for added sources

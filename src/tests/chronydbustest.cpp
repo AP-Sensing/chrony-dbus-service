@@ -7,11 +7,14 @@
 #include <simppl/stub.h>
 
 #include <cassert>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include "../dbus/dbusinterface.h"
+
+using namespace std::chrono_literals;
 
 TEST(ChronyDBusService, GetSources)
 {
@@ -80,6 +83,7 @@ TEST(ChronyDBusService, AddDeleteServers)
 
         for (const auto &server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
         stub.addServers(newServers);
+        std::this_thread::sleep_for(250ms);
         const std::vector<ChronySourceData> sourcesAfterAdd = stub.getSources();
         bool foundAddedServer = false;
 
@@ -94,8 +98,10 @@ TEST(ChronyDBusService, AddDeleteServers)
         for (const auto &serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
         stub.deleteServers(delServers);
 
+        std::this_thread::sleep_for(250ms);
+
         const std::vector<ChronySourceData> sourcesAfterDelete = stub.getSources();
-        bool foundDeletedServer = true;
+        bool foundDeletedServer = false;
 
         for (const auto &sourceData : sourcesAfterDelete)
         {

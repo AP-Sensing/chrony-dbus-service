@@ -133,6 +133,41 @@ static int bind_unix_address(int sock_fd, const char *addr, int flags)
 
     return 1;
 }
+
+int SCK_IPSockAddrToSockaddr(IPSockAddr *ip_sa, struct sockaddr *sa, int sa_length)
+{
+    switch (ip_sa->ip_addr.family)
+    {
+        case IPADDR_INET4:
+            if (sa_length < (int)sizeof(struct sockaddr_in)) return 0;
+            memset(sa, 0, sizeof(struct sockaddr_in));
+            sa->sa_family = AF_INET;
+            ((struct sockaddr_in *)sa)->sin_addr.s_addr = htonl(ip_sa->ip_addr.addr.in4);
+            ((struct sockaddr_in *)sa)->sin_port = htons(ip_sa->port);
+#ifdef SIN6_LEN
+            ((struct sockaddr_in *)sa)->sin_len = sizeof(struct sockaddr_in);
+#endif
+            return sizeof(struct sockaddr_in);
+#ifdef FEAT_IPV6
+        case IPADDR_INET6:
+            if (sa_length < (int)sizeof(struct sockaddr_in6)) return 0;
+            memset(sa, 0, sizeof(struct sockaddr_in6));
+            sa->sa_family = AF_INET6;
+            memcpy(&((struct sockaddr_in6 *)sa)->sin6_addr.s6_addr, ip_sa->ip_addr.addr.in6,
+                   sizeof(((struct sockaddr_in6 *)sa)->sin6_addr.s6_addr));
+            ((struct sockaddr_in6 *)sa)->sin6_port = htons(ip_sa->port);
+#ifdef SIN6_LEN
+            ((struct sockaddr_in6 *)sa)->sin6_len = sizeof(struct sockaddr_in6);
+#endif
+            return sizeof(struct sockaddr_in6);
+#endif
+        default:
+            if (sa_length < (int)sizeof(struct sockaddr)) return 0;
+            memset(sa, 0, sizeof(struct sockaddr));
+            sa->sa_family = AF_UNSPEC;
+            return 0;
+    }
+}
 }  // namespace socket
 }  // namespace chrony
 #endif  // CHRONYSOCKET_H
