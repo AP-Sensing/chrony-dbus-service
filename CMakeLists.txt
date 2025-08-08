@@ -119,7 +119,6 @@ aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY "Set to O
 aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK "Set to ON to enable cppcheck static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYZE have to be disabled." OFF)
 aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE "Set to ON to enable cppcheck exhaustive check. This requires APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK to be enabled and will take a loooong time. Recommended for nightly builds." OFF)
 
-aps_template_log_level(APS_CHRONY_DBUS_SERVICE_LOG_LEVEL "The maximum log level enabled. Everything that is more detailed then the one defined here will be optimized out and is therefore not included/available in the resulting binary. Setting it to 'DEFAULT' results in 'INFO' for all 'CMAKE_BUILD_TYPE' values that match the '.*release.*' case insensitive regex. Else it will be set to 'TRACE'." "DEFAULT")
 aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN "Set to ON to enable cloning all repositories that are stored inside our GitLab instance with the use of the GitLab CI Token. If set to OFF, ssh will be used for cloning. Ref: https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html" OFF)
 
 aps_chronydbusservice_option_string(APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE "Define wether to build a RPM or SRPM package. Default: RPM" RPM)
