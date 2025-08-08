@@ -36,6 +36,12 @@
 #define IPADDR_INET6 2
 #define IPADDR_ID 3
 
+// all content in this namespace was originally copied from chrony https://gitlab.com/chrony/chrony
+namespace chrony
+{
+namespace addressing
+{
+
 typedef struct
 {
     union
@@ -64,4 +70,7 @@ typedef struct
     int if_index;
     int sock_fd;
 } NTP_Local_Address;
+
+}  // namespace addressing
+}  // namespace chrony
 #endif /* GOT_ADDRESSING_H */

@@ -121,7 +121,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         CMD_Request request;
         CMD_Reply reply;
 
-        /// @todo if enabled==false call cmd_refresh to re-sync the time
+        /// @todo if enabled==false call cmd_refresh to re-sync the time?
 
         request.command = htons(REQ_MANUAL);
         request.data.manual.option = static_cast<std::int32_t>(htonl(enabled));

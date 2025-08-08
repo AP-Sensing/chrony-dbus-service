@@ -34,6 +34,7 @@
 
 #include <cstdint>
 
+#include "chronyaddressing.h"
 #include "chronysocket.h"
 #include "chronyutil.h"
 
@@ -49,12 +50,12 @@ typedef enum
     DNS_Failure
 } DNS_Status;
 
-DNS_Status DNS_Name2IPAddress(const char *name, IPAddr *ip_addrs, int max_addrs)
+DNS_Status DNS_Name2IPAddress(const char *name, chrony::addressing::IPAddr *ip_addrs, int max_addrs)
 {
     struct addrinfo hints, *res, *ai;
     int i, result;
     int address_family = IPADDR_UNSPEC;
-    IPAddr ip;
+    chrony::addressing::IPAddr ip;
 
     max_addrs = std::min(max_addrs, 16);
 
@@ -124,7 +125,7 @@ DNS_Status DNS_Name2IPAddress(const char *name, IPAddr *ip_addrs, int max_addrs)
     return !max_addrs || ip_addrs[0].family != IPADDR_UNSPEC ? DNS_Success : DNS_Failure;
 }
 
-int DNS_IPAddress2Name(IPAddr *ip_addr, char *name, int len)
+int DNS_IPAddress2Name(chrony::addressing::IPAddr *ip_addr, char *name, int len)
 {
     std::string result = "";
 #ifdef FEAT_IPV6
@@ -132,7 +133,7 @@ int DNS_IPAddress2Name(IPAddr *ip_addr, char *name, int len)
 #else
     struct sockaddr_in saddr;
 #endif
-    IPSockAddr ip_saddr;
+    chrony::addressing::IPSockAddr ip_saddr;
     socklen_t slen;
     char hbuf[NI_MAXHOST];
 

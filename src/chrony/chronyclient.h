@@ -35,6 +35,7 @@
 #include <random>
 #include <tuple>
 
+#include "chronyaddressing.h"
 #include "chronynameserv.h"
 #include "chronypktlength.h"
 #include "chronysocket.h"
@@ -517,7 +518,7 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
     std::cout << "process_cmd_sources(): enter" << "\n";
     CMD_Request request;
     CMD_Reply reply;
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     uint32_t i, mode, n_sources;
 
     request.command = htons(REQ_N_SOURCES);
@@ -561,7 +562,7 @@ static ChronyCallResult process_cmd_add_source(const AddServersData &data)
 {
     CMD_Request request;
     CMD_Reply reply;
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
 
     // only currently support source servers
     request.command = htons(REQ_ADD_SOURCE);
@@ -615,7 +616,7 @@ static ChronyCallResult process_cmd_add_source(const AddServersData &data)
     return {1, std::nullopt};
 }
 
-static int parse_source_address(const char *word, IPAddr *address)
+static int parse_source_address(const char *word, chrony::addressing::IPAddr *address)
 {
     if (::chrony::util::UTI_StringToIdIP(word, address)) return 1;
 
@@ -626,7 +627,7 @@ static int parse_source_address(const char *word, IPAddr *address)
 
 static ChronyCallResult process_cmd_delete(const std::string &serverAddress)
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     CMD_Request request;
     CMD_Reply reply;
 

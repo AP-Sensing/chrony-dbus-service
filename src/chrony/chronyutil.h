@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstring>
 
+#include "chronyaddressing.h"
+
 /*
  * original copyright
   chronyd/chronyc - Programs for keeping computer clocks accurate.
@@ -142,7 +144,7 @@ void UTI_DoubleToTimeval(double a, struct timeval *b)
     ::chrony::util::UTI_NormaliseTimeval(b);
 }
 
-void UTI_IPNetworkToHost(const IPAddr *src, IPAddr *dest)
+void UTI_IPNetworkToHost(const chrony::addressing::IPAddr *src, chrony::addressing::IPAddr *dest)
 {
     dest->family = ntohs(src->family);
     dest->_pad = 0;
@@ -171,7 +173,7 @@ std::string UTI_PathToDir(const std::string &path)
     if (slash == path.size()) return "/";
     return path.substr(0, slash);
 }
-std::string UTI_IPToString(const IPAddr *addr)
+std::string UTI_IPToString(const chrony::addressing::IPAddr *addr)
 {
     unsigned long a, b, c, d, ip;
     std::vector<uint8_t> ip6(16);
@@ -207,7 +209,7 @@ std::string UTI_IPToString(const IPAddr *addr)
     return result;
 }
 
-int UTI_StringToIP(const char *addr, IPAddr *ip)
+int UTI_StringToIP(const char *addr, chrony::addressing::IPAddr *ip)
 {
     struct in_addr in4;
 #ifdef FEAT_IPV6
@@ -234,10 +236,10 @@ int UTI_StringToIP(const char *addr, IPAddr *ip)
 
     return 0;
 }
-void UTI_IPHostToNetwork(const IPAddr *src, IPAddr *dest)
+void UTI_IPHostToNetwork(const chrony::addressing::IPAddr *src, chrony::addressing::IPAddr *dest)
 {
     /* Don't send uninitialized bytes over network */
-    memset(dest, 0, sizeof(IPAddr));
+    memset(dest, 0, sizeof(chrony::addressing::IPAddr));
 
     dest->family = htons(src->family);
 
@@ -343,7 +345,7 @@ double UTI_FloatNetworkToHost(Float f)
     return coef * pow(2.0, exp);
 }
 
-int UTI_StringToIdIP(const char *addr, IPAddr *ip)
+int UTI_StringToIdIP(const char *addr, chrony::addressing::IPAddr *ip)
 {
     if (sscanf(addr, "ID#%" SCNu32, &ip->addr.id) == 1)
     {

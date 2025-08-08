@@ -34,6 +34,7 @@
 #include <sys/stat.h>
 #include <sys/un.h>
 
+#include "chronyaddressing.h"
 #include "chronyutil.h"
 
 // all content in this namespace was originally copied from chrony https://gitlab.com/chrony/chrony
@@ -70,7 +71,7 @@ struct Address
     ::chrony::socket::SCK_AddressType type;
     union
     {
-        IPSockAddr ip;
+        chrony::addressing::IPSockAddr ip;
         std::string_view path;
     } addr;
 };
@@ -134,7 +135,7 @@ static int bind_unix_address(int sock_fd, const char *addr, int flags)
     return 1;
 }
 
-int SCK_IPSockAddrToSockaddr(IPSockAddr *ip_sa, struct sockaddr *sa, int sa_length)
+int SCK_IPSockAddrToSockaddr(chrony::addressing::IPSockAddr *ip_sa, struct sockaddr *sa, int sa_length)
 {
     switch (ip_sa->ip_addr.family)
     {

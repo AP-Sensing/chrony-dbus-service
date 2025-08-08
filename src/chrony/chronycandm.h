@@ -149,22 +149,22 @@ typedef struct
 
 typedef struct
 {
-    IPAddr mask;
-    IPAddr address;
+    chrony::addressing::IPAddr mask;
+    chrony::addressing::IPAddr address;
     int32_t EOR;
 } REQ_Online;
 
 typedef struct
 {
-    IPAddr mask;
-    IPAddr address;
+    chrony::addressing::IPAddr mask;
+    chrony::addressing::IPAddr address;
     int32_t EOR;
 } REQ_Offline;
 
 typedef struct
 {
-    IPAddr mask;
-    IPAddr address;
+    chrony::addressing::IPAddr mask;
+    chrony::addressing::IPAddr address;
     int32_t n_good_samples;
     int32_t n_total_samples;
     int32_t EOR;
@@ -172,14 +172,14 @@ typedef struct
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     int32_t new_minpoll;
     int32_t EOR;
 } REQ_Modify_Minpoll;
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     int32_t new_maxpoll;
     int32_t EOR;
 } REQ_Modify_Maxpoll;
@@ -192,35 +192,35 @@ typedef struct
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     Float new_max_delay;
     int32_t EOR;
 } REQ_Modify_Maxdelay;
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     Float new_max_delay_ratio;
     int32_t EOR;
 } REQ_Modify_Maxdelayratio;
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     Float new_max_delay_dev_ratio;
     int32_t EOR;
 } REQ_Modify_Maxdelaydevratio;
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     int32_t new_min_stratum;
     int32_t EOR;
 } REQ_Modify_Minstratum;
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     int32_t new_poll_target;
     int32_t EOR;
 } REQ_Modify_Polltarget;
@@ -270,14 +270,14 @@ typedef struct
 
 typedef struct
 {
-    IPAddr ip;
+    chrony::addressing::IPAddr ip;
     int32_t subnet_bits;
     int32_t EOR;
 } REQ_Allow_Deny;
 
 typedef struct
 {
-    IPAddr ip;
+    chrony::addressing::IPAddr ip;
     int32_t EOR;
 } REQ_Ac_Check;
 
@@ -335,7 +335,7 @@ typedef struct
 
 typedef struct
 {
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     int32_t EOR;
 } REQ_Del_Source;
 
@@ -393,19 +393,19 @@ typedef struct
 
 typedef struct
 {
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     int32_t EOR;
 } REQ_NTPData;
 
 typedef struct
 {
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     int32_t EOR;
 } REQ_NTPSourceName;
 
 typedef struct
 {
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     int32_t EOR;
 } REQ_AuthData;
 
@@ -418,7 +418,7 @@ typedef struct
 /* Mask and options reuse the REQ_ADDSRC flags */
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     uint32_t ref_id;
     uint32_t mask;
     uint32_t options;
@@ -427,7 +427,7 @@ typedef struct
 
 typedef struct
 {
-    IPAddr address;
+    chrony::addressing::IPAddr address;
     uint32_t ref_id;
     Float new_offset;
     int32_t EOR;
@@ -628,7 +628,7 @@ typedef struct
 
 typedef struct
 {
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     int16_t poll;
     uint16_t stratum;
     uint16_t state;
@@ -645,7 +645,7 @@ typedef struct
 typedef struct
 {
     uint32_t ref_id;
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     uint16_t stratum;
     uint16_t leap_status;
     Timespec ref_time;
@@ -664,7 +664,7 @@ typedef struct
 typedef struct
 {
     uint32_t ref_id;
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     uint32_t n_samples;
     uint32_t n_runs;
     uint32_t span_seconds;
@@ -697,7 +697,7 @@ typedef struct
 
 typedef struct
 {
-    IPAddr ip;
+    chrony::addressing::IPAddr ip;
     uint32_t ntp_hits;
     uint32_t nke_hits;
     uint32_t cmd_hits;
@@ -792,8 +792,8 @@ typedef struct
 
 typedef struct
 {
-    IPAddr remote_addr;
-    IPAddr local_addr;
+    chrony::addressing::IPAddr remote_addr;
+    chrony::addressing::IPAddr local_addr;
     uint16_t remote_port;
     uint8_t leap;
     uint8_t version;
@@ -858,7 +858,7 @@ typedef struct
 typedef struct
 {
     uint32_t ref_id;
-    IPAddr ip_addr;
+    chrony::addressing::IPAddr ip_addr;
     uint8_t state_char;
     uint8_t authentication;
     uint8_t leap;
