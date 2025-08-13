@@ -12,8 +12,7 @@ set(PROJECT_INTERNAL_VERSION_MINOR 1)
 set(PROJECT_INTERNAL_VERSION_PATCH 0)
 set(PROJECT_NAME "chrony-dbus-service")
 set(PROJECT_DESCRIPTION "The AP Sensing chronydbusservice code.")
-# TODO fix crony -> chrony typo after git repo has been renamed
-set(PROJECT_HOMEPAGE_URL "https://github.com/AP-Sensing/crony-dbus-service")
+set(PROJECT_HOMEPAGE_URL "https://github.com/AP-Sensing/chrony-dbus-service")
 
 project("${PROJECT_NAME}" DESCRIPTION "${PROJECT_DESCRIPTION}"
                           HOMEPAGE_URL "${PROJECT_HOMEPAGE_URL}"
