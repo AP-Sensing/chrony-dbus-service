@@ -1,0 +1,45 @@
+## Builds the doxygen documentation, currently the doxygen_junit part is disabled
+
+name: doxygen
+on: [ workflow_call ]
+jobs:
+    build-doxygen:
+        runs-on: ubuntu-latest
+        container:
+            image: fedora:40
+            env:
+                PROJECT_NAME: ${{ github.repository }}
+                BUILD_WORKSPACE: build
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+          - name: doxygen-build
+            id: doxygen-build
+            run: |
+                echo "${{ github.action }}: Installing dependencies"
+                dnf install -y -q doxygen gzip 2>&1 1>/dev/null
+                chmod 777 scripts/*.sh
+                echo "${{ github.action }}: Running scripts/doxygen.sh"
+                scripts/doxygen.sh
+                cd $BUILD_WORKSPACE/doxygen/
+                tar -zcf doxygen.tar.gz html/
+          - name: doxygen-artifacts
+            uses: actions/upload-artifact@v4
+            with:
+                name: doxygen
+                path: ${{ github.workspace }}/doxygen.tar.gz
+          - name: doxygen-test
+            id: doxygen-test
+            if: false # what package provides doxygen_junit?
+            run: |
+                chmod 777 scripts/*.sh
+                echo "${{ github.action }}: Running scripts/doxygen.sh"
+                scripts/doxygen.sh || true
+                # Fix the file path references so they are relative to the blob and not the buildspace. We use ; as the substitute so don't have to escape every forwardslash
+                sed -i "s;${PROJECT_NAME}/src;src;g" $BUILD_WORKSPACE/doxygen/doxygen_warnings.log || exit 1
+                sed -i "s;${PROJECT_NAME}/test;test;g" $BUILD_WORKSPACE/doxygen/doxygen_warnings.log || exit 1
+                echo "Running doxygen_junit"
+                doxygen_junit --input $BUILD_WORKSPACE/doxygen/doxygen_warnings.log --output $BUILD_WORKSPACE/doxygen/doxygen_junit.xml || exit 1
+                grep -iq "<error " "$BUILD_WORKSPACE/doxygen/doxygen_junit.xml" && exit 1 || exit 0
+
+

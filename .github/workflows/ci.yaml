@@ -1,0 +1,37 @@
+## Continuous integration for chrony-dbus-service
+
+name: chrony-dbus-service-ci
+on: [ workflow_dispatch ]
+jobs:
+    build-doxygen:
+        uses: ./.github/workflows/doxygen.yaml
+    clang-format:
+        runs-on: ubuntu-latest
+        container:
+            image: fedora:40
+            env:
+                PROJECT_NAME: ${{ github.repository }}
+                BUILD_WORKSPACE: build
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+          - name: clang-format-run
+            id: clang-format-run
+            run: |
+                echo "${{ github.action }}: Installing dependencies"
+                dnf install -y -q clang clang-analyzer clang-tools-extra libstdc++ 2>&1 1>/dev/null
+                clang-format --version
+                echo "${{ github.action }}: Running scripts/check_clang_format.sh"
+                ./scripts/check_clang_format.sh tests src
+    tests:
+        uses: ./.github/workflows/tests.yaml
+    clang-tidy:
+        uses: ./.github/workflows/cmake-gcc.yaml
+        with:
+            CMAKE_PARAMS: -DCMAKE_BUILD_TYPE=Debug -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=ON -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY=ON
+    build-rpm:
+        needs: tests
+        uses:  ./.github/workflows/rpm.yaml
+    cppcheck:
+        uses:  ./.github/workflows/cppcheck.yaml
+

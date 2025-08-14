@@ -1,0 +1,45 @@
+## Builds the (S)RPM and uploads the artifacts
+
+name: build-rpm
+on: [ workflow_call ]
+jobs:
+    rpm:
+        runs-on: ubuntu-latest
+        container:
+            image: fedora:40
+            env:
+                PROJECT_NAME: ${{ github.repository }}
+                BUILD_WORKSPACE: build
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+          - name: build-rpm
+            id: build-rpm
+            run: |
+                echo "${{ github.action }}: Installing dependencies"
+                dnf install -y -q rpmdevtools cmake gcc gcc-c++ pkgconf-pkg-config dbus-libs 2>&1 1>/dev/null
+                rm -rf $BUILD_WORKSPACE # Ensure we start clean
+                sed -i "s/set(CPACK_RPM_PACKAGE_RELEASE \"[0-9]\+\")/set(CPACK_RPM_PACKAGE_RELEASE \"${GITHUB_RUN_ID}\")/" packaging/rpm/cpack_config.cmake
+                echo "${{ github.action }}: Running cmake . -B"
+                cmake . -B $BUILD_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=RPM
+                echo "${{ github.action }}: Running cmake --build"
+                cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
+                pushd $BUILD_WORKSPACE
+                ../scripts/build_rpm.sh
+                popd
+                echo "${{ github.action }}: Running cmake . -B"
+                cmake . -B $BUILD_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=SRPM
+                echo "${{ github.action }}: Running cmake --build"
+                cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
+                pushd $BUILD_WORKSPACE
+                ../scripts/build_rpm.sh
+                popd
+                mkdir -p $BUILD_WORKSPACE/RPM
+                rm -rf $BUILD_WORKSPACE/RPM/*
+                mv $BUILD_WORKSPACE/*.rpm $BUILD_WORKSPACE/RPM
+          - name: rpm-artifacts
+            uses: actions/upload-artifact@v4
+            with:
+                name: rpm
+                path: ${{ github.workspace }}/build/RPM/*.rpm
+
