@@ -5,4 +5,8 @@
         <id>*</id>
         <fileName>*/build/*</fileName>
     </suppress>
+    <suppress>
+        <id>*</id>
+        <fileName>*/src/chrony/*</fileName>
+    </suppress>
 </suppressions>

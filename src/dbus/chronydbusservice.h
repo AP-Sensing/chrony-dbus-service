@@ -9,7 +9,8 @@
 class ChronyDBusService : simppl::dbus::Skeleton<org::freedesktop::ChronyDBus>
 {
    public:
-    ChronyDBusService(simppl::dbus::Dispatcher &disp);
+    explicit ChronyDBusService(simppl::dbus::Dispatcher &disp);
+    ~ChronyDBusService() = default;
 };
 
 #endif  // CHRONYDBUSSERVICE_H

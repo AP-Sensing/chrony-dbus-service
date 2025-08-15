@@ -47,6 +47,8 @@
 // all content in this namespace was originally copied from chrony https://gitlab.com/chrony/chrony
 namespace chrony
 {
+namespace client
+{
 #define SRC_DEFAULT_PORT 123
 #define SRC_DEFAULT_MINPOLL 6
 #define SRC_DEFAULT_MAXPOLL 10
@@ -63,10 +65,13 @@ namespace chrony
 #define SRC_DEFAULT_NTSPORT 4460
 #define SRC_DEFAULT_CERTSET 0
 #define INACTIVE_AUTHKEY 0
-namespace client
-{
+
+// tuple of: <return value, (optional) error message>
 using ChronyCallResult = std::tuple<int, std::optional<std::string>>;
+
+// tuple template<T> of: <return value, (optional) error message, T>
 template <typename Value> using ChronyCallResultT = std::tuple<int, std::optional<std::string>, Value>;
+
 static std::string statusToErrorString(std::uint32_t status)
 {
     switch (ntohs(status))
@@ -704,6 +709,11 @@ static ChronyCallResult process_cmd_settime(const std::string &newTimeString)
     CMD_Reply reply;
     double dfreq_ppm, new_afreq_ppm;
     double offset;
+
+#ifndef __USE_TIME_BITS64
+    /// @note if this static_assert fails then this code will not work because of the year 2038 problem.
+    static_assert(sizeof(std::time_t) == sizeof(std::uint64_t));
+#endif
 
     std::tm timeTemp = {};
     std::istringstream timeStream(newTimeString);

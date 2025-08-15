@@ -12,11 +12,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #ifndef DBUSINTERFACE_H
 #define DBUSINTERFACE_H
+// required for serializer_type to work
 #include <simppl/any.h>
 #include <simppl/interface.h>
 #include <simppl/struct.h>
-
-#include <map>
 
 using namespace simppl::dbus;
 
@@ -36,7 +35,7 @@ struct ChronySourceData
         Selected = 0,            ///< Source is used to sync time
         Unselectable = 1,        ///< Source is configured to be never used unless manually specified
         FalseTicker = 2,         ///< Source is probably not accurate
-        TooMuchJitter = 3,       ///< Source has too much variance in the
+        TooMuchJitter = 3,       ///< Source has too much measurement variance
         NotSelected = 4,         ///< Source is available for selection but currently not selected
         SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
