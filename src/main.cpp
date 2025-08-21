@@ -1,5 +1,7 @@
 #include <simppl/dispatcher.h>
 
+#define HAVE_LONG_TIME_T
+
 #include "dbus/chronydbusservice.h"
 
 int main()

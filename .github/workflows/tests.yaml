@@ -38,6 +38,7 @@ jobs:
                 cd $BUILD_WORKSPACE
                 . ../tests/setupenv.sh # start chrony, dbus and set the DBUS_SESSION_BUS_ADDRESS
                 ./src/chrony-dbus-service &
+                sleep 10 # give chronyd time to initialize
                 ctest $CTEST
 
 

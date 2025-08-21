@@ -71,12 +71,13 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         std::cout << "<< deleteServers exit" << "\n";
     };
 
-    addManualTime >> [this](const std::string &time) // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
+    addManualTime >>
+        [this](const std::string &
+                   time)  // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
     {
-        std::cout << ">> addManualTime enter" << "\n";
-
         /// @todo remove all other manual entries?
-        const auto [success, errStr] = chrony::client::process_cmd_settime(time); // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
+        const auto [success, errStr] = chrony::client::process_cmd_settime(
+            time);  // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
         if (success) { respond_with(addManualTime()); }
         else
         {
@@ -103,7 +104,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
 
     getManualTimeList >> [this]()
     {
-        std::cout << ">> getManualTimeList enter" << "\n" << "\n";
+        std::cout << ">> getManualTimeList enter" << "\n";
         const auto [success, errStr, list] = chrony::client::process_cmd_manual_list();
         if (success) { respond_with(getManualTimeList(list)); }
         else

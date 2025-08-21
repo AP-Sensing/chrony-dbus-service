@@ -17,7 +17,7 @@ jobs:
             id: doxygen-build
             run: |
                 echo "${{ github.action }}: Installing dependencies"
-                dnf install -y -q doxygen gzip 2>&1 1>/dev/null
+                dnf install -y -q doxygen plantuml gzip 2>&1 1>/dev/null
                 chmod 777 scripts/*.sh
                 echo "${{ github.action }}: Running scripts/doxygen.sh"
                 scripts/doxygen.sh
