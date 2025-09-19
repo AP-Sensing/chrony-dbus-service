@@ -523,7 +523,7 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
     std::cout << "process_cmd_sources(): enter" << "\n";
     CMD_Request request;
     CMD_Reply reply;
-    chrony::addressing::IPAddr ip_addr;
+    ::chrony::addressing::IPAddr ip_addr;
     uint32_t i, mode, n_sources;
 
     request.command = htons(REQ_N_SOURCES);
@@ -546,15 +546,34 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
         {
             char tmpName[256];
             // try to get the hostname for the ip_addr
-            if (chrony::nameserv::DNS_IPAddress2Name(&ip_addr, tmpName, sizeof(tmpName))) { data.name = tmpName; }
+            if (::chrony::nameserv::DNS_IPAddress2Name(&ip_addr, tmpName, sizeof(tmpName))) { data.name = tmpName; }
             else { data.name = ::chrony::util::UTI_IPToString(&ip_addr); }
+        }
+        // ntpdata
+        {
+            CMD_Reply replyNtpData;
+            request.command = htons(REQ_NTP_DATA);
+            request.data.ntp_data.ip_addr = reply.data.source_data.ip_addr;
+            if (!request_reply(&request, &replyNtpData, RPY_NTP_DATA2, 0))
+                return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(replyNtpData.status)), retVal};
+            data.port = ntohs(replyNtpData.data.ntp_data.remote_port);
+        }
+        // authdata
+        {
+            CMD_Reply replyAuthData;
+            request.command = htons(REQ_AUTH_DATA);
+            request.data.auth_data.ip_addr = reply.data.source_data.ip_addr;
+            if (!request_reply(&request, &replyAuthData, RPY_AUTH_DATA, 0))
+                return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(replyAuthData.status)), retVal};
+            data.ntsEnabled = (ntohs(replyAuthData.data.auth_data.mode) == RPY_AD_MD_NTS);
+            data.ntsCertId = ntohl(replyAuthData.data.auth_data.key_id);
         }
         mode = ntohs(reply.data.source_data.mode);
         data.sourceMode = static_cast<ChronySourceData::SourceMode>(mode);
         data.selectionState = static_cast<ChronySourceData::SelectionState>(ntohs(reply.data.source_data.state));
-        data.pollratePow2 = ntohs(reply.data.source_data.poll);
-        data.stratum = ntohs(reply.data.source_data.stratum);
-        data.secondsSinceLastsample = ntohs(reply.data.source_data.since_sample);
+        data.pollratePow2 = ntohl(reply.data.source_data.poll);
+        data.stratum = ntohl(reply.data.source_data.stratum);
+        data.secondsSinceLastsample = ntohl(reply.data.source_data.since_sample);
 
         retVal.push_back(data);
         if (ip_addr.family == IPADDR_ID) continue;
@@ -586,8 +605,6 @@ static ChronyCallResult process_cmd_add_source(const AddServersData &data)
     // set ipv4 / ipv6 flags depending on the address family of the resolved ip_addr
     additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET4 ? AddServersData::ServerFlags::IPv4 : 0);
     additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET6 ? AddServersData::ServerFlags::IPv6 : 0);
-    // set nts enabled flag if the nts keyId is != 0
-    additionalFlags = additionalFlags | (data.ntsKeyId != 0 ? static_cast<std::uint32_t>(AddServersData::ServerFlags::NTSEnabled) : 0);
 
     request.data.ntp_source.port = htonl(data.port);
     request.data.ntp_source.minpoll = htonl(SRC_DEFAULT_MINPOLL);
@@ -599,8 +616,7 @@ static ChronyCallResult process_cmd_add_source(const AddServersData &data)
     request.data.ntp_source.max_sources = htonl(SRC_DEFAULT_MAXSOURCES);
     request.data.ntp_source.min_samples = htonl(SRC_DEFAULT_MINSAMPLES);
     request.data.ntp_source.max_samples = htonl(SRC_DEFAULT_MAXSAMPLES);
-    request.data.ntp_source.authkey = htonl(data.ntsKeyId);
-    request.data.ntp_source.nts_port = htonl(data.nts_port);
+    request.data.ntp_source.nts_port = htonl(data.ntsPort);
     request.data.ntp_source.max_delay = ::chrony::util::UTI_FloatHostToNetwork(SRC_DEFAULT_MAXDELAY);
     request.data.ntp_source.max_delay_ratio = ::chrony::util::UTI_FloatHostToNetwork(SRC_DEFAULT_MAXDELAYRATIO);
     request.data.ntp_source.max_delay_dev_ratio = ::chrony::util::UTI_FloatHostToNetwork(SRC_DEFAULT_MAXDELAYDEVRATIO);

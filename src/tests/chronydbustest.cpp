@@ -153,3 +153,5 @@ TEST(ChronyDBusService, AddDeleteServers)
         FAIL() << "Aborting after DBus error: '" << e.name() << "' message: '" << e.message() << "'\n";
     }
 }
+
+///@todo add NTS test case

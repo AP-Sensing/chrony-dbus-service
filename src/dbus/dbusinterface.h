@@ -40,18 +40,24 @@ struct ChronySourceData
         SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
 
-    typedef make_serializer<std::string, std::int16_t, std::uint16_t, SelectionState, SourceMode, std::uint32_t>::type serializer_type;
+    typedef make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode, std::uint32_t, std::uint16_t, bool, std::uint32_t>::type serializer_type;
 
     /// can be either a hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789)
     std::string name;
     /// pow(2, X) seconds, e.g. pollratePow2 = -1 -> 0.5 seconds
-    std::int16_t pollratePow2;
+    std::int32_t pollratePow2;
     /// stratum is the distance to a reference clock in the measurement chain, stratum 1 is directly connected to a reference clock
-    std::uint16_t stratum;
+    std::uint32_t stratum;
     SelectionState selectionState;
     SourceMode sourceMode;
     /// last synchronization time, this can be 10 minutes or more depending on the /etc/chrony.conf
     std::uint32_t secondsSinceLastsample;
+    /// ntp server port
+    std::uint16_t port;
+    /// NTS status
+    bool ntsEnabled;
+    /// NTS certificate ID
+    std::uint32_t ntsCertId;
 };
 
 struct AddServersData
@@ -83,9 +89,7 @@ struct AddServersData
     /// NTP default port is 123
     std::uint16_t port = 123;
     /// NTS default port is 4460
-    std::uint16_t nts_port = 4460;
-    /// this id needs to be the same as the one provided in /etc/chrony.conf or a /etc/chrony.d/ conf fragment
-    std::uint32_t ntsKeyId = 0;
+    std::uint16_t ntsPort = 4460;
     /// defaults to 0, set 0 also includes the system CAs by default
     std::uint32_t ntsCertificateSet = 0;
     /// config flags determine how chronyd communicates with this server
