@@ -418,7 +418,8 @@ static int request_reply(CMD_Request *request, CMD_Reply *reply, int requested_r
 {
     int status;
 
-    while (!submit_request(request, reply))
+    // when chrony restarts during a request the data received is useless so the reply is checked here as part of the loop
+    while (!submit_request(request, reply) || (ntohs(reply->status) == 0 && ntohs(reply->reply) != requested_reply))
     {
         std::cout << "request_reply(): trying to submit request" << "\n";
         /* Try connecting to other addresses before giving up */
