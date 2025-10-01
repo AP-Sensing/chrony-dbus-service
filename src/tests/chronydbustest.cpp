@@ -20,7 +20,7 @@ TEST(ChronyDBusService, GetSources)
 {
     try
     {
-        simppl::dbus::Dispatcher dispatch("bus:session");
+        simppl::dbus::Dispatcher dispatch("bus:system");
         simppl::dbus::Stub<org::freedesktop::ChronyDBus> stub(dispatch, "chronyDBusServer");
 
         const std::vector<ChronySourceData> sources = stub.getSources();
@@ -37,7 +37,7 @@ TEST(ChronyDBusService, AddClearManualTime)
 {
     try
     {
-        simppl::dbus::Dispatcher dispatch("bus:session");
+        simppl::dbus::Dispatcher dispatch("bus:system");
         simppl::dbus::Stub<org::freedesktop::ChronyDBus> stub(dispatch, "chronyDBusServer");
         const std::string targetTime = "2026-01-01 09:00:00";
         const std::string otherTime = "2026-01-01 10:00:00";
@@ -102,7 +102,7 @@ TEST(ChronyDBusService, AddDeleteServers)
 {
     try
     {
-        simppl::dbus::Dispatcher dispatch("bus:session");
+        simppl::dbus::Dispatcher dispatch("bus:system");
         simppl::dbus::Stub<org::freedesktop::ChronyDBus> stub(dispatch, "chronyDBusServer");
 
         // add server

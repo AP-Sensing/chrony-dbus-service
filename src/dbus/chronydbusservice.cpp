@@ -23,7 +23,7 @@ using namespace std::chrono_literals;
 bool checkCommandSocket()
 {
     bool retVal = false;
-    const std::filesystem::path commandSocketPath = "/run/chrony/chronyd.sock";
+    const std::filesystem::path commandSocketPath = "/var/run/chrony/chronyd.sock";
     for(int failCount=0; failCount<10; ++failCount)
     {
         if (std::filesystem::exists(commandSocketPath))

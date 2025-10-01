@@ -1,6 +1,8 @@
 [Unit]
-Description=A template auto start service file that restarts the executable (Interrogator) once it crashes after 10 seconds again.
+Description=A service that forwards the chronyd command socket via DBus
 After=chronyd.service
+Requires=chronyd.service
+PartOf=chronyd.service
 
 [Service]
 ExecStart=/usr/bin/chrony-dbus-service

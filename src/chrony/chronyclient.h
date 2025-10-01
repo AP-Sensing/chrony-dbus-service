@@ -151,13 +151,13 @@ static int open_unix_socket2(const std::string &af_unix_address, const std::stri
     errno = 0;
     if (setsockopt(sock_fd, SOL_SOCKET, sock_flags, &sock_opt_value, sizeof(sock_opt_value)) != 0)
     {
-        std::cerr << "Error setting socket options: " << strerror(errno);
+        std::cerr << "Error setting socket options: " << strerror(errno) << "\n";
     }
 
     errno = 0;
     if (connect(sock_fd, &sock_address.sa, sizeof(sock_address)) != 0)
     {
-        std::cerr << "Error opening socket " << sock_address.un.sun_path << ": " << strerror(errno);
+        std::cerr << "Error opening socket " << sock_address.un.sun_path << ": " << strerror(errno) << "\n";
         return false;
     }
     return sock_fd;
@@ -417,9 +417,10 @@ static int submit_request(CMD_Request *request, CMD_Reply *reply)
 static int request_reply(CMD_Request *request, CMD_Reply *reply, int requested_reply, int verbose)
 {
     int status;
+    int failCount=0;
 
     // when chrony restarts during a request the data received is useless so the reply is checked here as part of the loop
-    while (!submit_request(request, reply) || (ntohs(reply->status) == 0 && ntohs(reply->reply) != requested_reply))
+    while (!submit_request(request, reply))
     {
         std::cout << "request_reply(): trying to submit request" << "\n";
         /* Try connecting to other addresses before giving up */
@@ -555,7 +556,7 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
             CMD_Reply replyNtpData;
             request.command = htons(REQ_NTP_DATA);
             request.data.ntp_data.ip_addr = reply.data.source_data.ip_addr;
-            if (!request_reply(&request, &replyNtpData, RPY_NTP_DATA2, 0))
+            if (!::chrony::client::request_reply(&request, &replyNtpData, RPY_NTP_DATA2, 0))
                 return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(replyNtpData.status)), retVal};
             data.port = ntohs(replyNtpData.data.ntp_data.remote_port);
         }
@@ -564,7 +565,7 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
             CMD_Reply replyAuthData;
             request.command = htons(REQ_AUTH_DATA);
             request.data.auth_data.ip_addr = reply.data.source_data.ip_addr;
-            if (!request_reply(&request, &replyAuthData, RPY_AUTH_DATA, 0))
+            if (!::chrony::client::request_reply(&request, &replyAuthData, RPY_AUTH_DATA, 0))
                 return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(replyAuthData.status)), retVal};
             data.ntsEnabled = (ntohs(replyAuthData.data.auth_data.mode) == RPY_AD_MD_NTS);
             data.ntsCertId = ntohl(replyAuthData.data.auth_data.key_id);
