@@ -10,7 +10,7 @@ see [gitlab.com/chrony](https://gitlab.com/chrony/chrony)
 To configure chronyd with the chronyc command line tool, each command has to written in a parseable line of text.  
 Executing chronyc from within another application doesn't provide a good usability and in case that the chronyc parser is changed it will cause maintainability issues.
 The chrony-dbus-service provides partial functionality of configuring chornyd like it would be possible with chronyc, but instead this functionality is provided as an accessible DBus interface API.
-
+To compile completely in c++ the files in src/chrony were adapted.
 
 ## Features
 - ** getSources: ** Lists chronyd sources like calling `chronyc sources`

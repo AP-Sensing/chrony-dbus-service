@@ -417,7 +417,6 @@ static int submit_request(CMD_Request *request, CMD_Reply *reply)
 static int request_reply(CMD_Request *request, CMD_Reply *reply, int requested_reply, int verbose)
 {
     int status;
-    int failCount=0;
 
     // when chrony restarts during a request the data received is useless so the reply is checked here as part of the loop
     while (!submit_request(request, reply))

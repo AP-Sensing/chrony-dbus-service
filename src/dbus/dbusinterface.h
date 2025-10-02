@@ -40,7 +40,8 @@ struct ChronySourceData
         SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
 
-    typedef make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode, std::uint32_t, std::uint16_t, bool, std::uint32_t>::type serializer_type;
+    typedef make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode, std::uint32_t, std::uint16_t, bool,
+                            std::uint32_t>::type serializer_type;
 
     /// can be either a hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789)
     std::string name;

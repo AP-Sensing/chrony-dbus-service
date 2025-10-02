@@ -4,7 +4,7 @@
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
 
-#include <chrono>
+#include <chrono> // NOLINT (misc-include-cleaner) False positive
 #include <cstdint>
 #include <ctime>
 #include <filesystem>
@@ -24,14 +24,14 @@ bool checkCommandSocket()
 {
     bool retVal = false;
     const std::filesystem::path commandSocketPath = "/var/run/chrony/chronyd.sock";
-    for(int failCount=0; failCount<10; ++failCount)
+    for (int failCount = 0; failCount < 10; ++failCount)
     {
         if (std::filesystem::exists(commandSocketPath))
         {
             retVal = true;
             break;
         }
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(250ms); // NOLINT (misc-include-cleaner) False positive
     }
     return retVal;
 }
@@ -42,10 +42,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     getSources >> [this]()
     {
         std::cout << ">> getSources enter" << "\n";
-        if(!checkCommandSocket())
+        if (!checkCommandSocket())
         {
             std::cerr << "!! getSources error: chronyd command socket is unavailable!\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed","The chronyd command socket is unavailable!"));
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr, sourceList] = chrony::client::process_cmd_sources();
         if (success) { respond_with(getSources(sourceList)); }
@@ -61,10 +61,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     addServers >> [this](const std::vector<AddServersData> &serverList)
     {
         std::cout << ">> addservers enter" << "\n";
-        if(!checkCommandSocket())
+        if (!checkCommandSocket())
         {
             std::cerr << "!! addservers error: chronyd command socket is unavailable!\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed","The chronyd command socket is unavailable!"));
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         for (const auto &server : serverList)
         {
@@ -87,10 +87,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     deleteServers >> [this](const std::vector<std::string> &serverList)
     {
         std::cout << ">> deleteServers enter" << "\n";
-        if(!checkCommandSocket())
+        if (!checkCommandSocket())
         {
             std::cerr << "!! deleteServers error: chronyd command socket is unavailable!\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed","The chronyd command socket is unavailable!"));
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         for (const auto &server : serverList)
         {
@@ -112,10 +112,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
                    time)  // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
     {
         std::cout << ">> addManualTime enter" << "\n";
-        if(!checkCommandSocket())
+        if (!checkCommandSocket())
         {
             std::cerr << "!! addManualTime error: chronyd command socket is unavailable!\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed","The chronyd command socket is unavailable!"));
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         /// @todo remove all other manual entries?
         const auto [success, errStr] = chrony::client::process_cmd_settime(
@@ -133,10 +133,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     clearManualTimeList >> [this]()
     {
         std::cout << ">> clearManualTimeList enter" << "\n";
-        if(!checkCommandSocket())
+        if (!checkCommandSocket())
         {
             std::cerr << "!! clearManualTimeList error: chronyd command socket is unavailable!\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed","The chronyd command socket is unavailable!"));
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr] = ::chrony::client::process_cmd_clear_manual_list();
         if (success) { respond_with(clearManualTimeList()); }
@@ -152,10 +152,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     getManualTimeList >> [this]()
     {
         std::cout << ">> getManualTimeList enter" << "\n";
-        if(!checkCommandSocket())
+        if (!checkCommandSocket())
         {
             std::cerr << "!! getManualTimeList error: chronyd command socket is unavailable!\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed","The chronyd command socket is unavailable!"));
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr, list] = chrony::client::process_cmd_manual_list();
         if (success) { respond_with(getManualTimeList(list)); }
@@ -171,10 +171,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     setManualTimeEnabled >> [this](bool enabled)
     {
         std::cout << ">> setManualTimeEnabled enter" << "\n";
-        if(!checkCommandSocket())
+        if (!checkCommandSocket())
         {
             std::cerr << "!! setManualTimeEnabled error: chronyd command socket is unavailable!\n";
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed","The chronyd command socket is unavailable!"));
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         CMD_Request request;
         CMD_Reply reply;
