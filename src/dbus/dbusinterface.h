@@ -17,8 +17,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <simppl/interface.h>
 #include <simppl/struct.h>
 
-using namespace simppl::dbus;
-
 // see man `chrony.conf` and `man chronyc`
 
 struct ChronySourceData
@@ -40,7 +38,7 @@ struct ChronySourceData
         SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
 
-    typedef make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode, std::uint32_t, std::uint16_t, bool,
+    typedef simppl::dbus::make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode, std::uint32_t, std::uint16_t, bool,
                             std::uint32_t>::type serializer_type;
 
     /// can be either a hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789)
@@ -83,7 +81,7 @@ struct AddServersData
         IPv6 = 0x4000            ///< added source is IPv6 reachable
     };
 
-    typedef make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, std::uint32_t, ServerFlags>::type serializer_type;
+    typedef simppl::dbus::make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, std::uint32_t, ServerFlags>::type serializer_type;
 
     /// can be either a hostname or IP address
     std::string name;
@@ -102,20 +100,20 @@ namespace org::freedesktop
 INTERFACE(ChronyDBus)
 {
     /// Returns a list of NTP servers that chrony uses to sync time
-    Method<out<std::vector<ChronySourceData>>, _throw<simppl::dbus::Error>> getSources;
+    Method<simppl::dbus::out<std::vector<ChronySourceData>>, simppl::dbus::_throw<simppl::dbus::Error>> getSources;
     /// Adds a list of NTP servers for time sync
-    Method<in<std::vector<AddServersData>>, _throw<simppl::dbus::Error>> addServers;
+    Method<simppl::dbus::in<std::vector<AddServersData>>, simppl::dbus::_throw<simppl::dbus::Error>> addServers;
     /// Deletes a list of servers with the given address string
-    Method<in<std::vector<std::string>>, _throw<simppl::dbus::Error>> deleteServers;
+    Method<simppl::dbus::in<std::vector<std::string>>, simppl::dbus::_throw<simppl::dbus::Error>> deleteServers;
     /// Enables or disables manual time control (if enabled and a manual time is set, then that time is used as a reference instead of NTP
     /// servers)
     /// Adds a manual time entry with the format "yyyy-mm-dd HH:MM:SS"
-    Method<in<std::string>, _throw<simppl::dbus::Error>> addManualTime;
-    Method<_throw<simppl::dbus::Error>> clearManualTimeList;
+    Method<simppl::dbus::in<std::string>, simppl::dbus::_throw<simppl::dbus::Error>> addManualTime;
+    Method<simppl::dbus::_throw<simppl::dbus::Error>> clearManualTimeList;
     /// Lists all manual time entries with the format "yyyy-mm-dd HH:MM:SS"
-    Method<out<std::vector<std::string>>, _throw<simppl::dbus::Error>> getManualTimeList;
+    Method<simppl::dbus::out<std::vector<std::string>>, simppl::dbus::_throw<simppl::dbus::Error>> getManualTimeList;
     /// @note Disabling manual time currently doesn't delete manual time entries
-    Method<in<bool>, _throw<simppl::dbus::Error>> setManualTimeEnabled;
+    Method<simppl::dbus::in<bool>, simppl::dbus::_throw<simppl::dbus::Error>> setManualTimeEnabled;
 
     // constructor
     ChronyDBus()
