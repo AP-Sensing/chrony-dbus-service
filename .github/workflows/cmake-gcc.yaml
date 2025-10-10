@@ -16,7 +16,7 @@ jobs:
             env:
                 PROJECT_NAME: ${{ github.repository }}
                 BUILD_WORKSPACE: build
-                PARALLEL: 16
+                PARALLEL: 4
         steps:
             - name: Install Dependencies
               id: install-dependencies

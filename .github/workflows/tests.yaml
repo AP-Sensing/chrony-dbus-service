@@ -18,13 +18,17 @@ jobs:
         BUILD_WORKSPACE: build
         CTEST: ${{ inputs.TEST_PARAMS }}
     steps:
+      - name: Install Dependencies
+        id: install-dependencies
+        run: |
+          echo "${{ github.action }}: Installing dependencies"
+          dnf install -y -q rpmdevtools boost-devel cmake clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
       - name: Checkout
         uses: actions/checkout@v5
       - name: build-tests
         id: build-tests
         run: |
-          echo "${{ github.action }}: Installing dependencies"
-          dnf --quiet install -yq boost-devel cmake clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
+          git config --global --add safe.directory "$(pwd)" # Ensure the ownership of the .git directory is OK
           rm -rf $BUILD_WORKSPACE # Ensure we start clean
           echo "${{ github.action }}: Running cmake . -B"
           cmake . -B $BUILD_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=ON

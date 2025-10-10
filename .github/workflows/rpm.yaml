@@ -11,13 +11,17 @@ jobs:
         PROJECT_NAME: ${{ github.repository }}
         BUILD_WORKSPACE: build
     steps:
+      - name: Install Dependencies
+        id: install-dependencies
+        run: |
+          echo "${{ github.action }}: Installing dependencies"
+          dnf install -y -q rpmdevtools cmake gcc gcc-c++ pkgconf-pkg-config dbus-libs git 2>&1 1>/dev/null
       - name: Checkout
         uses: actions/checkout@v5
       - name: build-rpm
         id: build-rpm
         run: |
-          echo "${{ github.action }}: Installing dependencies"
-          dnf install -y -q rpmdevtools cmake gcc gcc-c++ pkgconf-pkg-config dbus-libs 2>&1 1>/dev/null
+          git config --global --add safe.directory "$(pwd)" # Ensure the ownership of the .git directory is OK
           rm -rf $BUILD_WORKSPACE # Ensure we start clean
           sed -i "s/set(CPACK_RPM_PACKAGE_RELEASE \"[0-9]\+\")/set(CPACK_RPM_PACKAGE_RELEASE \"${GITHUB_RUN_ID}\")/" packaging/rpm/cpack_config.cmake
           echo "${{ github.action }}: Running cmake . -B"
