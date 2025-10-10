@@ -43,8 +43,4 @@ set(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_SOURCE_DIR}/packaging/rpm/post
 set(CPACK_RPM_SPEC_MORE_DEFINE "%{?systemd_requires}")
 set(CPACK_RPM_BUILDREQUIRES "systemd-rpm-macros")
 
-# Skip paths to avoid conflicts with other packages.
-# Source: https://gitlab.kitware.com/cmake/cmake/-/issues/23457
-list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/etc/sudoers.d")
-
 include(CPack)
