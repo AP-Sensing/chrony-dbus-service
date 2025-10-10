@@ -30,7 +30,6 @@ jobs:
         with:
             CMAKE_PARAMS: -DCMAKE_BUILD_TYPE=Debug -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=ON -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY=ON
     build-rpm:
-        needs: tests
         uses: ./.github/workflows/rpm.yaml
     cppcheck:
         uses: ./.github/workflows/cppcheck.yaml
