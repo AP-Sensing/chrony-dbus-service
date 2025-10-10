@@ -12,7 +12,7 @@
 #include <thread>
 #include <vector>
 
-#include "../dbus/dbusinterface.h"
+#include "chrony/dbus/dbus_interface.hpp"
 
 using namespace std::chrono_literals;
 

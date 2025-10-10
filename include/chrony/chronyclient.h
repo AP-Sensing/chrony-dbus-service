@@ -42,7 +42,7 @@
 #include "chronyutil.h"
 
 // for struct ChronySourceData;
-#include "../dbus/dbusinterface.h"
+#include "chrony/dbus/dbus_interface.hpp"
 
 // all content in this namespace was originally copied from chrony https://gitlab.com/chrony/chrony
 namespace chrony

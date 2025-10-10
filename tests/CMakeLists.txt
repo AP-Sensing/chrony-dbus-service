@@ -19,22 +19,23 @@ function(add_chrony_dbus_service_test_executable)
                                                simppl
                                                ${DBUS_LIBRARIES})
     gtest_discover_tests(${TEST_NAME}
-                         TEST_PREFIX "aps_chronydbusservice_"
+                         TEST_PREFIX "aps_chrony_dbus_service_"
                          XML_OUTPUT_DIR "${PROJECT_BINARY_DIR}/results")
 
     # Group under the "tests" project folder in IDEs such as Visual Studio
     set_property(TARGET ${TEST_NAME} PROPERTY FOLDER "tests")
 
-    message(STATUS "Added APS chronydbusservice test executable: ${TEST_NAME}.")
+    message(STATUS "Added APS chrony_dbus_service test executable: ${TEST_NAME}.")
 endfunction()
 
 ##########################################
 # Tests
 ##########################################
 
-add_chrony_dbus_service_test_executable(NAME "chronydbusservice_test"
-                                 SRCS "${PROJECT_SOURCE_DIR}/src/tests/chronydbustest.h"
-                                      "${PROJECT_SOURCE_DIR}/src/tests/chronydbustest.cpp"
-                                 LIBS simppl
-                                      ${DBUS_LIBRARIES})
+add_chrony_dbus_service_test_executable(NAME "chrony_dbus_service_test"
+                                        SRCS "${PROJECT_SOURCE_DIR}/src/chrony/dbus/chrony_dbus_service.Test.cpp"
+                                        LIBS Simppl::simppl
+                                             chrony::dbus
+                                             chrony
+                                             ${DBUS_LIBRARIES})
 

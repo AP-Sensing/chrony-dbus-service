@@ -8,20 +8,15 @@ cmake_minimum_required(VERSION 3.27)
 # Only touch these macros, when creating a release or hotfix
 # ******************************************************************
 set(PROJECT_INTERNAL_VERSION_MAJOR 0)
-set(PROJECT_INTERNAL_VERSION_MINOR 1)
+set(PROJECT_INTERNAL_VERSION_MINOR 2)
 set(PROJECT_INTERNAL_VERSION_PATCH 0)
 set(PROJECT_NAME "chrony-dbus-service")
-set(PROJECT_DESCRIPTION "The AP Sensing chronydbusservice code.")
+set(PROJECT_DESCRIPTION "Code for a chrony DBus service.")
 set(PROJECT_HOMEPAGE_URL "https://github.com/AP-Sensing/chrony-dbus-service")
 
 project("${PROJECT_NAME}" DESCRIPTION "${PROJECT_DESCRIPTION}"
                           HOMEPAGE_URL "${PROJECT_HOMEPAGE_URL}"
                           LANGUAGES CXX)
-
-# Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24
-if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-    cmake_policy(SET CMP0135 NEW)
-endif()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -31,6 +26,20 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(version_setup)
 message(STATUS "${PROJECT_NAME} project version: ${${PROJECT_NAME}_VERSION_FULL_STRING}")
+
+##########################################
+# Configure Version
+##########################################
+
+set(VERSION_FILE_INCLUDE_PATH "${${PROJECT_NAME}_BINARY_DIR}/include/chrony/dbus/version")
+configure_file("${${PROJECT_NAME}_SOURCE_DIR}/cmake/Version.hpp.in" "${VERSION_FILE_INCLUDE_PATH}/Version.hpp")
+add_library(chrony_dbus_version INTERFACE)
+add_library(chrony::dbus::version ALIAS chrony_dbus_version)
+target_sources(chrony_dbus_version INTERFACE
+                                   FILE_SET HEADERS
+                                   BASE_DIRS ${${PROJECT_NAME}_BINARY_DIR}/include
+                                   FILES ${VERSION_FILE_INCLUDE_PATH}/Version.hpp)
+
 
 ##########################################
 # C++ Standard
@@ -65,7 +74,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 # Project Options
 ##########################################
 
-macro(aps_chronydbusservice_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
+macro(aps_chrony_dbus_service_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
     option(${OPTION_NAME} ${OPTION_TEXT} ${OPTION_DEFAULT})
 
     if(DEFINED ENV{${OPTION_NAME}})
@@ -80,7 +89,7 @@ macro(aps_chronydbusservice_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
     message(STATUS "  ${OPTION_NAME}: ${${OPTION_NAME}}")
 endmacro()
 
-macro(aps_chronydbusservice_option_string OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
+macro(aps_chrony_dbus_service_option_string OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
     set(${OPTION_NAME} ${OPTION_DEFAULT} CACHE STRING ${OPTION_TEXT})
 
     if(DEFINED ENV{${OPTION_NAME}})
@@ -113,22 +122,21 @@ endmacro()
 
 message(STATUS "=======================================================")
 message(STATUS "Project Options:")
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS "Set to ON to enable the GCC >= 10 static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK have to be disabled." OFF)
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY "Set to ON to enable clang-tidy code linting. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS have to be disabled." OFF)
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK "Set to ON to enable cppcheck static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYZE have to be disabled." OFF)
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE "Set to ON to enable cppcheck exhaustive check. This requires APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK to be enabled and will take a loooong time. Recommended for nightly builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS "Set to ON to enable the GCC >= 10 static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK have to be disabled." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY "Set to ON to enable clang-tidy code linting. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS have to be disabled." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY_FIX "Set to ON to enable automatic fixing of errors, notes and suggestions found by Clang-Tidy." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK "Set to ON to enable cppcheck static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYZE have to be disabled." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE "Set to ON to enable cppcheck exhaustive check. This requires APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK to be enabled and will take a loooong time. Recommended for nightly builds." OFF)
 
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN "Set to ON to enable cloning all repositories that are stored inside our GitLab instance with the use of the GitLab CI Token. If set to OFF, ssh will be used for cloning. Ref: https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html" OFF)
+aps_chrony_dbus_service_option_string(APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE "Define wether to build a RPM or SRPM package. Default: RPM" RPM)
 
-aps_chronydbusservice_option_string(APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE "Define wether to build a RPM or SRPM package. Default: RPM" RPM)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_BUILD_TESTS "Set to ON to build tests." ON)
 
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_BUILD_TESTS "Set to ON to build tests." OFF)
-
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_THREAD "Enables the ThreadSanitizer for debug builds." OFF)
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ADDR "Enables the AddressSanitizer for debug builds." OFF)
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_LEAK "Enables the LeakSanitizer for debug builds." OFF)
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_UB "Enables the UndefinedBehaviorSanitizer for debug builds." OFF)
-aps_chronydbusservice_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ALL "Enables all sanitizers for debug builds except the ThreadSanitizer since it is incompatible with the other sanitizers." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_THREAD "Enables the ThreadSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ADDR "Enables the AddressSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_LEAK "Enables the LeakSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_UB "Enables the UndefinedBehaviorSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ALL "Enables all sanitizers for debug builds except the ThreadSanitizer since it is incompatible with the other sanitizers." OFF)
 message(STATUS "=======================================================")
 
 ##########################################
@@ -141,10 +149,7 @@ include(sanitizer)
 # Linting
 ##########################################
 
-if(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY)
-    include(clang_tidy)
-endif()
-
+include(clang_tidy)
 
 ##########################################
 # Cppcheck
@@ -211,6 +216,7 @@ endif()
 ##########################################
 # Dependencies
 ##########################################
+
 set(ROOT_BINARY_DIR "${PROJECT_BINARY_DIR}")
 # Ensure we get the root binary directory here
 if(ROOT_BINARY_DIR MATCHES ".*\/CMake")
@@ -240,7 +246,7 @@ include(FetchContent)
 # Simppl
 set(SIMPPL_USE_POLL OFF CACHE INTERNAL " " FORCE)
 FetchContent_Declare(simppl GIT_REPOSITORY https://github.com/AP-Sensing/simppl.git
-                            GIT_TAG d475fec04e0717f20a54574a6b557ba6c8f0fb90
+                            GIT_TAG d6bd7cea0993e5b9aee8162935117ae03fe9d201
                             SYSTEM)
 FetchContent_MakeAvailable(simppl)
 # Properly specify simppl to be installed else it will be missing when building an RPM
@@ -262,7 +268,6 @@ endif()
 ##########################################
 
 add_subdirectory(src)
-
 
 ##########################################
 # Tests

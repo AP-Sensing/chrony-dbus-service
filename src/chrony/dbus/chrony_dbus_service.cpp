@@ -1,10 +1,10 @@
-#include "chronydbusservice.h"
+#include "chrony/dbus/chrony_dbus_service.hpp"
 
 #include <netinet/in.h>
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
 
-#include <chrono> // NOLINT (misc-include-cleaner) False positive
+#include <chrono>  // NOLINT (misc-include-cleaner) False positive
 #include <cstdint>
 #include <ctime>
 #include <filesystem>
@@ -14,9 +14,9 @@
 #include <thread>
 #include <vector>
 
-#include "../chrony/chronycandm.h"
-#include "../chrony/chronyclient.h"
-#include "dbusinterface.h"
+#include "chrony/chronycandm.h"
+#include "chrony/chronyclient.h"
+#include "chrony/dbus/dbus_interface.hpp"
 
 using namespace std::chrono_literals;
 
@@ -31,7 +31,7 @@ bool checkCommandSocket()
             retVal = true;
             break;
         }
-        std::this_thread::sleep_for(250ms); // NOLINT (misc-include-cleaner) False positive
+        std::this_thread::sleep_for(250ms);  // NOLINT (misc-include-cleaner) False positive
     }
     return retVal;
 }

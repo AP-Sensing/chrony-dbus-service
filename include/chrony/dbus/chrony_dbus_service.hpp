@@ -4,7 +4,7 @@
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
 
-#include "dbusinterface.h"
+#include "chrony/dbus/dbus_interface.hpp"
 
 class ChronyDBusService : simppl::dbus::Skeleton<org::freedesktop::ChronyDBus>
 {

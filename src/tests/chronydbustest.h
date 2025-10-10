@@ -1,4 +1,0 @@
-#ifndef CHRONYDBUSTEST_H
-#define CHRONYDBUSTEST_H
-
-#endif  // CHRONYDBUSTEST_H

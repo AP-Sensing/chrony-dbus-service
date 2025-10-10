@@ -1,15 +1,36 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.27)
 
-if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    find_program(CLANG_TIDY_PATH NAMES clang-tidy)
-    if(CLANG_TIDY_PATH STREQUAL "CLANG_TIDY_PATH-NOTFOUND")
-        message(FATAL_ERROR "clang-tidy not found but it is required when the APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY option is enabled.")
-    endif()
-    
-    message(STATUS "Enabling clang-tidy")
-    # Do not add "-p" "${CMAKE_BINARY_DIR}/compile_commands.json" since then it would all the time check all files over and over instead of just the current target.
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_PATH}" "--config-file=${CMAKE_SOURCE_DIR}/.clang-tidy")
-    add_compile_definitions(CLANG_TIDY)
-else()
-    message(FATAL_ERROR "clang-tidy is not supported when building for windows")
+if(WIN32)
+    message(FATAL_ERROR "clang-tidy is not supported when building for Windows")
 endif()
+
+if(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY)
+    find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy)
+    if(CLANG_TIDY_EXECUTABLE STREQUAL "CLANG_TIDY_EXECUTABLE-NOTFOUND")
+        message(FATAL_ERROR "Clang-Tidy not found but it is required.")
+    endif()
+
+    if(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY_FIX)
+        set(CLANG_TIDY_FIX_COMMANDS ";--fix;--fix-errors;--fix-notes")
+        message(STATUS "Clang-Tidy enabled with automatic error fixing")
+    else()
+        set(CLANG_TIDY_FIX_COMMANDS "")
+        message(STATUS "Clang-Tidy enabled without automatic error fixing")
+    endif()
+
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE};-warnings-as-errors=*${CLANG_TIDY_FIX_COMMANDS}")
+endif()
+
+# Temporarily disable clang-tidy linting for all target declaration that follow this macro until you call
+# 'enable_clang_tidy()' again.
+macro(disable_clang_tidy)
+    clear_variable(DESTINATION CMAKE_CXX_CLANG_TIDY BACKUP CMAKE_CXX_CLANG_TIDY_BKP)
+    clear_variable(DESTINATION CMAKE_C_CLANG_TIDY BACKUP CMAKE_C_CLANG_TIDY_BKP)
+endmacro()
+
+# Enables clang-tidy for all  for all target declaration that follow this macro again. Pendant to
+# 'disable_clang_tidy()'.
+macro(enable_clang_tidy)
+    restore_variable(DESTINATION CMAKE_CXX_CLANG_TIDY BACKUP CMAKE_CXX_CLANG_TIDY_BKP)
+    restore_variable(DESTINATION CMAKE_C_CLANG_TIDY BACKUP CMAKE_C_CLANG_TIDY_BKP)
+endmacro()
