@@ -7,6 +7,6 @@
     </suppress>
     <suppress>
         <id>*</id>
-        <fileName>*/src/chrony/*.h</fileName>
+        <fileName>*/chrony/*.h</fileName>
     </suppress>
 </suppressions>
