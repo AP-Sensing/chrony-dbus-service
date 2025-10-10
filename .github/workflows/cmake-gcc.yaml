@@ -28,7 +28,7 @@ jobs:
             - name: build-cmake-gcc
               id: build-cmake-gcc
               run: |
-                  ls -la
+                  git config --global --add safe.directory "$(pwd)" # Ensure the ownership of the .git directory is OK
                   rm -rf $BUILD_WORKSPACE # Ensure we start clean
                   echo "${{ github.action }}: Running cmake . -B with params: '${{ inputs.CMAKE_PARAMS }}'"
                   cmake . -B $BUILD_WORKSPACE ${{ inputs.CMAKE_PARAMS }}
