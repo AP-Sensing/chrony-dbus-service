@@ -15,7 +15,7 @@ jobs:
         id: install-dependencies
         run: |
           echo "${{ github.action }}: Installing dependencies"
-          dnf install -y -q rpmdevtools cmake gcc gcc-c++ pkgconf-pkg-config dbus-libs git 2>&1 1>/dev/null
+          dnf install -y -q rpmdevtools boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
       - name: Checkout
         uses: actions/checkout@v5
       - name: build-rpm
