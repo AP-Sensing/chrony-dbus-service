@@ -1,5 +1,4 @@
-#ifndef CHRONYDBUSSERVICE_H
-#define CHRONYDBUSSERVICE_H
+#pragma once
 
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
@@ -10,7 +9,5 @@ class ChronyDBusService : simppl::dbus::Skeleton<org::freedesktop::ChronyDBus>
 {
    public:
     explicit ChronyDBusService(simppl::dbus::Dispatcher &disp);
-    ~ChronyDBusService() = default;
+    ~ChronyDBusService() override = default;
 };
-
-#endif  // CHRONYDBUSSERVICE_H

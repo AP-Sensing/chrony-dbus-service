@@ -10,8 +10,8 @@ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVE
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#ifndef DBUSINTERFACE_H
-#define DBUSINTERFACE_H
+#pragma once
+
 // required for serializer_type to work
 #include <simppl/any.h>
 #include <simppl/interface.h>
@@ -21,14 +21,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 struct ChronySourceData
 {
-    enum class SourceMode : std::uint16_t
+    enum class SourceMode : std::uint8_t
     {
         Server = 0,         ///< Source is an NTP server
         Peer = 1,           ///< Used if chrony is configured to relay time to other peers
         ReferenceClock = 2  ///< Source is a reference clock e.g. a GPS or an IEEE 1588 PTP hardware clock with PHC driver
     };
 
-    enum class SelectionState : std::uint16_t
+    enum class SelectionState : std::uint8_t
     {
         Selected = 0,            ///< Source is used to sync time
         Unselectable = 1,        ///< Source is configured to be never used unless manually specified
@@ -38,26 +38,26 @@ struct ChronySourceData
         SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
 
-    typedef simppl::dbus::make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode, std::uint32_t, std::uint16_t, bool,
-                            std::uint32_t>::type serializer_type;
+    using serializer_type = simppl::dbus::make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode,
+                                                          std::uint32_t, std::uint16_t, bool, std::uint32_t>::type;
 
     /// can be either a hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789)
     std::string name;
-    /// pow(2, X) seconds, e.g. pollratePow2 = -1 -> 0.5 seconds
-    std::int32_t pollratePow2;
+    /// pow(2, X) seconds, e.g. pollRatePow2 = -1 -> 0.5 seconds
+    std::int32_t pollRatePow2{0};
     /// stratum is the distance to a reference clock in the measurement chain, stratum 1 is directly connected to a reference clock
-    std::uint32_t stratum;
-    SelectionState selectionState;
-    SourceMode sourceMode;
+    std::uint32_t stratum{0};
+    SelectionState selectionState{SelectionState::Selected};
+    SourceMode sourceMode{SourceMode::Server};
     /// last synchronization time, this can be 10 minutes or more depending on the /etc/chrony.conf
-    std::uint32_t secondsSinceLastsample;
+    std::uint32_t secondsSinceLastSample{0};
     /// ntp server port
-    std::uint16_t port;
+    std::uint16_t port{0};
     /// NTS status
-    bool ntsEnabled;
+    bool ntsEnabled{false};
     /// NTS certificate ID
-    std::uint32_t ntsCertId;
-};
+    std::uint32_t ntsCertId{0};
+} __attribute__((aligned(64)));
 
 struct AddServersData
 {
@@ -81,7 +81,8 @@ struct AddServersData
         IPv6 = 0x4000            ///< added source is IPv6 reachable
     };
 
-    typedef simppl::dbus::make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, std::uint32_t, ServerFlags>::type serializer_type;
+    using serializer_type =
+        simppl::dbus::make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, std::uint32_t, ServerFlags>::type;
 
     /// can be either a hostname or IP address
     std::string name;
@@ -93,11 +94,11 @@ struct AddServersData
     std::uint32_t ntsCertificateSet = 0;
     /// config flags determine how chronyd communicates with this server
     ServerFlags flags = ServerFlags::Online;
-};
+} __attribute__((aligned(64)));
 
 namespace org::freedesktop
 {
-INTERFACE(ChronyDBus)
+INTERFACE(ChronyDBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is inside simppl
 {
     /// Returns a list of NTP servers that chrony uses to sync time
     Method<simppl::dbus::out<std::vector<ChronySourceData>>, simppl::dbus::_throw<simppl::dbus::Error>> getSources;
@@ -128,5 +129,3 @@ INTERFACE(ChronyDBus)
     }
 };
 }  // namespace org::freedesktop
-
-#endif  // DBUSINTERFACE_H

@@ -6,7 +6,6 @@
 
 #include <chrono>  // NOLINT (misc-include-cleaner) False positive
 #include <cstdint>
-#include <ctime>
 #include <filesystem>
 #include <format>
 #include <iostream>
@@ -20,6 +19,8 @@
 
 using namespace std::chrono_literals;
 
+namespace
+{
 bool checkCommandSocket()
 {
     bool retVal = false;
@@ -35,6 +36,7 @@ bool checkCommandSocket()
     }
     return retVal;
 }
+}  // namespace
 
 ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     : simppl::dbus::Skeleton<ChronyDBus>(disp, "chronyDBusServer")

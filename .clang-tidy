@@ -1,9 +1,8 @@
 ---
-Checks: 'clang-diagnostic-*,
-clang-analyzer-*,
-*,
+Checks: '*,
 -cppcoreguidelines-pro-type-static-cast-downcast,
 -fuchsia-default-arguments-calls,
+-fuchsia-default-arguments,
 -fuchsia-default-arguments-declarations,
 -fuchsia-overloaded-operator,
 -fuchsia-statically-constructed-objects,
@@ -11,6 +10,7 @@ clang-analyzer-*,
 -modernize-use-auto,
 -readability-implicit-bool-conversion,
 -readability-const-return-type,
+-google-runtime-references,
 -misc-non-private-member-variables-in-classes,
 -cppcoreguidelines-non-private-member-variables-in-classes,
 -cppcoreguidelines-pro-type-vararg,
@@ -24,7 +24,6 @@ clang-analyzer-*,
 -hicpp-signed-bitwise,
 -llvmlibc-implementation-in-namespace,
 -llvmlibc-restrict-system-libc-headers,
--readability-function-cognitive-complexity,
 -readability-identifier-length,
 -altera-unroll-loops,
 -altera-id-dependent-backward-branch,
@@ -50,10 +49,14 @@ clang-analyzer-*,
 -cppcoreguidelines-avoid-do-while,
 -abseil-string-find-str-contains,
 -clang-analyzer-optin.cplusplus.UninitializedObject,
--cppcoreguidelines-avoid-const-or-ref-data-members
+-clang-analyzer-optin.cplusplus.VirtualCall,
+-cppcoreguidelines-avoid-const-or-ref-data-members,
+-android-cloexec-open,
+-llvm-header-guard,
 -llvmlibc-inline-function-decl,
--cppcoreguidelines-rvalue-reference-param-not-moved
+-readability-function-cognitive-complexity
 '
 WarningsAsErrors: '*'
-HeaderFilterRegex: 'src/*.hpp'
+ExcludeHeaderFilterRegex: '.*\/build\/include\/.*'
+HeaderFilterRegex: '.*\.hpp'
 FormatStyle: file

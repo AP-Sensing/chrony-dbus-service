@@ -572,9 +572,9 @@ static ChronyCallResultT<std::vector<ChronySourceData>> process_cmd_sources()
         mode = ntohs(reply.data.source_data.mode);
         data.sourceMode = static_cast<ChronySourceData::SourceMode>(mode);
         data.selectionState = static_cast<ChronySourceData::SelectionState>(ntohs(reply.data.source_data.state));
-        data.pollratePow2 = ntohl(reply.data.source_data.poll);
+        data.pollRatePow2 = ntohl(reply.data.source_data.poll);
         data.stratum = ntohl(reply.data.source_data.stratum);
-        data.secondsSinceLastsample = ntohl(reply.data.source_data.since_sample);
+        data.secondsSinceLastSample = ntohl(reply.data.source_data.since_sample);
 
         retVal.push_back(data);
         if (ip_addr.family == IPADDR_ID) continue;
