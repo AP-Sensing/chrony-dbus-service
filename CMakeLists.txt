@@ -130,7 +130,7 @@ aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIV
 
 aps_chrony_dbus_service_option_string(APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE "Define wether to build a RPM or SRPM package. Default: RPM" RPM)
 
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_BUILD_TESTS "Set to ON to build tests." ON)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_BUILD_TESTS "Set to ON to build tests." OFF)
 
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_THREAD "Enables the ThreadSanitizer for debug builds." OFF)
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ADDR "Enables the AddressSanitizer for debug builds." OFF)
