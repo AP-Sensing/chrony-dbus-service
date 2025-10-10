@@ -1,4 +1,4 @@
-## Builds a cmake project in a fedora:40 docker image with installed gcc toolchain
+## Builds a cmake project in a fedora:41 docker image with installed gcc toolchain
 
 name: build-gcc
 on:
@@ -12,23 +12,21 @@ jobs:
     build-gcc:
         runs-on: ubuntu-latest
         container:
-            image: fedora:40
+            image: fedora:41
             env:
                 PROJECT_NAME: ${{ github.repository }}
                 BUILD_WORKSPACE: build
                 PARALLEL: 16
         steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-          - name: build-cmake-gcc
-            id: build-cmake-gcc
-            run: |
-                echo "${{ github.action }}: Installing dependencies"
-                dnf install -y -q boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
-                rm -rf $BUILD_WORKSPACE # Ensure we start clean
-                echo "${{ github.action }}: Running cmake . -B with params: '${{ inputs.CMAKE_PARAMS }}'"
-                cmake . -B $BUILD_WORKSPACE ${{ inputs.CMAKE_PARAMS }}
-                echo "${{ github.action }}: Running cmake --build"
-                cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-
-
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: build-cmake-gcc
+              id: build-cmake-gcc
+              run: |
+                  echo "${{ github.action }}: Installing dependencies"
+                  dnf install -y -q boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
+                  rm -rf $BUILD_WORKSPACE # Ensure we start clean
+                  echo "${{ github.action }}: Running cmake . -B with params: '${{ inputs.CMAKE_PARAMS }}'"
+                  cmake . -B $BUILD_WORKSPACE ${{ inputs.CMAKE_PARAMS }}
+                  echo "${{ github.action }}: Running cmake --build"
+                  cmake --build $BUILD_WORKSPACE --parallel $PARALLEL

@@ -1,18 +1,18 @@
 variables:
-  BUILD_WORKSPACE: 'build'
-  CONTAINER_BUILD_IMAGE: 'fedora:40'
+  BUILD_WORKSPACE: "build"
+  CONTAINER_BUILD_IMAGE: "fedora:41"
   CTEST:
-    value: '--parallel 16 --schedule-random'
-    description: 'Here you can set the options for ctest-unittests. By default test involving dbus are excluded since they are not supported inside a container image.'
+    value: "--parallel 16 --schedule-random"
+    description: "Here you can set the options for ctest-unittests. By default test involving dbus are excluded since they are not supported inside a container image."
   VERSION_MORE:
-    value: '$CI_PIPELINE_IID'
-    description: 'The forth number of the version string: 1.2.3.X - It is the X. Will be overwritten in main, hotfix or release-branch'
+    value: "$CI_PIPELINE_IID"
+    description: "The forth number of the version string: 1.2.3.X - It is the X. Will be overwritten in main, hotfix or release-branch"
   PARALLEL:
-    value: '16'
-    description: 'Number of parallel jobs for building. Remember: More parallel jobs require more RAM.'
+    value: "16"
+    description: "Number of parallel jobs for building. Remember: More parallel jobs require more RAM."
 
 workflow:
-  name: 'Build and test pipeline.'
+  name: "Build and test pipeline."
 
 ######################################
 # Templates
@@ -20,8 +20,8 @@ workflow:
 
 # Required for the publish Doxygen stage to find the defined $HTML variable.
 include:
-  - project: 'devops/docker'
-    file: '/templates/global.yml'
+  - project: "devops/docker"
+    file: "/templates/global.yml"
 
 # Prevents all jobs that extend this stage will not run during nightly builds.
 .to_manual_rule_template:
@@ -32,7 +32,6 @@ include:
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS # ... but not for a push inside a open merge request to avoid duplicate runs
       when: never
     - if: $CI_COMMIT_BRANCH  && $CI_PIPELINE_SOURCE != "schedule"
-
 
 # Used to also skip manual duplicate CI runs when pushing to a PR.
 .skip_manual_for_pr_template:
@@ -158,7 +157,6 @@ build (s)rpm:
     paths:
       - $BUILD_WORKSPACE/RPM/
 
-
 # Build Doxygen Docs
 build doxygen:
   extends:
@@ -280,17 +278,15 @@ clang-format:
     - ./scripts/check_clang_format.sh tests src
   needs: []
 
-
 lint-rpm:
-    stage: "🧪 Test"
-    extends:
-      - .container_image_no_nightly_run_template
-    tags:
-      - docker
-    script:
-      - sudo dnf install -y rpmlint
-      - rpmlint -c rpmlint_fedora.toml -s SPECS/chrony-dbus-service.spec
-
+  stage: "🧪 Test"
+  extends:
+    - .container_image_no_nightly_run_template
+  tags:
+    - docker
+  script:
+    - sudo dnf install -y rpmlint
+    - rpmlint -c rpmlint_fedora.toml -s SPECS/chrony-dbus-service.spec
 ######################################
 # 📦 Release
 ######################################

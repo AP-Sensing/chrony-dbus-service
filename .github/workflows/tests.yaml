@@ -2,43 +2,41 @@
 
 name: run-tests
 on:
-    workflow_call:
-        inputs:
-            TEST_PARAMS:
-                description: Parameters passed to ctest
-                type: string
-                default: --parallel 16 --schedule-random
+  workflow_call:
+    inputs:
+      TEST_PARAMS:
+        description: Parameters passed to ctest
+        type: string
+        default: --parallel 16 --schedule-random
 jobs:
-    ctest:
-        runs-on: ubuntu-latest
-        container:
-            image: fedora:40
-            env:
-                PROJECT_NAME: ${{ github.repository }}
-                BUILD_WORKSPACE: build
-                CTEST: ${{ inputs.TEST_PARAMS }}
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-          - name: build-tests
-            id: build-tests
-            run: |
-                echo "${{ github.action }}: Installing dependencies"
-                dnf --quiet install -yq boost-devel cmake clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
-                rm -rf $BUILD_WORKSPACE # Ensure we start clean
-                echo "${{ github.action }}: Running cmake . -B"
-                cmake . -B $BUILD_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=ON
-                echo "${{ github.action }}: Running cmake --build"
-                cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-          - name: run-ctest
-            id: run-ctest
-            run: |
-                echo "${{ github.action }}: Installing dependencies"
-                dnf install -y -q freeradius cmake gtest chrony dbus-libs dbus-daemon 2>&1 1>/dev/null
-                cd $BUILD_WORKSPACE
-                . ../tests/setupenv.sh # start chrony, dbus and set the DBUS_SESSION_BUS_ADDRESS
-                ./src/chrony-dbus-service &
-                sleep 10 # give chronyd time to initialize
-                ctest $CTEST
-
-
+  ctest:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:41
+      env:
+        PROJECT_NAME: ${{ github.repository }}
+        BUILD_WORKSPACE: build
+        CTEST: ${{ inputs.TEST_PARAMS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: build-tests
+        id: build-tests
+        run: |
+          echo "${{ github.action }}: Installing dependencies"
+          dnf --quiet install -yq boost-devel cmake clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
+          rm -rf $BUILD_WORKSPACE # Ensure we start clean
+          echo "${{ github.action }}: Running cmake . -B"
+          cmake . -B $BUILD_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=ON
+          echo "${{ github.action }}: Running cmake --build"
+          cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
+      - name: run-ctest
+        id: run-ctest
+        run: |
+          echo "${{ github.action }}: Installing dependencies"
+          dnf install -y -q freeradius cmake gtest chrony dbus-libs dbus-daemon 2>&1 1>/dev/null
+          cd $BUILD_WORKSPACE
+          . ../tests/setupenv.sh # start chrony, dbus and set the DBUS_SESSION_BUS_ADDRESS
+          ./src/chrony-dbus-service &
+          sleep 10 # give chronyd time to initialize
+          ctest $CTEST
