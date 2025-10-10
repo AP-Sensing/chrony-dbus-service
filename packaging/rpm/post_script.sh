@@ -1,1 +1,1 @@
-%systemd_post template.service
+%systemd_post chrony-dbus-service.service
