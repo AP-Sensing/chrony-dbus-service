@@ -12,7 +12,7 @@ jobs:
         BUILD_WORKSPACE: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: doxygen-build
         id: doxygen-build
         run: |
