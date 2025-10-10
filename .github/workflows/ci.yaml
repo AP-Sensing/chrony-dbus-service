@@ -1,7 +1,7 @@
 ## Continuous integration for chrony-dbus-service
 
 name: chrony-dbus-service-ci
-on: [workflow_dispatch]
+on: [push, workflow_dispatch]
 jobs:
     build-doxygen:
         uses: ./.github/workflows/doxygen.yaml
