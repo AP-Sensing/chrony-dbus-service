@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.27)
 add_library(chrony_dbus)
 add_library(chrony::dbus ALIAS chrony_dbus)
 
+include_directories(${chrony_SOURCE_DIR}/include SYSTEM)
+
 target_sources(
     chrony_dbus
     PRIVATE chrony_dbus_service.cpp

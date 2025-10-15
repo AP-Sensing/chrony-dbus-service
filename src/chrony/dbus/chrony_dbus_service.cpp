@@ -3,6 +3,8 @@
 #include <netinet/in.h>
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
+#include <chrony/candm.hpp>
+#include <chrony/client.hpp>
 
 #include <chrono>  // NOLINT (misc-include-cleaner) False positive
 #include <cstdint>
@@ -13,8 +15,6 @@
 #include <thread>
 #include <vector>
 
-#include "chrony/chronycandm.h"
-#include "chrony/chronyclient.h"
 #include "chrony/dbus/dbus_interface.hpp"
 
 using namespace std::chrono_literals;

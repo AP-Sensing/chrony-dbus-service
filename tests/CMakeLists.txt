@@ -36,6 +36,5 @@ add_chrony_dbus_service_test_executable(NAME "chrony_dbus_service_test"
                                         SRCS "${PROJECT_SOURCE_DIR}/src/chrony/dbus/chrony_dbus_service.Test.cpp"
                                         LIBS Simppl::simppl
                                              chrony::dbus
-                                             chrony
                                              ${DBUS_LIBRARIES})
 

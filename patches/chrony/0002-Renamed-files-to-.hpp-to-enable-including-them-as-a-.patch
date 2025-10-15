@@ -1,0 +1,54 @@
+From 898281c0d3c26e548bad888fec89e458576f1767 Mon Sep 17 00:00:00 2001
+From: Samuel Stirtzel <s.stirtzel@googlemail.com>
+Date: Wed, 15 Oct 2025 15:23:42 +0200
+Subject: [PATCH 2/2] Renamed files to .hpp to enable including them as a
+ header only library
+
+---
+ addressing.h => include/chrony/addressing.hpp | 0
+ candm.h => include/chrony/candm.hpp           | 0
+ client.c => include/chrony/client.hpp         | 0
+ nameserv.c => include/chrony/nameserv.hpp     | 0
+ pktlength.c => include/chrony/pktlength.hpp   | 0
+ socket.c => include/chrony/socket.hpp         | 0
+ util.c => include/chrony/util.hpp             | 0
+ 7 files changed, 0 insertions(+), 0 deletions(-)
+ rename addressing.h => include/chrony/addressing.hpp (100%)
+ rename candm.h => include/chrony/candm.hpp (100%)
+ rename client.c => include/chrony/client.hpp (100%)
+ rename nameserv.c => include/chrony/nameserv.hpp (100%)
+ rename pktlength.c => include/chrony/pktlength.hpp (100%)
+ rename socket.c => include/chrony/socket.hpp (100%)
+ rename util.c => include/chrony/util.hpp (100%)
+
+diff --git a/addressing.h b/include/chrony/addressing.hpp
+similarity index 100%
+rename from addressing.h
+rename to include/chrony/addressing.hpp
+diff --git a/candm.h b/include/chrony/candm.hpp
+similarity index 100%
+rename from candm.h
+rename to include/chrony/candm.hpp
+diff --git a/client.c b/include/chrony/client.hpp
+similarity index 100%
+rename from client.c
+rename to include/chrony/client.hpp
+diff --git a/nameserv.c b/include/chrony/nameserv.hpp
+similarity index 100%
+rename from nameserv.c
+rename to include/chrony/nameserv.hpp
+diff --git a/pktlength.c b/include/chrony/pktlength.hpp
+similarity index 100%
+rename from pktlength.c
+rename to include/chrony/pktlength.hpp
+diff --git a/socket.c b/include/chrony/socket.hpp
+similarity index 100%
+rename from socket.c
+rename to include/chrony/socket.hpp
+diff --git a/util.c b/include/chrony/util.hpp
+similarity index 100%
+rename from util.c
+rename to include/chrony/util.hpp
+-- 
+2.51.0
+
