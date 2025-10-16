@@ -40,7 +40,7 @@ jobs:
           echo "${{ github.action }}: Installing dependencies"
           dnf install -y -q freeradius cmake gtest chrony dbus-libs dbus-daemon 2>&1 1>/dev/null
           cd $BUILD_WORKSPACE
-          . ../tests/setupenv.sh # start chrony, dbus and set the DBUS_SESSION_BUS_ADDRESS
+          . ../tests/setupenv.sh
           ./src/chrony-dbus-service &
           sleep 10 # give chronyd time to initialize
           ctest $CTEST
