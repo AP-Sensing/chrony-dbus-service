@@ -1,10 +1,10 @@
 #include "chrony/dbus/chrony_dbus_service.hpp"
 
+#include <chrony/candm.hpp>
+#include <chrony/client.hpp>
 #include <netinet/in.h>
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
-#include <chrony/candm.hpp>
-#include <chrony/client.hpp>
 
 #include <chrono>  // NOLINT (misc-include-cleaner) False positive
 #include <cstdint>
