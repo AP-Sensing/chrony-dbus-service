@@ -13,9 +13,9 @@ jobs:
     steps:
       - name: pepare-git
         run: |
-            dnf install -y -q git 2>&1 1>/dev/null
-            git config --global user.name github-actions
-            git config --global user.email github-actions@users.noreply.github.com
+          dnf install -y -q git 2>&1 1>/dev/null
+          git config --global user.name github-actions
+          git config --global user.email github-actions@users.noreply.github.com
       - name: Checkout
         uses: actions/checkout@v5
       - name: doxygen-build

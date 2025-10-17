@@ -2,40 +2,40 @@
 
 name: build-gcc
 on:
-    workflow_call:
-        inputs:
-            CMAKE_PARAMS:
-                description: Parameters passed to cmake
-                required: true
-                type: string
+  workflow_call:
+    inputs:
+      CMAKE_PARAMS:
+        description: Parameters passed to cmake
+        required: true
+        type: string
 jobs:
-    build-gcc:
-        runs-on: ubuntu-latest
-        container:
-            image: fedora:41
-            env:
-                PROJECT_NAME: ${{ github.repository }}
-                BUILD_WORKSPACE: build
-                PARALLEL: 4
-        steps:
-            - name: Install Dependencies
-              id: install-dependencies
-              run: |
-                  echo "${{ github.action }}: Installing dependencies"
-                  dnf install -y -q boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
-            - name: pepare-git
-              run: |
-                  dnf install -y -q git 2>&1 1>/dev/null
-                  git config --global user.name github-actions
-                  git config --global user.email github-actions@users.noreply.github.com
-            - name: Checkout
-              uses: actions/checkout@v5
-            - name: build-cmake-gcc
-              id: build-cmake-gcc
-              run: |
-                  git config --global --add safe.directory "$(pwd)" # Ensure the ownership of the .git directory is OK
-                  rm -rf $BUILD_WORKSPACE # Ensure we start clean
-                  echo "${{ github.action }}: Running cmake . -B BUILD_WORKSPACE with params: '${{ inputs.CMAKE_PARAMS }}'"
-                  cmake . -B $BUILD_WORKSPACE ${{ inputs.CMAKE_PARAMS }}
-                  echo "${{ github.action }}: Running cmake --build $BUILD_WORKSPACE"
-                  cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
+  build-gcc:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:41
+      env:
+        PROJECT_NAME: ${{ github.repository }}
+        BUILD_WORKSPACE: build
+        PARALLEL: 4
+    steps:
+      - name: Install Dependencies
+        id: install-dependencies
+        run: |
+          echo "${{ github.action }}: Installing dependencies"
+          dnf install -y -q boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
+      - name: pepare-git
+        run: |
+          dnf install -y -q git 2>&1 1>/dev/null
+          git config --global user.name github-actions
+          git config --global user.email github-actions@users.noreply.github.com
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: build-cmake-gcc
+        id: build-cmake-gcc
+        run: |
+          git config --global --add safe.directory "$(pwd)" # Ensure the ownership of the .git directory is OK
+          rm -rf $BUILD_WORKSPACE # Ensure we start clean
+          echo "${{ github.action }}: Running cmake . -B BUILD_WORKSPACE with params: '${{ inputs.CMAKE_PARAMS }}'"
+          cmake . -B $BUILD_WORKSPACE ${{ inputs.CMAKE_PARAMS }}
+          echo "${{ github.action }}: Running cmake --build $BUILD_WORKSPACE"
+          cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
