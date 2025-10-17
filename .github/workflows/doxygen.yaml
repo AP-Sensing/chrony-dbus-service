@@ -11,6 +11,11 @@ jobs:
         PROJECT_NAME: ${{ github.repository }}
         BUILD_WORKSPACE: build
     steps:
+      - name: pepare-git
+        run: |
+            dnf install -y -q git 2>&1 1>/dev/null
+            git config --global user.name github-actions
+            git config --global user.email github-actions@users.noreply.github.com
       - name: Checkout
         uses: actions/checkout@v5
       - name: doxygen-build
@@ -27,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: doxygen
-          path: ${{ github.workspace }}/doxygen.tar.gz
+          path: ${{ github.workspace }}/${{ env.BUILD_WORKSPACE }}/doxygen.tar.gz
       - name: doxygen-test
         id: doxygen-test
         if: false # what package provides doxygen_junit?

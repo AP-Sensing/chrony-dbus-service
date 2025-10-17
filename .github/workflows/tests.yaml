@@ -22,7 +22,12 @@ jobs:
         id: install-dependencies
         run: |
           echo "${{ github.action }}: Installing dependencies"
-          dnf install -y -q rpmdevtools boost-devel cmake clang clang-analyzer clang-tools-extra git gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
+          dnf install -y -q rpmdevtools boost-devel cmake clang clang-analyzer clang-tools-extra gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
+      - name: pepare-git
+        run: |
+            dnf install -y -q git 2>&1 1>/dev/null
+            git config --global user.name github-actions
+            git config --global user.email github-actions@users.noreply.github.com
       - name: Checkout
         uses: actions/checkout@v5
       - name: build-tests
@@ -40,7 +45,8 @@ jobs:
           echo "${{ github.action }}: Installing dependencies"
           dnf install -y -q freeradius cmake gtest chrony dbus-libs dbus-daemon 2>&1 1>/dev/null
           cd $BUILD_WORKSPACE
-          . ../tests/setupenv.sh
+          chmod u+x ../tests/setupenv.sh
+          ../tests/setupenv.sh
           ./src/chrony-dbus-service &
           sleep 10 # give chronyd time to initialize
           ctest $CTEST
