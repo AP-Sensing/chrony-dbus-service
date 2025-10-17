@@ -253,11 +253,10 @@ FetchContent_MakeAvailable(simppl)
 install(TARGETS simppl LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # the patches allow us to use some of the chrony sources as header-only library
-set(chrony_PATCH_DIR ${CMAKE_SOURCE_DIR}/patches/chrony/)
-set(chrony_PATCH_CMD git am ${chrony_PATCH_DIR}/0001-Modified-the-code-to-compile-with-the-C-based-chrony.patch ${chrony_PATCH_DIR}/0002-Renamed-files-to-.hpp-to-enable-including-them-as-a-.patch)
+file(GLOB chrony_PATCH_FILES ${CMAKE_SOURCE_DIR}/patches/chrony/*.patch)
 FetchContent_Declare(chrony GIT_REPOSITORY https://gitlab.com/chrony/chrony/
                             GIT_TAG 1bcbea9bd2601fd25ea3dff311f7f258bce76f95 # 4.7
-                            PATCH_COMMAND ${chrony_PATCH_CMD}
+                            PATCH_COMMAND git am ${chrony_PATCH_FILES}
                             EXCLUDE_FROM_ALL
                             SYSTEM)
 FetchContent_MakeAvailable(chrony)
