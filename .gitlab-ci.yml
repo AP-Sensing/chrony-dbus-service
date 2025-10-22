@@ -168,7 +168,7 @@ build doxygen:
     - .container_image_no_nightly_run_template
   stage: "🚧 Build Stage 2"
   script:
-    - sudo dnf install -y doxygen
+    - sudo dnf install -y doxygen plantuml
     - chmod 777 scripts/*.sh
     - scripts/doxygen.sh
     - cd $BUILD_WORKSPACE/doxygen/
@@ -228,13 +228,16 @@ build doxygen test:
     - .container_image_no_nightly_run_template
   stage: "🧪 Test"
   script:
-    - sudo dnf install -y doxygen
+    - sudo dnf install -y doxygen pipx plantuml
+    - export PATH=$PATH:/root/.local/bin
+    - pipx install doxygen-junit
     - chmod 777 scripts/*.sh
     - scripts/doxygen.sh || true
     # Fix the file path references so they are relative to the blob and not the buildspace. We use ; as the substitute so don't have to escape every forwardslash
     - sed -i "s;$CI_PROJECT_DIR/src;src;g" $BUILD_WORKSPACE/doxygen/doxygen_warnings.log || exit 1
     - sed -i "s;$CI_PROJECT_DIR/test;test;g" $BUILD_WORKSPACE/doxygen/doxygen_warnings.log || exit 1
     - doxygen_junit --input $BUILD_WORKSPACE/doxygen/doxygen_warnings.log --output $BUILD_WORKSPACE/doxygen/doxygen_junit.xml || exit 1
+    - cat $BUILD_WORKSPACE/doxygen/doxygen_junit.xml
     - grep -iq "<error " "$BUILD_WORKSPACE/doxygen/doxygen_junit.xml" && exit 1 || exit 0
   needs:
     - "build doxygen"
@@ -250,6 +253,9 @@ cppcheck:
   stage: "🧪 Test"
   timeout: 60 minutes
   script:
+    - sudo dnf install -y pipx
+    - export PATH=$PATH:/root/.local/bin
+    - pipx install cppcheck-codequality
     - rm -rf $BUILD_WORKSPACE # Ensure we start clean
     - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Debug -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK=ON -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE=ON
     - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
@@ -258,6 +264,7 @@ cppcheck:
     # Fix the file path references so they are relative to the blob and not the buildspace. We use ; as the substitute so don't have to escape every forwardslash
     - sed -i "s;$CI_PROJECT_DIR/src;src;g" $BUILD_WORKSPACE/cppcheck_report.json
     - sed -i "s;$CI_PROJECT_DIR/test;test;g" $BUILD_WORKSPACE/cppcheck_report.json
+    - cat $BUILD_WORKSPACE/cppcheck.xml
     - if [ $(grep -ic "<error " $BUILD_WORKSPACE/cppcheck.xml) -gt 0 ]; then exit 1; fi
   artifacts:
     reports:
