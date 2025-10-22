@@ -51,6 +51,8 @@ include:
     name: $CONTAINER_BUILD_IMAGE
     pull_policy: always
   timeout: 30 minutes # Default job timeout
+  before_script:
+    - dnf install -y -q boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra gcc gcc-c++ git gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
   tags:
     - container
 
