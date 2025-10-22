@@ -167,6 +167,7 @@ build doxygen:
     - .container_image_no_nightly_run_template
   stage: "🚧 Build Stage 2"
   script:
+    - sudo dnf install -y doxygen
     - chmod 777 scripts/*.sh
     - scripts/doxygen.sh
     - cd $BUILD_WORKSPACE/doxygen/
@@ -224,6 +225,7 @@ build doxygen test:
     - .container_image_no_nightly_run_template
   stage: "🧪 Test"
   script:
+    - sudo dnf install -y doxygen
     - chmod 777 scripts/*.sh
     - scripts/doxygen.sh || true
     # Fix the file path references so they are relative to the blob and not the buildspace. We use ; as the substitute so don't have to escape every forwardslash
