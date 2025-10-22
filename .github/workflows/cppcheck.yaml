@@ -27,13 +27,15 @@ jobs:
         id: run-cppcheck
         run: |
           echo "${{ github.action }}: Installing dependencies"
-          dnf install -y -q cppcheck 2>&1 1>/dev/null
-          # TODO: is cppcheck-codequality required here?
-          #echo "Running cppcheck-codequality"
-          #cppcheck-codequality --input-file $BUILD_WORKSPACE/cppcheck.xml --output-file $BUILD_WORKSPACE/cppcheck_report.json
+          dnf install -y -q cppcheck pipx 2>&1 1>/dev/null
+          export PATH=$PATH:/root/.local/bin
+          pipx install cppcheck-codequality
+          # Convert to a Code Climate quality JSON report
+          cppcheck-codequality --input-file $BUILD_WORKSPACE/cppcheck.xml --output-file $BUILD_WORKSPACE/cppcheck_report.json
           # Fix the file path references so they are relative to the blob and not the buildspace. We use ; as the substitute so don't have to escape every forwardslash
-          #sed -i "s;${PROJECT_NAME}/src;src;g" $BUILD_WORKSPACE/cppcheck_report.json
-          #sed -i "s;${PROJECT_NAME}/test;test;g" $BUILD_WORKSPACE/cppcheck_report.json
+          sed -i "s;${PROJECT_NAME}/src;src;g" $BUILD_WORKSPACE/cppcheck_report.json
+          sed -i "s;${PROJECT_NAME}/test;test;g" $BUILD_WORKSPACE/cppcheck_report.json
+          cat $BUILD_WORKSPACE/cppcheck.xml
           if [ $(grep -ic "<error " $BUILD_WORKSPACE/cppcheck.xml) -gt 0 ]; then exit 1; fi
       - name: cppcheck-artifacts
         uses: actions/upload-artifact@v4
