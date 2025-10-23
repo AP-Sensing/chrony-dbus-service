@@ -44,7 +44,7 @@ jobs:
         id: run-ctest
         run: |
           echo "${{ github.action }}: Installing dependencies"
-          dnf install -y -q freeradius cmake gtest chrony dbus-libs dbus-daemon 2>&1 1>/dev/null
+          dnf install -y -q cmake gtest chrony dbus-libs dbus-daemon 2>&1 1>/dev/null
           cd $BUILD_WORKSPACE
           chmod u+x ../tests/setupenv.sh
           ../tests/setupenv.sh
