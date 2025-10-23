@@ -2,15 +2,15 @@
 
 name: cppcheck
 on: [workflow_call]
+env:
+  PROJECT_NAME: ${{ github.repository }}
+  BUILD_WORKSPACE: build
+  PARALLEL: 1
 jobs:
   cppcheck-run:
     runs-on: ubuntu-latest
     container:
       image: fedora:41
-      env:
-        PROJECT_NAME: ${{ github.repository }}
-        BUILD_WORKSPACE: build
-        PARALLEL: 1
     steps:
       - name: pepare-git
         run: |
@@ -47,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cppcheck
-          path: $BUILD_WORKSPACE/cppcheck_report.json
+          path: ${{ github.workspace }}/${{ env.BUILD_WORKSPACE }}/cppcheck_report.json

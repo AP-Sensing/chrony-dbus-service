@@ -2,14 +2,14 @@
 
 name: doxygen
 on: [workflow_call]
+env:
+  PROJECT_NAME: ${{ github.repository }}
+  BUILD_WORKSPACE: build
 jobs:
   build-doxygen:
     runs-on: ubuntu-latest
     container:
       image: fedora:41
-      env:
-        PROJECT_NAME: ${{ github.repository }}
-        BUILD_WORKSPACE: build
     steps:
       - name: pepare-git
         run: |
@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: doxygen
-          path: ${{ github.workspace }}/${{ env.BUILD_WORKSPACE }}/doxygen.tar.gz
+          path: ${{ github.workspace }}/${{ env.BUILD_WORKSPACE }}/doxygen/doxygen.tar.gz
       - name: doxygen-test
         id: doxygen-test
         run: |

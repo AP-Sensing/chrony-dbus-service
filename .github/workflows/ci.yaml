@@ -2,6 +2,9 @@
 
 name: chrony-dbus-service-ci
 on: [push, workflow_dispatch]
+env:
+  PROJECT_NAME: ${{ github.repository }}
+  BUILD_WORKSPACE: build
 jobs:
   build-doxygen:
     uses: ./.github/workflows/doxygen.yaml
@@ -9,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: fedora:41
-      env:
-        PROJECT_NAME: ${{ github.repository }}
-        BUILD_WORKSPACE: build
     steps:
       - name: pepare-git
         run: |

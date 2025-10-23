@@ -8,15 +8,16 @@ on:
         description: Parameters passed to ctest
         type: string
         default: --parallel 16 --schedule-random
+env:
+  PROJECT_NAME: ${{ github.repository }}
+  BUILD_WORKSPACE: build
+  CTEST: ${{ inputs.TEST_PARAMS }}
 jobs:
   ctest:
     runs-on: ubuntu-latest
     container:
       image: fedora:41
-      env:
-        PROJECT_NAME: ${{ github.repository }}
-        BUILD_WORKSPACE: build
-        CTEST: ${{ inputs.TEST_PARAMS }}
+
     steps:
       - name: Install Dependencies
         id: install-dependencies

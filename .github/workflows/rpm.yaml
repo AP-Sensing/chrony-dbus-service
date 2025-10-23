@@ -2,14 +2,15 @@
 
 name: build-rpm
 on: [workflow_call]
+env:
+  PROJECT_NAME: ${{ github.repository }}
+  BUILD_WORKSPACE: build
 jobs:
   rpm:
     runs-on: ubuntu-latest
     container:
       image: fedora:41
-      env:
-        PROJECT_NAME: ${{ github.repository }}
-        BUILD_WORKSPACE: build
+
     steps:
       - name: Install Dependencies
         id: install-dependencies

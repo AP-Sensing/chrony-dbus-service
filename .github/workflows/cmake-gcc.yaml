@@ -8,15 +8,15 @@ on:
         description: Parameters passed to cmake
         required: true
         type: string
+env:
+  PROJECT_NAME: ${{ github.repository }}
+  BUILD_WORKSPACE: build
+  PARALLEL: 4
 jobs:
   build-gcc:
     runs-on: ubuntu-latest
     container:
       image: fedora:41
-      env:
-        PROJECT_NAME: ${{ github.repository }}
-        BUILD_WORKSPACE: build
-        PARALLEL: 4
     steps:
       - name: Install Dependencies
         id: install-dependencies
