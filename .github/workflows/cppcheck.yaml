@@ -3,33 +3,39 @@
 name: cppcheck
 on: [workflow_call]
 jobs:
-  cppcheck-build:
-    uses: ./.github/workflows/cmake-gcc.yaml
-    with:
-      CMAKE_PARAMS: -DCMAKE_BUILD_TYPE=Debug -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK=ON -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE=ON
   cppcheck-run:
-    needs: cppcheck-build
     runs-on: ubuntu-latest
     container:
       image: fedora:41
       env:
         PROJECT_NAME: ${{ github.repository }}
         BUILD_WORKSPACE: build
+        PARALLEL: 1
     steps:
       - name: pepare-git
         run: |
           dnf install -y -q git 2>&1 1>/dev/null
           git config --global user.name github-actions
           git config --global user.email github-actions@users.noreply.github.com
+      - name: Install Dependencies
+        id: install-dependencies
+        run: |
+          echo "${{ github.action }}: Installing dependencies"
+          dnf install -y -q boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
       - name: Checkout
         uses: actions/checkout@v5
       - name: run-cppcheck
         id: run-cppcheck
         run: |
-          echo "${{ github.action }}: Installing dependencies"
-          dnf install -y -q cppcheck pipx 2>&1 1>/dev/null
+          git config --global --add safe.directory "$(pwd)" # Ensure the ownership of the .git directory is OK
+          echo "${{ github.action }}: Installing pipx"
+          dnf install -y -q pipx 2>&1 1>/dev/null
           export PATH=$PATH:/github/home/.local/bin
+          echo "${{ github.action }}: Installing cppcheck-codequality"
           pipx install cppcheck-codequality
+          rm -rf $BUILD_WORKSPACE # Ensure we start clean
+          cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Debug -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK=ON -DAPS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE=ON
+          cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
           # Convert to a Code Climate quality JSON report
           cppcheck-codequality --input-file $BUILD_WORKSPACE/cppcheck.xml --output-file $BUILD_WORKSPACE/cppcheck_report.json
           # Fix the file path references so they are relative to the blob and not the buildspace. We use ; as the substitute so don't have to escape every forwardslash
