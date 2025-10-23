@@ -36,8 +36,10 @@ jobs:
       - name: doxygen-test
         id: doxygen-test
         run: |
+          echo "${{ github.action }}: Installing pipx"
           dnf install -y -q pipx 2>&1 1>/dev/null
           export PATH=$PATH:/github/home/.local/bin
+          echo "${{ github.action }}: Installing doxygen-junit"
           pipx install doxygen-junit
           chmod 777 scripts/*.sh
           echo "${{ github.action }}: Running scripts/doxygen.sh"
@@ -49,7 +51,7 @@ jobs:
           echo "Running doxygen_junit"
           doxygen_junit --input $BUILD_WORKSPACE/doxygen/doxygen_warnings.log --output $BUILD_WORKSPACE/doxygen/doxygen_junit.xml || exit 1
           grep -iq "<error " "$BUILD_WORKSPACE/doxygen/doxygen_junit.xml" && exit 1 || exit 0
-      - name: doxygen-artifacts
+      - name: doxygen-junit-artifacts
         uses: actions/upload-artifact@v4
         with:
           name: doxygen_junit
