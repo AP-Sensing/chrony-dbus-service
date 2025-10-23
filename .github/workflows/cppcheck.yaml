@@ -28,7 +28,7 @@ jobs:
         run: |
           echo "${{ github.action }}: Installing dependencies"
           dnf install -y -q cppcheck pipx 2>&1 1>/dev/null
-          export PATH=$PATH:/root/.local/bin
+          export PATH=$PATH:/github/home/.local/bin
           pipx install cppcheck-codequality
           # Convert to a Code Climate quality JSON report
           cppcheck-codequality --input-file $BUILD_WORKSPACE/cppcheck.xml --output-file $BUILD_WORKSPACE/cppcheck_report.json

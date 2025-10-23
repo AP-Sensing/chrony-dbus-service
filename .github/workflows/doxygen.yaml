@@ -37,7 +37,7 @@ jobs:
         id: doxygen-test
         run: |
           dnf install -y -q pipx 2>&1 1>/dev/null
-          export PATH=$PATH:/root/.local/bin
+          export PATH=$PATH:/github/home/.local/bin
           pipx install doxygen-junit
           chmod 777 scripts/*.sh
           echo "${{ github.action }}: Running scripts/doxygen.sh"
