@@ -1,4 +1,4 @@
-## Builds a cmake project in a fedora docker image with installed gcc toolchain
+## Builds a cmake project in a fedora:40 docker image with installed gcc toolchain
 
 name: build-gcc
 on:
@@ -16,7 +16,7 @@ jobs:
   build-gcc:
     runs-on: ubuntu-latest
     container:
-      image: fedora:42
+      image: fedora:40
     steps:
       - name: Install Dependencies
         id: install-dependencies
