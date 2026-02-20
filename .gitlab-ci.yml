@@ -139,7 +139,7 @@ build (s)rpm:
     - .skip_manual_for_pr_template
   stage: "🚧 Build Stage 2"
   script:
-    - sudo dnf install -y rpmdevtools
+    - sudo dnf install -y rpmdevtools systemd-rpm-macros
     - sed -i "s/set(CPACK_RPM_PACKAGE_RELEASE \"[0-9]\+\")/set(CPACK_RPM_PACKAGE_RELEASE \"${CI_PIPELINE_IID}\")/" packaging/rpm/cpack_config.cmake
     - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=RPM
     - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
@@ -310,4 +310,3 @@ lint-rpm:
 ######################################
 # 🌃 Nightly
 ######################################
-
