@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+"-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+"http://www.freedesktop.org/standards/PolicyKit/1.0/policyconfig.dtd">
+
+<policyconfig>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.getSources">
+    <description>Get chrony sources</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.addServers">
+    <description>Add servers to chrony</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.deleteServers">
+    <description>Delete chrony servers</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.addManualTime">
+    <description>Add manual time to chrony</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.clearManualTimeList">
+    <description>Clear the list of manual times of chrony</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.getManualTimeList">
+    <description>Get the list of manual times from chrony</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.setManualTimeEnabled">
+    <description>Enable / disable manual time in chrony</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+</policyconfig>
