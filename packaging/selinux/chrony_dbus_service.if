@@ -1,0 +1,61 @@
+
+## <summary>policy for chrony_dbus_service</summary>
+
+########################################
+## <summary>
+##	Execute chrony_dbus_service_exec_t in the chrony_dbus_service domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`chrony_dbus_service_domtrans',`
+	gen_require(`
+		type chrony_dbus_service_t, chrony_dbus_service_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, chrony_dbus_service_exec_t, chrony_dbus_service_t)
+')
+
+######################################
+## <summary>
+##	Execute chrony_dbus_service in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`chrony_dbus_service_exec',`
+	gen_require(`
+		type chrony_dbus_service_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, chrony_dbus_service_exec_t)
+')
+
+########################################
+## <summary>
+##	Send and receive messages from
+##	chrony_dbus_service over dbus.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`chrony_dbus_service_dbus_chat',`
+	gen_require(`
+		type chrony_dbus_service_t;
+		class dbus send_msg;
+	')
+
+	allow $1 chrony_dbus_service_t:dbus send_msg;
+	allow chrony_dbus_service_t $1:dbus send_msg;
+')

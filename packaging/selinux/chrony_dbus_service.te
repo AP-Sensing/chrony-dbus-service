@@ -1,0 +1,47 @@
+policy_module(chrony_dbus_service, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+type chrony_dbus_service_t;
+type chrony_dbus_service_exec_t;
+init_daemon_domain(chrony_dbus_service_t, chrony_dbus_service_exec_t)
+
+permissive chrony_dbus_service_t;
+
+########################################
+#
+# chrony_dbus_service local policy
+#
+allow chrony_dbus_service_t self:fifo_file rw_fifo_file_perms;
+allow chrony_dbus_service_t self:unix_stream_socket create_stream_socket_perms;
+
+domain_use_interactive_fds(chrony_dbus_service_t)
+
+files_read_etc_files(chrony_dbus_service_t)
+
+miscfiles_read_localization(chrony_dbus_service_t)
+
+sysnet_dns_name_resolve(chrony_dbus_service_t)
+
+optional_policy(`
+	dbus_system_bus_client(chrony_dbus_service_t)
+	dbus_connect_system_bus(chrony_dbus_service_t)
+')
+
+require {
+	type chronyd_t;
+	type chronyd_var_run_t;
+}
+
+#============= chrony_dbus_service_t ==============
+allow chrony_dbus_service_t chronyd_t:unix_dgram_socket sendto;
+allow chrony_dbus_service_t chronyd_var_run_t:dir { add_name remove_name write };
+allow chrony_dbus_service_t chronyd_var_run_t:sock_file { create getattr setattr unlink write };
+allow chrony_dbus_service_t self:capability { dac_override dac_read_search };
+allow chrony_dbus_service_t self:unix_dgram_socket { bind connect create setopt };
+
+#============= chronyd_t ==============
+allow chronyd_t chrony_dbus_service_t:unix_dgram_socket sendto;

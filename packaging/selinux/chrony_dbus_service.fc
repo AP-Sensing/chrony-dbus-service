@@ -1,0 +1,1 @@
+/usr/bin/chrony-dbus-service		--	gen_context(system_u:object_r:chrony_dbus_service_exec_t,s0)
