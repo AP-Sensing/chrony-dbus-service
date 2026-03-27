@@ -15,7 +15,6 @@ function(add_chrony_dbus_service_test_executable)
     target_link_libraries(${TEST_NAME} PRIVATE ${TEST_LIBS}
                                                GTest::gtest_main
                                                GTest::gtest
-                                               GTest::gmock
                                                simppl
                                                ${DBUS_LIBRARIES})
     gtest_discover_tests(${TEST_NAME}
