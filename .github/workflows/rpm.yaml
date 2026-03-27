@@ -16,7 +16,7 @@ jobs:
         id: install-dependencies
         run: |
           echo "${{ github.action }}: Installing dependencies"
-          dnf install -y -q rpmdevtools systemd-rpm-macros boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ 2>&1 1>/dev/null
+          dnf install -y -q rpmdevtools systemd-rpm-macros boost-devel cmake cppcheck clang clang-analyzer clang-tools-extra gcc gcc-c++ gtest gtest-devel pkgconf-pkg-config dbus-libs dbus-devel libstdc++ selinux-policy-devel 2>&1 1>/dev/null
       - name: pepare-git
         run: |
           dnf install -y -q git 2>&1 1>/dev/null
@@ -43,6 +43,12 @@ jobs:
           cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
           pushd $BUILD_WORKSPACE
           ../scripts/build_rpm.sh
+          popd
+          cp -r ./packaging/selinux/ $BUILD_WORKSPACE/
+          pushd $BUILD_WORKSPACE/selinux/
+          ../../scripts/build_selinux_policy.sh
+          mv *.rpm $BUILD_WORKSPACE
+          mv noarch/*.rpm $BUILD_WORKSPACE
           popd
           mkdir -p $BUILD_WORKSPACE/RPM
           rm -rf $BUILD_WORKSPACE/RPM/*
