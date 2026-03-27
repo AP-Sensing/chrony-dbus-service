@@ -37,9 +37,6 @@ install -m 644 %{SOURCE1} %{buildroot}%{_datadir}/selinux/devel/include/contrib/
 %post
 semodule -n -i %{_datadir}/selinux/packages/chrony_dbus_service.pp
 
-if [ $1 -eq 1 ]; then
-
-fi
 if /usr/sbin/selinuxenabled ; then
     /usr/sbin/load_policy
     %relabel_files
