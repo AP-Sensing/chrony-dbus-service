@@ -96,12 +96,59 @@ struct AddServersData
     ServerFlags flags = ServerFlags::Online;
 } __attribute__((aligned(64)));
 
+struct TrackingData
+{
+    struct timespec_t : std::timespec {
+        using serializer_type = simppl::dbus::make_serializer<std::time_t, long>::type;
+    };
+    enum class LeapStatus : std::uint16_t
+    {
+        Normal = 0, ///< synchronized
+        InsertSecond = 1, ///< synchronized but behind reference
+        DeleteSecond = 2, ///< synchronized but ahead reference
+        Unsynchronised = 3 ///< not synchronized
+    };
+
+    using serializer_type =
+        simppl::dbus::make_serializer<std::uint32_t, std::string, std::uint16_t, timespec_t, LeapStatus, double, double, double, double, double, double, double, double, double>::type;
+
+    /// the reference ID of the source (chrony internal)
+    std::uint32_t referenceId;
+    /// can be either a hostname or IP address
+    std::string name;
+    /// stratum is the distance to a reference clock in the measurement chain, stratum 1 is directly connected to a
+    /// reference clock
+    std::uint16_t stratum;
+    /// UTC time of the last measurement point
+    std::timespec refTime;
+    LeapStatus leapStatus;
+    double currentCorrection;
+    /// estimated offset, positive value means ahead
+    double lastOffset;
+    /// RMS of the offset
+    double rmsOffset;
+    /// frequency difference that is actually corrected by chrony
+    double frequencyPPM;
+    /// remainder of frequency difference not corrected by chrony (caused e.g. by smoothing)
+    double residualFreqquencyPPM;
+    /// error bound of the frequency
+    double skewPPM;
+    /// accumulated network delay of the path to a stratum 1 host
+    double rootDelay;
+    /// accumulated dispersion of the measurement chain for the selected reference
+    double rootDispersion;
+    /// interval between the last two updates
+    double lastUpdateInterval;
+} __attribute__((aligned(64)));
+
 namespace org::freedesktop
 {
 INTERFACE(ChronyDBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is inside simppl
 {
     /// Returns a list of NTP servers that chrony uses to sync time
     Method<simppl::dbus::out<std::vector<ChronySourceData>>, simppl::dbus::_throw<simppl::dbus::Error>> getSources;
+    /// Returns the tracking data
+    Method<simppl::dbus::out<TrackingData>, simppl::dbus::_throw<simppl::dbus::Error>> getTrackingData;
     /// Adds a list of NTP servers for time sync
     Method<simppl::dbus::in<std::vector<AddServersData>>, simppl::dbus::_throw<simppl::dbus::Error>> addServers;
     /// Deletes a list of servers with the given address string
@@ -119,6 +166,7 @@ INTERFACE(ChronyDBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is
     // constructor
     ChronyDBus()
         : INIT(getSources),
+          INIT(getTrackingData),
           INIT(addServers),
           INIT(deleteServers),
           INIT(addManualTime),

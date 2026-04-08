@@ -88,6 +88,7 @@ TEST(ChronyDBusService, AddClearManualTime)
         EXPECT_TRUE(foundTarget);
 
         stub.clearManualTimeList();
+        stub.setManualTimeEnabled(false);
 
         manualTimeList = stub.getManualTimeList();
         EXPECT_EQ(manualTimeList.size(), 0);
@@ -147,6 +148,51 @@ TEST(ChronyDBusService, AddDeleteServers)
             }
         }
         EXPECT_FALSE(foundDeletedServer);
+    }
+    catch (const simppl::dbus::Error &e)
+    {
+        FAIL() << "Aborting after DBus error: '" << e.name() << "' message: '" << e.message() << "'\n";
+    }
+}
+
+TEST(ChronyDBusService, GetTrackingData)
+{
+    try
+    {
+        simppl::dbus::Dispatcher dispatch("bus:system");
+        simppl::dbus::Stub<org::freedesktop::ChronyDBus> stub(dispatch, "chronyDBusServer");
+
+        // add server
+        std::vector<AddServersData> newServers{};
+        AddServersData s1;
+        s1.name = "time1.uni-paderborn.de";
+        newServers.push_back(s1);
+
+        for (const auto &server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
+        stub.addServers(newServers);
+        std::this_thread::sleep_for(250ms);
+
+        bool trackingSynchronized = false;
+
+        for(int tries=0; tries<20; ++tries)
+        {
+            std::cout << std::format("Waiting for synchronization ({}/20)\n", tries);
+            // get tracking data
+            const TrackingData trackingData = stub.getTrackingData();
+            if(trackingData.leapStatus == TrackingData::LeapStatus::Normal)
+            {
+                trackingSynchronized = true;
+                break;
+            }
+            std::this_thread::sleep_for(1000ms);
+        }
+
+        EXPECT_TRUE(trackingSynchronized);
+
+        // delete server
+        const std::vector<std::string> delServers = {{s1.name}};
+        for (const auto &serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
+        stub.deleteServers(delServers);
     }
     catch (const simppl::dbus::Error &e)
     {

@@ -16,6 +16,7 @@ To compile completely in C++ the chrony sources are downloaded and [patched](./p
 ## Features
 
 - **getSources:** Lists chronyd sources like calling `chronyc sources`
+- **getTrackingData** Returns the tracking data like calling `chronyc tracking`
 - **addServers:** Adds NTP servers to chronyd like calling `chronyc add server`
 - **deleteServers:** Removes NTP servers from chronyd like calling `chronyc delete`
 - **addManualTime:** Adds a manual time entry to chronyd like calling `chronyc settime`

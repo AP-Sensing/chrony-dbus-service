@@ -60,6 +60,25 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         std::cout << "<< getSources exit" << "\n";
     };
 
+    getTrackingData >> [this]()
+    {
+        std::cout << ">> getTrackingData enter" << "\n";
+        if (!checkCommandSocket())
+        {
+            std::cerr << "!! getTrackingData error: chronyd command socket is unavailable!\n";
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
+        }
+        const auto [success, errStr, trackingData] = chrony::client::process_cmd_tracking();
+        if (success) { respond_with(getTrackingData(trackingData)); }
+        else
+        {
+            std::cerr << "!! getTrackingData error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
+                                             errStr.value_or("Invalid request or no response from chronyd!").c_str()));
+        }
+        std::cout << "<< getTrackingData exit" << "\n";
+    };
+
     addServers >> [this](const std::vector<AddServersData> &serverList)
     {
         std::cout << ">> addservers enter" << "\n";

@@ -1,4 +1,4 @@
-From 898281c0d3c26e548bad888fec89e458576f1767 Mon Sep 17 00:00:00 2001
+From 42ed0d57ea95609ab9fc816c8f45b9f0449f8b09 Mon Sep 17 00:00:00 2001
 From: Samuel Stirtzel <s.stirtzel@googlemail.com>
 Date: Wed, 15 Oct 2025 15:23:42 +0200
 Subject: [PATCH 2/2] Renamed files to .hpp to enable including them as a
@@ -50,5 +50,5 @@ similarity index 100%
 rename from util.c
 rename to include/chrony/util.hpp
 -- 
-2.51.0
+2.52.0
 
