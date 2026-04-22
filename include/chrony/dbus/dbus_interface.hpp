@@ -46,7 +46,7 @@ struct ChronySourceData
     /// pow(2, X) seconds, e.g. pollRatePow2 = -1 -> 0.5 seconds
     std::int32_t pollRatePow2{0};
     /// stratum is the distance to a reference clock in the measurement chain, stratum 1 is directly connected to a reference clock
-    std::uint32_t stratum{0};
+    std::uint16_t stratum{0};
     SelectionState selectionState{SelectionState::Selected};
     SourceMode sourceMode{SourceMode::Server};
     /// last synchronization time, this can be 10 minutes or more depending on the /etc/chrony.conf
@@ -98,48 +98,50 @@ struct AddServersData
 
 struct TrackingData
 {
-    struct timespec_t : std::timespec {
-        using serializer_type = simppl::dbus::make_serializer<std::time_t, long>::type;
-    };
-    enum class LeapStatus : std::uint16_t
+    struct timespec_t : std::timespec  // NOLINT(altera-struct-pack-align) Can't fix since it is inside
     {
-        Normal = 0, ///< synchronized
-        InsertSecond = 1, ///< synchronized but behind reference
-        DeleteSecond = 2, ///< synchronized but ahead reference
-        Unsynchronised = 3 ///< not synchronized
+        using serializer_type = simppl::dbus::make_serializer<std::time_t, std::int64_t>::type;
+    } __attribute__((aligned(1)));
+    enum class LeapStatus : std::uint16_t  // NOLINT(performance-enum-size) The data type needs to be the same as the chrony equivalent
+    {
+        Normal = 0,         ///< synchronized
+        InsertSecond = 1,   ///< synchronized but behind reference
+        DeleteSecond = 2,   ///< synchronized but ahead reference
+        Unsynchronised = 3  ///< not synchronized
     };
 
-    using serializer_type =
-        simppl::dbus::make_serializer<std::uint32_t, std::string, std::uint16_t, timespec_t, LeapStatus, double, double, double, double, double, double, double, double, double>::type;
+    using serializer_type = simppl::dbus::make_serializer<double, double, double, double, double, double, double, double, double,
+                                                          timespec_t, std::string, std::uint32_t, std::uint16_t, LeapStatus>::type;
 
-    /// the reference ID of the source (chrony internal)
-    std::uint32_t referenceId;
+    double currentCorrection{};
+    /// estimated offset, positive value means ahead
+    double lastOffset{};
+    /// RMS of the offset
+    double rmsOffset{};
+    /// frequency difference that is actually corrected by chrony
+    double frequencyPPM{};
+    /// remainder of frequency difference not corrected by chrony (caused e.g. by smoothing)
+    double residualFreqquencyPPM{};
+    /// error bound of the frequency
+    double skewPPM{};
+    /// accumulated network delay of the path to a stratum 1 host
+    double rootDelay{};
+    /// accumulated dispersion of the measurement chain for the selected reference
+    double rootDispersion{};
+    /// interval between the last two updates
+    double lastUpdateInterval{};
+    /// UTC time of the last measurement point
+    std::timespec refTime{};
     /// can be either a hostname or IP address
     std::string name;
+    /// the reference ID of the source (chrony internal)
+    std::uint32_t referenceId{};
     /// stratum is the distance to a reference clock in the measurement chain, stratum 1 is directly connected to a
     /// reference clock
-    std::uint16_t stratum;
-    /// UTC time of the last measurement point
-    std::timespec refTime;
-    LeapStatus leapStatus;
-    double currentCorrection;
-    /// estimated offset, positive value means ahead
-    double lastOffset;
-    /// RMS of the offset
-    double rmsOffset;
-    /// frequency difference that is actually corrected by chrony
-    double frequencyPPM;
-    /// remainder of frequency difference not corrected by chrony (caused e.g. by smoothing)
-    double residualFreqquencyPPM;
-    /// error bound of the frequency
-    double skewPPM;
-    /// accumulated network delay of the path to a stratum 1 host
-    double rootDelay;
-    /// accumulated dispersion of the measurement chain for the selected reference
-    double rootDispersion;
-    /// interval between the last two updates
-    double lastUpdateInterval;
-} __attribute__((aligned(64)));
+    std::uint16_t stratum{};
+    LeapStatus leapStatus{};
+
+} __attribute__((aligned(128)));
 
 namespace org::freedesktop
 {

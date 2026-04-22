@@ -5,8 +5,8 @@
 #include <simppl/stub.h>
 
 #include <cassert>
-// NOLINTNEXTLINE(misc-include-cleaner)
-#include <chrono>
+#include <chrono>  // NOLINT(misc-include-cleaner)
+#include <format>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -174,16 +174,17 @@ TEST(ChronyDBusService, GetTrackingData)
 
         bool trackingSynchronized = false;
 
-        for(int tries=0; tries<20; ++tries)
+        for (int tries = 0; tries < 20; ++tries)
         {
             std::cout << std::format("Waiting for synchronization ({}/20)\n", tries);
             // get tracking data
             const TrackingData trackingData = stub.getTrackingData();
-            if(trackingData.leapStatus == TrackingData::LeapStatus::Normal)
+            if (trackingData.leapStatus == TrackingData::LeapStatus::Normal)
             {
                 trackingSynchronized = true;
                 break;
             }
+            // NOLINTNEXTLINE(misc-include-cleaner)
             std::this_thread::sleep_for(1000ms);
         }
 
