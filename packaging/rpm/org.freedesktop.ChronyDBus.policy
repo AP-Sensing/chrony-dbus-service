@@ -12,6 +12,14 @@
       <allow_active>auth_admin</allow_active>
     </defaults>
   </action>
+  <action id="org.freedesktop.ChronyDBus.chronyDBusServer.getTrackingData">
+    <description>Get chrony tracking data</description>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
   <action id="org.freedesktop.ChronyDBus.chronyDBusServer.addServers">
     <description>Add servers to chrony</description>
     <defaults>

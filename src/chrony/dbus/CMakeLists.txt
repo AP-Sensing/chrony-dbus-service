@@ -14,7 +14,8 @@ target_sources(
            ${PROJECT_SOURCE_DIR}/include
            FILES
            ${PROJECT_SOURCE_DIR}/include/chrony/dbus/chrony_dbus_service.hpp
-           ${PROJECT_SOURCE_DIR}/include/chrony/dbus/dbus_interface.hpp)
+           ${PROJECT_SOURCE_DIR}/include/chrony/dbus/dbus_interface.hpp
+           ${PROJECT_SOURCE_DIR}/include/chrony/dbus/polkit_interface.hpp)
 
 target_link_libraries(chrony_dbus PUBLIC Simppl::simppl)
 install(TARGETS chrony_dbus LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
