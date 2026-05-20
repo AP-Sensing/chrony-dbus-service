@@ -39,27 +39,6 @@ bool checkCommandSocket()
     }
     return retVal;
 }
-
-bool checkPolkitPermissions(const std::string &busName, const std::string &actionId)
-{
-    std::cout << ">> checkPolkitPermissions enter" << "\n";
-    std::cout << "busName = " << busName << "\n";
-    std::cout << "actionId = " << actionId << "\n";
-    simppl::dbus::Dispatcher dispatch("bus:system");
-    simppl::dbus::Stub<org::freedesktop::DBus> dbusStub(dispatch, "DBus");
-    simppl::dbus::Stub<org::freedesktop::PolicyKit1::Authority> polkitStub(dispatch, "Authority");
-
-    const std::string cancellationId{std::format("{}::{}", busName, actionId)};
-    const org::freedesktop::PolicyKit1::Subject subject{.subject_kind = "system-bus-name", .subject_details = {{"name", busName}}};
-    const std::map<std::string, std::string> details{{"polkit.message", "chrony-dbus-service polkit auth"}};
-    const org::freedesktop::PolicyKit1::AuthorizationResult authResult =
-        polkitStub.CheckAuthorization(subject, actionId, details, org::freedesktop::PolicyKit1::CheckAuthorizationFlags::None,
-                                      cancellationId);
-    std::cout << "authResult.is_authorized = " << authResult.is_authorized << "\n";
-    std::cout << "<< checkPolkitPermissions exit" << "\n";
-    return authResult.is_authorized;
-}
-
 }  // namespace
 
 ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
@@ -68,12 +47,8 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     getSources >> [this]()
     {
         std::cout << ">> getSources enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.getSources"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.getSources")) { return; }
+
         if (!checkCommandSocket())
         {
             std::cerr << "!! getSources error: chronyd command socket is unavailable!\n";
@@ -93,12 +68,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     getTrackingData >> [this]()
     {
         std::cout << ">> getTrackingData enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.getTrackingData"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.getTrackingData")) { return; }
         if (!checkCommandSocket())
         {
             std::cerr << "!! getTrackingData error: chronyd command socket is unavailable!\n";
@@ -118,12 +88,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     addServers >> [this](const std::vector<AddServersData> &serverList)
     {
         std::cout << ">> addservers enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.addServers"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addServers")) { return; }
         if (!checkCommandSocket())
         {
             std::cerr << "!! addservers error: chronyd command socket is unavailable!\n";
@@ -150,12 +115,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     deleteServers >> [this](const std::vector<std::string> &serverList)
     {
         std::cout << ">> deleteServers enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.deleteServers"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.deleteServers")) { return; }
         if (!checkCommandSocket())
         {
             std::cerr << "!! deleteServers error: chronyd command socket is unavailable!\n";
@@ -181,12 +141,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
                    time)  // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
     {
         std::cout << ">> addManualTime enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.addManualTime"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addManualTime")) { return; }
         if (!checkCommandSocket())
         {
             std::cerr << "!! addManualTime error: chronyd command socket is unavailable!\n";
@@ -208,12 +163,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     clearManualTimeList >> [this]()
     {
         std::cout << ">> clearManualTimeList enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.clearManualTimeList"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.clearManualTimeList")) { return; }
         if (!checkCommandSocket())
         {
             std::cerr << "!! clearManualTimeList error: chronyd command socket is unavailable!\n";
@@ -233,12 +183,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     getManualTimeList >> [this]()
     {
         std::cout << ">> getManualTimeList enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.getManualTimeList"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.getManualTimeList")) { return; }
         if (!checkCommandSocket())
         {
             std::cerr << "!! getManualTimeList error: chronyd command socket is unavailable!\n";
@@ -258,12 +203,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
     setManualTimeEnabled >> [this](bool enabled)
     {
         std::cout << ">> setManualTimeEnabled enter" << "\n";
-        const std::string sender = dbus_message_get_sender(current_request().msg_);
-        if(!checkPolkitPermissions(sender, "org.freedesktop.ChronyDBus.chronyDBusServer.setManualTimeEnabled"))
-        {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << sender;
-            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org::freedesktop::PolicyKit1::CheckAuthorization failed!"));
-        }
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.setManualTimeEnabled")) { return; }
         if (!checkCommandSocket())
         {
             std::cerr << "!! setManualTimeEnabled error: chronyd command socket is unavailable!\n";
@@ -287,4 +227,41 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         }
         std::cout << "<< setManualTimeEnabled exit" << "\n";
     };
+}
+
+bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
+{
+    const std::string busName = dbus_message_get_sender(current_request().msg_);
+    std::cout << ">> checkPolkitPermissions enter" << "\n";
+    std::cout << "busName = " << busName << "\n";
+    std::cout << "actionId = " << actionId << "\n";
+    simppl::dbus::Dispatcher dispatch("bus:system");
+    simppl::dbus::Stub<org::freedesktop::PolicyKit1::Authority> polkitStub(dispatch, "org.freedesktop.PolicyKit1",
+                                                                           "/org/freedesktop/PolicyKit1/Authority");
+
+    const std::string cancellationId{std::format("{}::{}", busName, actionId)};
+    const org::freedesktop::PolicyKit1::Subject subject{.subject_kind = "system-bus-name", .subject_details = {{"name", busName}}};
+    const std::map<std::string, std::string> details{{"polkit.message", "chrony-dbus-service polkit auth"}};
+    try
+    {
+        const org::freedesktop::PolicyKit1::AuthorizationResult authResult =
+            polkitStub.CheckAuthorization(subject, actionId, details, org::freedesktop::PolicyKit1::CheckAuthorizationFlags::None,
+                                          cancellationId);
+        std::cout << "authResult.is_authorized = " << authResult.is_authorized << "\n";
+        std::cout << "<< checkPolkitPermissions exit" << "\n";
+        if (!authResult.is_authorized)
+        {
+            std::cerr << "!! Polkit returned is_authorized = false for sender: " << busName << "\n";
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org.freedesktop.PolicyKit1.CheckAuthorization failed!"));
+            return false;
+        }
+        return true;
+    }
+    catch (simppl::dbus::Error &e)
+    {
+        std::cout << "!! DBus error: " << e.what() << "\n";
+        std::cerr << "!! Polkit returned is_authorized = false for sender: " << busName << "\n";
+        respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org.freedesktop.PolicyKit1.CheckAuthorization failed!"));
+        return false;
+    }
 }

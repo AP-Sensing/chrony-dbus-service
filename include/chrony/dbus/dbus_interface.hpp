@@ -164,7 +164,6 @@ INTERFACE(ChronyDBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is
     Method<simppl::dbus::out<std::vector<std::string>>, simppl::dbus::_throw<simppl::dbus::Error>> getManualTimeList;
     /// @note Disabling manual time currently doesn't delete manual time entries
     Method<simppl::dbus::in<bool>, simppl::dbus::_throw<simppl::dbus::Error>> setManualTimeEnabled;
-
     // constructor
     ChronyDBus()
         : INIT(getSources),

@@ -10,4 +10,7 @@ class ChronyDBusService : simppl::dbus::Skeleton<org::freedesktop::ChronyDBus>
    public:
     explicit ChronyDBusService(simppl::dbus::Dispatcher &disp);
     ~ChronyDBusService() override = default;
+
+   private:
+    bool checkPolkitPermissions(const std::string &actionId);
 };
