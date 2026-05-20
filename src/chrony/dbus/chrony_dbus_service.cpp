@@ -227,6 +227,29 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         }
         std::cout << "<< setManualTimeEnabled exit" << "\n";
     };
+    makeStep >> [this]()
+    {
+        std::cout << ">> makeStep enter" << "\n";
+        if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.makeStep")) { return; }
+        if (!checkCommandSocket())
+        {
+            std::cerr << "!! makeStep error: chronyd command socket is unavailable!\n";
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
+        }
+        CMD_Request request;
+        CMD_Reply reply;
+
+        request.command = htons(REQ_MAKESTEP);
+        const bool success = chrony::client::request_reply(&request, &reply, RPY_NULL, 1);
+        if (success) { respond_with(makeStep()); }
+        else
+        {
+            std::cerr << "!! makeStep error: " << std::format("Error: chronyd returned status: {}", reply.status) << "\n";
+            respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
+                                             std::format("Error: chronyd returned status: {}", reply.status).c_str()));
+        }
+        std::cout << "<< makeStep exit" << "\n";
+    };
 }
 
 bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
