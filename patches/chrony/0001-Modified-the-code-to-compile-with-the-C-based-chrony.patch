@@ -1,4 +1,4 @@
-From 608ce51b5e4f2806a47da907f6b0180be2fee21e Mon Sep 17 00:00:00 2001
+From 7511c4110148807b512bef90099d846b7a3ebc05 Mon Sep 17 00:00:00 2001
 From: Samuel Stirtzel <s.stirtzel@googlemail.com>
 Date: Wed, 15 Oct 2025 15:21:09 +0200
 Subject: [PATCH 1/2] Modified the code to compile with the C++ based
@@ -12,7 +12,7 @@ Subject: [PATCH 1/2] Modified the code to compile with the C++ based
  pktlength.c  |   51 +-
  socket.c     | 1740 +---------------------
  util.c       | 1663 +++------------------
- 7 files changed, 961 insertions(+), 6646 deletions(-)
+ 7 files changed, 957 insertions(+), 6650 deletions(-)
 
 diff --git a/addressing.h b/addressing.h
 index 3e311fa..1bf70af 100644
@@ -269,7 +269,7 @@ index c120b0b..d160c65 100644
    uint8_t authentication;
    uint8_t leap;
 diff --git a/client.c b/client.c
-index f2625de..9a9b19e 100644
+index f2625de..2a09972 100644
 --- a/client.c
 +++ b/client.c
 @@ -1,3 +1,6 @@
@@ -679,7 +679,7 @@ index f2625de..9a9b19e 100644
  
      close_io();
    }
-@@ -290,3314 +232,598 @@ open_io(void)
+@@ -290,3314 +232,590 @@ open_io(void)
    return 0;
  }
  
@@ -2634,19 +2634,21 @@ index f2625de..9a9b19e 100644
 -        break;
 -      case RPY_SD_ST_SELECTABLE:
 -        state_ch = '-';
--        break;
--      default:
--        state_ch = ' ';
--    }
--
--    switch (ntohs(reply.data.source_data.flags)) {
--      default:
 +  if (verbose || status != STT_SUCCESS)
 +  {
 +    switch (status)
 +    {
 +      case STT_SUCCESS:
 +        printf("200 OK");
+         break;
+-      default:
+-        state_ch = ' ';
+-    }
+-
+-    switch (ntohs(reply.data.source_data.flags)) {
+-      default:
++      case STT_ACCESSALLOWED:
++        printf("208 Access allowed");
          break;
 -    }
 -
@@ -2840,75 +2842,25 @@ index f2625de..9a9b19e 100644
 -    switch (ntohs(reply.data.auth_data.mode)) {
 -      case RPY_AD_MD_NONE:
 -        mode_str = "-";
-+      case STT_ACCESSALLOWED:
-+        printf("208 Access allowed");
-         break;
--      case RPY_AD_MD_SYMMETRIC:
--        mode_str = "SK";
 +      case STT_ACCESSDENIED:
 +        printf("209 Access denied");
          break;
--      case RPY_AD_MD_NTS:
--        mode_str = "NTS";
+-      case RPY_AD_MD_SYMMETRIC:
+-        mode_str = "SK";
 +      case STT_FAILED:
 +        printf("500 Failure");
          break;
--      default:
--        mode_str = "?";
+-      case RPY_AD_MD_NTS:
+-        mode_str = "NTS";
 +      case STT_UNAUTH:
 +        printf("501 Not authorised");
          break;
+-      default:
+-        mode_str = "?";
 +      case STT_INVALID:
 +        printf("502 Invalid command");
-+        break;
-+      case STT_NOSUCHSOURCE:
-+        printf("503 No such source");
-+        break;
-+      case STT_INVALIDTS:
-+        printf("504 Duplicate or stale logon detected");
-+        break;
-+      case STT_NOTENABLED:
-+        printf("505 Facility not enabled in daemon");
-+        break;
-+      case STT_BADSUBNET:
-+        printf("507 Bad subnet");
-+        break;
-+      case STT_NOHOSTACCESS:
-+        printf("510 No command access from this host");
-+        break;
-+      case STT_SOURCEALREADYKNOWN:
-+        printf("511 Source already present");
-+        break;
-+      case STT_TOOMANYSOURCES:
-+        printf("512 Too many sources present");
-+        break;
-+      case STT_NORTC:
-+        printf("513 RTC driver not running");
-+        break;
-+      case STT_BADRTCFILE:
-+        printf("514 Can't write RTC parameters");
-+        break;
-+      case STT_INVALIDAF:
-+        printf("515 Invalid address family");
-+        break;
-+      case STT_BADSAMPLE:
-+        printf("516 Sample index out of range");
-+        break;
-+      case STT_BADPKTVERSION:
-+        printf("517 Protocol version mismatch");
-+        break;
-+      case STT_BADPKTLENGTH:
-+        printf("518 Packet length mismatch");
-+        break;
-+      case STT_INACTIVE:
-+        printf("519 Client logging is not active in the daemon");
-+        break;
-+      case STT_INVALIDNAME:
-+        printf("521 Invalid name");
-+        break;
-+      default:
-+        printf("520 Got unexpected error from daemon");
-     }
+         break;
+-    }
 -
 -    print_report("%-27s %4s %5U %4d %4d %I %4d %4d %4d %4d\n",
 -                 name, mode_str,
@@ -3464,9 +3416,8 @@ index f2625de..9a9b19e 100644
 -    msg->data.modify_makestep.threshold = UTI_FloatHostToNetwork(threshold);
 -  } else {
 -    msg->command = htons(REQ_MAKESTEP);
-+    printf("\n");
-   }
- 
+-  }
+-
 -  return 1;
 -}
 -
@@ -3477,16 +3428,11 @@ index f2625de..9a9b19e 100644
 -{
 -  CMD_Request request;
 -  CMD_Reply reply;
-+  if (status != STT_SUCCESS && status != STT_ACCESSALLOWED && status != STT_ACCESSDENIED) { return 0; }
- 
+-
 -  request.command = htons(REQ_ACTIVITY);
 -  if (!request_reply(&request, &reply, RPY_ACTIVITY, 0))
-+  if (ntohs(reply->reply) != requested_reply)
-+  {
-+    printf("508 Bad reply from daemon\n");
-     return 0;
-+  }
- 
+-    return 0;
+-
 -  print_info_field("200 OK\n");
 -
 -  print_report("%U sources online\n"
@@ -3500,19 +3446,15 @@ index f2625de..9a9b19e 100644
 -               ntohl(reply.data.activity.burst_offline),
 -               ntohl(reply.data.activity.unresolved),
 -               REPORT_END);
-+  /* Make sure an unknown response was not requested */
-+  assert(::chrony::pktlength::PKL_ReplyLength(reply));
- 
-   return 1;
- }
- 
+-
+-  return 1;
+-}
+-
 -/* ================================================== */
 -
 -static int
 -process_cmd_offset(CMD_Request *msg, char *line)
-+static ChronyCallResultT<std::vector<ChronySourceData>>
-+process_cmd_sources()
- {
+-{
 -  uint32_t ref_id;
 -  IPAddr ip_addr;
 -  double offset;
@@ -3530,6 +3472,157 @@ index f2625de..9a9b19e 100644
 -  UTI_IPHostToNetwork(&ip_addr, &msg->data.modify_offset.address);
 -  msg->data.modify_offset.ref_id = htonl(ref_id);
 -  msg->data.modify_offset.new_offset = UTI_FloatHostToNetwork(offset);
+-
+-  msg->command = htons(REQ_MODIFY_OFFSET);
+-
+-  return 1;
+-}
+-
+-/* ================================================== */
+-
+-static int
+-process_cmd_reselectdist(CMD_Request *msg, char *line)
+-{
+-  double dist;
+-  int ok;
+-  msg->command = htons(REQ_RESELECTDISTANCE);
+-  if (sscanf(line, "%lf", &dist) == 1) {
+-    msg->data.reselect_distance.distance = UTI_FloatHostToNetwork(dist);
+-    ok = 1;
+-  } else {
+-    ok = 0;
++      case STT_NOSUCHSOURCE:
++        printf("503 No such source");
++        break;
++      case STT_INVALIDTS:
++        printf("504 Duplicate or stale logon detected");
++        break;
++      case STT_NOTENABLED:
++        printf("505 Facility not enabled in daemon");
++        break;
++      case STT_BADSUBNET:
++        printf("507 Bad subnet");
++        break;
++      case STT_NOHOSTACCESS:
++        printf("510 No command access from this host");
++        break;
++      case STT_SOURCEALREADYKNOWN:
++        printf("511 Source already present");
++        break;
++      case STT_TOOMANYSOURCES:
++        printf("512 Too many sources present");
++        break;
++      case STT_NORTC:
++        printf("513 RTC driver not running");
++        break;
++      case STT_BADRTCFILE:
++        printf("514 Can't write RTC parameters");
++        break;
++      case STT_INVALIDAF:
++        printf("515 Invalid address family");
++        break;
++      case STT_BADSAMPLE:
++        printf("516 Sample index out of range");
++        break;
++      case STT_BADPKTVERSION:
++        printf("517 Protocol version mismatch");
++        break;
++      case STT_BADPKTLENGTH:
++        printf("518 Packet length mismatch");
++        break;
++      case STT_INACTIVE:
++        printf("519 Client logging is not active in the daemon");
++        break;
++      case STT_INVALIDNAME:
++        printf("521 Invalid name");
++        break;
++      default:
++        printf("520 Got unexpected error from daemon");
++    }
++    printf("\n");
+   }
+-  return ok;
+-}
+-
+-/* ================================================== */
+-
+-static void
+-process_cmd_reselect(CMD_Request *msg, char *line)
+-{
+-  msg->command = htons(REQ_RESELECT);
+-}
+-
+-/* ================================================== */
+-
+-static void
+-process_cmd_refresh(CMD_Request *msg, char *line)
+-{
+-  msg->command = htons(REQ_REFRESH);
+-}
+-
+-/* ================================================== */
+-
+-static void
+-process_cmd_shutdown(CMD_Request *msg, char *line)
+-{
+-  msg->command = htons(REQ_SHUTDOWN);
+-}
+ 
+-/* ================================================== */
++  if (status != STT_SUCCESS && status != STT_ACCESSALLOWED && status != STT_ACCESSDENIED) { return 0; }
+ 
+-static int
+-process_cmd_reload(CMD_Request *msg, char *line)
+-{
+-  if (!strcmp(line, "sources")) {
+-    msg->command = htons(REQ_RELOAD_SOURCES);
+-  } else {
+-    LOG(LOGS_ERR, "Invalid syntax for reload command");
++  if (ntohs(reply->reply) != requested_reply)
++  {
++    printf("508 Bad reply from daemon\n");
+     return 0;
+   }
+ 
+-  return 1;
+-}
+-
+-/* ================================================== */
+-
+-static int
+-process_cmd_reset(CMD_Request *msg, char *line)
+-{
+-  if (!strcmp(line, "sources")) {
+-    msg->command = htons(REQ_RESET_SOURCES);
+-  } else {
+-    LOG(LOGS_ERR, "Invalid syntax for reset command");
+-    return 0;
+-  }
++  /* Make sure an unknown response was not requested */
++  assert(::chrony::pktlength::PKL_ReplyLength(reply));
+ 
+   return 1;
+ }
+ 
+-/* ================================================== */
+-
+-static int
+-process_cmd_selectopts(CMD_Request *msg, char *line)
++static ChronyCallResultT<std::vector<ChronySourceData>>
++process_cmd_sources()
+ {
+-  int mask, options, option;
+-  uint32_t ref_id;
+-  IPAddr ip_addr;
+-  char *src, *opt;
+-
+-  src = line;
+-  line = CPS_SplitWord(line);
+-
+-  if (!parse_source_address_or_refid(src, &ip_addr, &ref_id)) {
+-    LOG(LOGS_ERR, "Invalid syntax for selectopts command");
+-    return 0;
+-  }
 +  std::vector<ChronySourceData> retVal;
 +  std::cout << "process_cmd_sources(): enter" << "\n";
 +  CMD_Request request;
@@ -3537,17 +3630,20 @@ index f2625de..9a9b19e 100644
 +  ::chrony::addressing::IPAddr ip_addr;
 +  uint32_t i, mode, n_sources;
  
--  msg->command = htons(REQ_MODIFY_OFFSET);
+-  mask = options = 0;
 +  request.command = htons(REQ_N_SOURCES);
 +  if (!::chrony::client::request_reply(&request, &reply, RPY_N_SOURCES, 0))
 +      return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), retVal};
  
--  return 1;
--}
+-  while (*line != '\0') {
+-    opt = line;
+-    line = CPS_SplitWord(line);
 +  n_sources = ntohl(reply.data.n_sources.n_sources);
 +  std::cout << "process_cmd_sources(): n_sources: " << n_sources << "\n";
  
--/* ================================================== */
+-    if ((opt[0] != '+' && opt[0] != '-') || (option = CPS_GetSelectOption(opt + 1)) == 0) {
+-      LOG(LOGS_ERR, "Invalid syntax for selectopts command");
+-      return 0;
 +  for (i = 0; i < n_sources; i++)
 +  {
 +    request.command = htons(REQ_SOURCE_DATA);
@@ -3582,7 +3678,7 @@ index f2625de..9a9b19e 100644
 +          return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(replyAuthData.status)), retVal};
 +      data.ntsEnabled = (ntohs(replyAuthData.data.auth_data.mode) == RPY_AD_MD_NTS);
 +      data.ntsCertId = ntohl(replyAuthData.data.auth_data.key_id);
-+    }
+     }
 +    mode = ntohs(reply.data.source_data.mode);
 +    data.sourceMode = static_cast<ChronySourceData::SourceMode>(mode);
 +    data.selectionState = static_cast<ChronySourceData::SelectionState>(ntohs(reply.data.source_data.state));
@@ -3590,82 +3686,87 @@ index f2625de..9a9b19e 100644
 +    data.stratum = ntohs(reply.data.source_data.stratum);
 +    data.secondsSinceLastSample = ntohl(reply.data.source_data.since_sample);
  
--static int
--process_cmd_reselectdist(CMD_Request *msg, char *line)
--{
--  double dist;
--  int ok;
--  msg->command = htons(REQ_RESELECTDISTANCE);
--  if (sscanf(line, "%lf", &dist) == 1) {
--    msg->data.reselect_distance.distance = UTI_FloatHostToNetwork(dist);
--    ok = 1;
--  } else {
--    ok = 0;
+-    mask |= option;
+-    if (opt[0] == '+')
+-      options |= option;
 +    retVal.push_back(data);
 +    if (ip_addr.family == IPADDR_ID) continue;
    }
--  return ok;
--}
--
--/* ================================================== */
  
--static void
--process_cmd_reselect(CMD_Request *msg, char *line)
--{
--  msg->command = htons(REQ_RESELECT);
+-  UTI_IPHostToNetwork(&ip_addr, &msg->data.modify_select_opts.address);
+-  msg->data.modify_select_opts.ref_id = htonl(ref_id);
+-  msg->data.modify_select_opts.mask = htonl(mask);
+-  msg->data.modify_select_opts.options = htonl(convert_addsrc_sel_options(options));
+-
+-  msg->command = htons(REQ_MODIFY_SELECTOPTS);
+-
+-  return 1;
 +  return {1, std::nullopt, retVal};
  }
  
 -/* ================================================== */
 -
--static void
--process_cmd_refresh(CMD_Request *msg, char *line)
+-static int
+-process_cmd_waitsync(char *line)
 +static ChronyCallResult
 +process_cmd_add_source(const AddServersData &data)
  {
--  msg->command = htons(REQ_REFRESH);
--}
+   CMD_Request request;
+   CMD_Reply reply;
+-  IPAddr ip_addr;
+-  uint32_t ref_id;
+-  double correction, skew_ppm, max_correction, max_skew_ppm, interval;
+-  int ret = 0, max_tries, i;
+-  struct timeval timeout;
 -
--/* ================================================== */
-+  CMD_Request request;
-+  CMD_Reply reply;
+-  max_tries = 0;
+-  max_correction = 0.0;
+-  max_skew_ppm = 0.0;
+-  interval = 10.0;
+-
+-  if (sscanf(line, "%d %lf %lf %lf", &max_tries, &max_correction, &max_skew_ppm, &interval))
+-    ;
+-
+-  /* Don't allow shorter interval than 0.1 seconds */
+-  if (interval < 0.1)
+-    interval = 0.1;
 +  chrony::addressing::IPAddr ip_addr;
  
--static void
--process_cmd_shutdown(CMD_Request *msg, char *line)
--{
--  msg->command = htons(REQ_SHUTDOWN);
--}
+-  request.command = htons(REQ_TRACKING);
 +  // only currently support source servers
 +  request.command = htons(REQ_ADD_SOURCE);
  
--/* ================================================== */
+-  for (i = 1; ; i++) {
+-    if (request_reply(&request, &reply, RPY_TRACKING, 0)) {
+-      ref_id = ntohl(reply.data.tracking.ref_id);
+-      UTI_IPNetworkToHost(&reply.data.tracking.ip_addr, &ip_addr);
 +  // set params not exported to the default values provided by include/chrony/cmdparse.c
 +  request.data.ntp_source.type = htonl(REQ_ADDSRC_SERVER);
  
--static int
--process_cmd_reload(CMD_Request *msg, char *line)
--{
--  if (!strcmp(line, "sources")) {
--    msg->command = htons(REQ_RELOAD_SOURCES);
--  } else {
--    LOG(LOGS_ERR, "Invalid syntax for reload command");
--    return 0;
+-      correction = UTI_FloatNetworkToHost(reply.data.tracking.current_correction);
+-      correction = fabs(correction);
+-      skew_ppm = UTI_FloatNetworkToHost(reply.data.tracking.skew_ppm);
 +  if (strlen(data.name.c_str()) >= sizeof(request.data.ntp_source.name)
 +      || chrony::nameserv::DNS_Name2IPAddress(data.name.c_str(), &ip_addr, 1) != chrony::nameserv::DNS_Success)
 +  {
 +    return {0, std::format("Error: Invalid host/IP address")};
-   }
++  }
 +  strlcpy((char *)request.data.ntp_source.name, data.name.c_str(), data.name.size() + 1);  // strlcopy copies size-1
  
--  return 1;
--}
+-      print_report("try: %d, refid: %R, correction: %.9f, skew: %.3f\n",
+-                   i, ref_id, correction, skew_ppm, REPORT_END);
 +  std::uint32_t additionalFlags = 0;
 +  // set ipv4 / ipv6 flags depending on the address family of the resolved ip_addr
 +  additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET4 ? AddServersData::ServerFlags::IPv4 : 0);
 +  additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET6 ? AddServersData::ServerFlags::IPv6 : 0);
  
--/* ================================================== */
+-      if ((ip_addr.family != IPADDR_UNSPEC ||
+-           (ref_id != 0 && ref_id != 0x7f7f0101L /* LOCAL refid */)) &&
+-          (max_correction == 0.0 || correction <= max_correction) &&
+-          (max_skew_ppm == 0.0 || skew_ppm <= max_skew_ppm)) {
+-        ret = 1;
+-      }
+-    }
 +  request.data.ntp_source.port = htonl(data.port);
 +  request.data.ntp_source.minpoll = htonl(SRC_DEFAULT_MINPOLL);
 +  request.data.ntp_source.maxpoll = htonl(SRC_DEFAULT_MAXPOLL);
@@ -3689,121 +3790,6 @@ index f2625de..9a9b19e 100644
 +  request.data.ntp_source.max_delay_quant = ::chrony::util::UTI_FloatHostToNetwork(0.0);
 +  memset(request.data.ntp_source.reserved, 0, sizeof(request.data.ntp_source.reserved));
  
--static int
--process_cmd_reset(CMD_Request *msg, char *line)
--{
--  if (!strcmp(line, "sources")) {
--    msg->command = htons(REQ_RESET_SOURCES);
--  } else {
--    LOG(LOGS_ERR, "Invalid syntax for reset command");
--    return 0;
-+  if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1))
-+  {
-+    return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
-   }
- 
--  return 1;
-+  return {1, std::nullopt};
- }
- 
--/* ================================================== */
--
- static int
--process_cmd_selectopts(CMD_Request *msg, char *line)
-+parse_source_address(const char *word, chrony::addressing::IPAddr *address)
- {
--  int mask, options, option;
--  uint32_t ref_id;
--  IPAddr ip_addr;
--  char *src, *opt;
--
--  src = line;
--  line = CPS_SplitWord(line);
--
--  if (!parse_source_address_or_refid(src, &ip_addr, &ref_id)) {
--    LOG(LOGS_ERR, "Invalid syntax for selectopts command");
--    return 0;
--  }
--
--  mask = options = 0;
-+  if (::chrony::util::UTI_StringToIdIP(word, address)) return 1;
- 
--  while (*line != '\0') {
--    opt = line;
--    line = CPS_SplitWord(line);
-+  if (::chrony::nameserv::DNS_Name2IPAddress(word, address, 1) == chrony::nameserv::DNS_Success) return 1;
- 
--    if ((opt[0] != '+' && opt[0] != '-') || (option = CPS_GetSelectOption(opt + 1)) == 0) {
--      LOG(LOGS_ERR, "Invalid syntax for selectopts command");
--      return 0;
--    }
--
--    mask |= option;
--    if (opt[0] == '+')
--      options |= option;
--  }
--
--  UTI_IPHostToNetwork(&ip_addr, &msg->data.modify_select_opts.address);
--  msg->data.modify_select_opts.ref_id = htonl(ref_id);
--  msg->data.modify_select_opts.mask = htonl(mask);
--  msg->data.modify_select_opts.options = htonl(convert_addsrc_sel_options(options));
--
--  msg->command = htons(REQ_MODIFY_SELECTOPTS);
--
--  return 1;
-+  return 0;
- }
- 
--/* ================================================== */
--
--static int
--process_cmd_waitsync(char *line)
-+static ChronyCallResult
-+process_cmd_delete(const std::string &serverAddress)
- {
-+  chrony::addressing::IPAddr address;
-   CMD_Request request;
-   CMD_Reply reply;
--  IPAddr ip_addr;
--  uint32_t ref_id;
--  double correction, skew_ppm, max_correction, max_skew_ppm, interval;
--  int ret = 0, max_tries, i;
--  struct timeval timeout;
--
--  max_tries = 0;
--  max_correction = 0.0;
--  max_skew_ppm = 0.0;
--  interval = 10.0;
--
--  if (sscanf(line, "%d %lf %lf %lf", &max_tries, &max_correction, &max_skew_ppm, &interval))
--    ;
--
--  /* Don't allow shorter interval than 0.1 seconds */
--  if (interval < 0.1)
--    interval = 0.1;
--
--  request.command = htons(REQ_TRACKING);
--
--  for (i = 1; ; i++) {
--    if (request_reply(&request, &reply, RPY_TRACKING, 0)) {
--      ref_id = ntohl(reply.data.tracking.ref_id);
--      UTI_IPNetworkToHost(&reply.data.tracking.ip_addr, &ip_addr);
--
--      correction = UTI_FloatNetworkToHost(reply.data.tracking.current_correction);
--      correction = fabs(correction);
--      skew_ppm = UTI_FloatNetworkToHost(reply.data.tracking.skew_ppm);
--
--      print_report("try: %d, refid: %R, correction: %.9f, skew: %.3f\n",
--                   i, ref_id, correction, skew_ppm, REPORT_END);
--
--      if ((ip_addr.family != IPADDR_UNSPEC ||
--           (ref_id != 0 && ref_id != 0x7f7f0101L /* LOCAL refid */)) &&
--          (max_correction == 0.0 || correction <= max_correction) &&
--          (max_skew_ppm == 0.0 || skew_ppm <= max_skew_ppm)) {
--        ret = 1;
--      }
--    }
- 
 -    if (!ret && (!max_tries || i < max_tries) && !quit) {
 -      UTI_DoubleToTimeval(interval, &timeout);
 -      if (select(0, NULL, NULL, NULL, &timeout))
@@ -3811,12 +3797,15 @@ index f2625de..9a9b19e 100644
 -    } else {
 -      break;
 -    }
--  }
++  if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1))
++  {
++    return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
+   }
 -  return ret;
 -}
 -
 -/* ================================================== */
--
+ 
 -static int
 -process_cmd_dns(const char *line)
 -{
@@ -3833,27 +3822,20 @@ index f2625de..9a9b19e 100644
 -  } else {
 -    LOG(LOGS_ERR, "Unrecognized dns command");
 -    return 0;
-+  request.command = htons(REQ_DEL_SOURCE);
-+  if (!::chrony::client::parse_source_address(serverAddress.c_str(), &address))
-+  {
-+    std::cerr << "process_cmd_delete(): Could not parse serverAddress" << "\n";
-+    return {0, "Error: Could not parse server address"};
-   }
+-  }
 -  return 1;
-+  else { chrony::util::UTI_IPHostToNetwork(&address, &request.data.del_source.ip_addr); }
-+  if (::chrony::client::request_reply(&request, &reply, RPY_NULL, 1)) { return {1, std::nullopt}; }
-+  else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
++  return {1, std::nullopt};
  }
  
 -/* ================================================== */
 -
--static int
+ static int
 -process_cmd_timeout(const char *line)
-+static ChronyCallResult
-+process_cmd_clear_manual_list()
++parse_source_address(const char *word, chrony::addressing::IPAddr *address)
  {
 -  int timeout;
--
++  if (::chrony::util::UTI_StringToIdIP(word, address)) return 1;
+ 
 -  timeout = atoi(line);
 -  if (timeout < 100) {
 -    LOG(LOGS_ERR, "Timeout %d is too short", timeout);
@@ -3862,48 +3844,31 @@ index f2625de..9a9b19e 100644
 -  initial_timeout = timeout;
 -  return 1;
 -}
-+  CMD_Request request;
-+  CMD_Reply reply;
-+  std::uint32_t n_samples;
- 
+-
 -/* ================================================== */
-+  request.command = htons(REQ_MANUAL_LIST);
-+  if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0))
-+  {
-+    return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
-+  };
- 
+-
 -static int
 -process_cmd_retries(const char *line)
 -{
 -  int retries;
-+  n_samples = ntohl(reply.data.manual_list.n_samples);
++  if (::chrony::nameserv::DNS_Name2IPAddress(word, address, 1) == chrony::nameserv::DNS_Success) return 1;
  
 -  retries = atoi(line);
 -  if (retries < 0 || retries > 30) {
 -    LOG(LOGS_ERR, "Invalid maximum number of retries");
 -    return 0;
-+  for (std::uint32_t sampleIndex = 0; sampleIndex < n_samples; ++sampleIndex)
-+  {
-+    request.command = htons(REQ_MANUAL_DELETE);
-+    // always delete the first element as elements get reordered after one is deleted
-+    request.data.manual_delete.index = htonl(0);
-+    if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1))
-+    {
-+      return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
-+    }
-   }
+-  }
 -  max_retries = retries;
 -  return 1;
-+  return {1, std::nullopt};
++  return 0;
  }
  
 -/* ================================================== */
 -
 -static int
 -process_cmd_keygen(char *line)
-+static ChronyCallResultT<std::vector<std::string>>
-+process_cmd_manual_list()
++static ChronyCallResult
++process_cmd_delete(const std::string &serverAddress)
  {
 -  unsigned int i, args, cmac_length, length, id = 1, bits = 160;
 -  unsigned char key[512];
@@ -3919,30 +3884,22 @@ index f2625de..9a9b19e 100644
 -  args = UTI_SplitString(line, words, 3);
 -  if (args >= 2)
 -    type = words[1];
-+  CMD_Request request;
-+  CMD_Reply reply;
-+  uint32_t i, n_samples;
-+  RPY_ManualListSample *sample;
-+  struct timespec when;
-+  std::vector<std::string> result;
- 
+-
 -  if (args > 3 ||
 -      (args >= 1 && sscanf(words[0], "%u", &id) != 1) ||
 -      (args >= 3 && sscanf(words[2], "%u", &bits) != 1)) {
 -    LOG(LOGS_ERR, "Invalid syntax for keygen command");
 -    return 0;
-+  request.command = htons(REQ_MANUAL_LIST);
-+  if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0))
-+  {
-+    return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), result};
-   }
- 
+-  }
+-
 -#ifdef HAVE_CMAC
 -  cmac_length = CMC_GetKeyLength(UTI_CmacNameToAlgorithm(type));
 -#else
 -  cmac_length = 0;
 -#endif
-+  n_samples = ntohl(reply.data.manual_list.n_samples);
++  chrony::addressing::IPAddr address;
++  CMD_Request request;
++  CMD_Reply reply;
  
 -  if (HSH_GetHashId(UTI_HashNameToAlgorithm(type)) >= 0) {
 -    length = (bits + 7) / 8;
@@ -3951,13 +3908,13 @@ index f2625de..9a9b19e 100644
 -  } else {
 -    LOG(LOGS_ERR, "Unknown hash function or cipher %s", type);
 -    return 0;
-+  for (i = 0; i < n_samples && i < MAX_MANUAL_LIST_SAMPLES; i++)
++  request.command = htons(REQ_DEL_SOURCE);
++  if (!::chrony::client::parse_source_address(serverAddress.c_str(), &address))
 +  {
-+    sample = &reply.data.manual_list.samples[i];
-+    ::chrony::util::UTI_TimespecNetworkToHost(&sample->when, &when);
-+    result.push_back(::chrony::util::UTI_TimeToLogForm(when.tv_sec));
++    std::cerr << "process_cmd_delete(): Could not parse serverAddress" << "\n";
++    return {0, "Error: Could not parse server address"};
    }
- 
+-
 -  length = CLAMP(10, length, sizeof (key));
 -
 -  UTI_GetRandomBytesUrandom(key, length);
@@ -3968,7 +3925,9 @@ index f2625de..9a9b19e 100644
 -  printf("\n");
 -
 -  return 1;
-+  return {1, std::nullopt, result};
++  else { chrony::util::UTI_IPHostToNetwork(&address, &request.data.del_source.ip_addr); }
++  if (::chrony::client::request_reply(&request, &reply, RPY_NULL, 1)) { return {1, std::nullopt}; }
++  else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
  }
  
 -/* ================================================== */
@@ -3976,7 +3935,7 @@ index f2625de..9a9b19e 100644
 -static int
 -process_line(char *line)
 +static ChronyCallResult
-+process_cmd_settime(const std::string &newTimeString)
++process_cmd_clear_manual_list()
  {
 -  char *command;
 -  int do_normal_submit;
@@ -3989,22 +3948,19 @@ index f2625de..9a9b19e 100644
 -  do_normal_submit = 1;
 -
 -  CPS_NormalizeLine(line);
-+  struct timespec ts;
-+  time_t new_time;
 +  CMD_Request request;
 +  CMD_Reply reply;
-+  double dfreq_ppm, new_afreq_ppm;
-+  double offset;
++  std::uint32_t n_samples;
  
 -  if (!*line) {
 -    fflush(stderr);
 -    fflush(stdout);
 -    return 1;
--  };
-+#ifndef __USE_TIME_BITS64
-+  /// @note if this static_assert fails then this code will not work because of the year 2038 problem.
-+  static_assert(sizeof(std::time_t) == sizeof(std::uint64_t));
-+#endif
++  request.command = htons(REQ_MANUAL_LIST);
++  if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0))
++  {
++    return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
+   };
  
 -  command = line;
 -  line = CPS_SplitWord(line);
@@ -4173,50 +4129,45 @@ index f2625de..9a9b19e 100644
 -    
 -  if (do_normal_submit) {
 -    ret = request_reply(&tx_message, &rx_message, RPY_NULL, 1);
-+  try
-+  {
-+    const std::string timeZone = std::format("/usr/share/zoneinfo/{}", std::chrono::current_zone()->name());
-+    setenv("TZ", timeZone.c_str(), 1); // POSIX-specific
-   }
+-  }
 -
 -  if (end_dot) {
 -    printf(".\n");
-+  catch (const std::runtime_error&)  // current_zone() throws a generic runtime_error according to
-+                                     // cppreference https://en.cppreference.com/w/cpp/chrono/current_zone.html
-+  {
-+    std::cout << "std::chrono::current_zone() failed, is /etc/localtime set? Falling back to UTC.\n";
-   }
- 
+-  }
+-
 -  fflush(stderr);
 -
 -  if (fflush(stdout) != 0 || ferror(stdout) != 0) {
 -    LOG(LOGS_ERR, "Could not write to stdout");
-+  std::tm timeTemp = {};
-+  // TODO tm_isdst?
-+  std::istringstream timeStream(newTimeString);
-+  timeStream >> std::get_time(&timeTemp, "%Y-%m-%d %H:%M:%S");
-+  std::cout << "Setting time to: " << std::put_time(&timeTemp, "%c %Z") << "\n";
-+  new_time = mktime(&timeTemp);
++  n_samples = ntohl(reply.data.manual_list.n_samples);
  
 -    /* Return error for commands that print data */
 -    if (!do_normal_submit)
 -      return 0;
-+  if (new_time == -1)
++  for (std::uint32_t sampleIndex = 0; sampleIndex < n_samples; ++sampleIndex)
 +  {
-+    printf("510 - Could not parse date string\n");
-+    return {0, "Error: Could not parse date string"};
++    request.command = htons(REQ_MANUAL_DELETE);
++    // always delete the first element as elements get reordered after one is deleted
++    request.data.manual_delete.index = htonl(0);
++    if (!::chrony::client::request_reply(&request, &reply, RPY_NULL, 1))
++    {
++      return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))};
++    }
    }
 -
 -  return ret;
--}
--
++  return {1, std::nullopt};
+ }
+ 
 -/* ================================================== */
 -
 -#define MAX_LINE_LENGTH 2048
 -
 -static int
 -process_args(int argc, char **argv, int multi)
--{
++static ChronyCallResultT<std::vector<std::string>>
++process_cmd_manual_list()
+ {
 -  char line[MAX_LINE_LENGTH];
 -  int i, l, ret = 0;
 -
@@ -4225,20 +4176,7 @@ index f2625de..9a9b19e 100644
 -    if (l >= sizeof (line)) {
 -      LOG(LOGS_ERR, "Command too long");
 -      return 0;
-+  else
-+  {
-+    ts.tv_sec = new_time;
-+    ts.tv_nsec = 0;
-+    ::chrony::util::UTI_TimespecHostToNetwork(&ts, &request.data.settime.ts);
-+    request.command = htons(REQ_SETTIME);
-+    if (::chrony::client::request_reply(&request, &reply, RPY_MANUAL_TIMESTAMP2, 1))
-+    {
-+      offset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.offset);
-+      dfreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.dfreq_ppm);
-+      new_afreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.new_afreq_ppm);
-+      printf("Clock was %.2f seconds fast.  Frequency change = %.2fppm, new frequency = %.2fppm\n", offset, dfreq_ppm, new_afreq_ppm);
-+      return {1, std::nullopt};
-     }
+-    }
 -
 -    if (!multi && i + 1 < argc)
 -      continue;
@@ -4246,27 +4184,46 @@ index f2625de..9a9b19e 100644
 -    ret = process_line(line);
 -    if (!ret || quit)
 -      break;
--
++  CMD_Request request;
++  CMD_Reply reply;
++  uint32_t i, n_samples;
++  RPY_ManualListSample *sample;
++  struct timespec when;
++  std::vector<std::string> result;
+ 
 -    l = 0;
-+    else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
++  request.command = htons(REQ_MANUAL_LIST);
++  if (!::chrony::client::request_reply(&request, &reply, RPY_MANUAL_LIST2, 0))
++  {
++    return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), result};
    }
--
+ 
 -  return ret;
 -}
--
++  n_samples = ntohl(reply.data.manual_list.n_samples);
+ 
 -/* ================================================== */
--
++  for (i = 0; i < n_samples && i < MAX_MANUAL_LIST_SAMPLES; i++)
++  {
++    sample = &reply.data.manual_list.samples[i];
++    ::chrony::util::UTI_TimespecNetworkToHost(&sample->when, &when);
++    result.push_back(::chrony::util::UTI_TimeToLogForm(when.tv_sec));
++  }
+ 
 -static void
 -signal_handler(int signum)
 -{
 -  quit = 1;
++  return {1, std::nullopt, result};
  }
  
 -/* ================================================== */
 -
 -static void
 -display_gpl(void)
--{
++static ChronyCallResult
++process_cmd_settime(const std::string &newTimeString)
+ {
 -    printf("chrony version %s\n"
 -           "Copyright (C) 1997-2003, 2007, 2009-2025 Richard P. Curnow and others\n"
 -           "chrony comes with ABSOLUTELY NO WARRANTY.  This is free software, and\n"
@@ -4276,7 +4233,13 @@ index f2625de..9a9b19e 100644
 -}
 -
 -/* ================================================== */
--
++  struct timespec ts;
++  time_t utc_time, local_time;
++  CMD_Request request;
++  CMD_Reply reply;
++  double dfreq_ppm, new_afreq_ppm;
++  double offset;
+ 
 -static void
 -print_help(const char *progname)
 -{
@@ -4290,7 +4253,10 @@ index f2625de..9a9b19e 100644
 -             "  -e\t\tEnd responses with dot\n"
 -#if DEBUG > 0
 -             "  -d\t\tEnable debug messages\n"
--#endif
++#ifndef __USE_TIME_BITS64
++  /// @note if this static_assert fails then this code will not work because of the year 2038 problem.
++  static_assert(sizeof(std::time_t) == sizeof(std::uint64_t));
+ #endif
 -             "  -m\t\tAccept multiple commands\n"
 -             "  -h HOST\tSpecify server (%s)\n"
 -             "  -p PORT\tSpecify UDP port (%d)\n"
@@ -4303,14 +4269,12 @@ index f2625de..9a9b19e 100644
 -
 -static void
 -print_version(void)
-+static ChronyCallResultT<TrackingData>
-+process_cmd_tracking()
- {
+-{
 -      printf("chronyc (chrony) version %s (%s)\n", CHRONY_VERSION, CHRONYC_FEATURES);
 -}
 -
 -/* ================================================== */
--
+ 
 -int
 -main(int argc, char **argv)
 -{
@@ -4329,7 +4293,21 @@ index f2625de..9a9b19e 100644
 -      print_version();
 -      return 0;
 -    }
--  }
++  std::tm timeTemp = {};
++  std::istringstream timeStream(newTimeString);
++  timeStream >> std::get_time(&timeTemp, "%Y-%m-%d %H:%M:%S");
++  std::cout << "Received time: " << std::put_time(&timeTemp, "%c %Z") << "\n";
++  utc_time = mktime(&timeTemp);
++  std::tm localTemp = *std::localtime(&utc_time);
++  std::cout << "Setting time to: " << std::put_time(&localTemp, "%c %Z") << "\n";
++  // chrony assumes the given time is for the current time zone
++  local_time = mktime(&localTemp);
++
++  if (local_time == -1)
++  {
++    printf("510 - Could not parse date string\n");
++    return {0, "Error: Could not parse date string"};
+   }
 -
 -  optind = 1;
 -
@@ -4376,9 +4354,24 @@ index f2625de..9a9b19e 100644
 -      default:
 -        print_help(progname);
 -        return 1;
--    }
--  }
--
++  else
++  {
++    ts.tv_sec = local_time;
++    ts.tv_nsec = 0;
++    ::chrony::util::UTI_TimespecHostToNetwork(&ts, &request.data.settime.ts);
++    request.command = htons(REQ_SETTIME);
++    if (::chrony::client::request_reply(&request, &reply, RPY_MANUAL_TIMESTAMP2, 1))
++    {
++      offset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.offset);
++      dfreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.dfreq_ppm);
++      new_afreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.new_afreq_ppm);
++      printf("Clock was %.2f seconds fast.  Frequency change = %.2fppm, new frequency = %.2fppm\n", offset, dfreq_ppm, new_afreq_ppm);
++      return {1, std::nullopt};
+     }
++    else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
+   }
++}
+ 
 -  if (isatty(0) && isatty(1) && isatty(2)) {
 -    on_terminal = 1;
 -  }
@@ -4419,6 +4412,9 @@ index f2625de..9a9b19e 100644
 -  free_addresses(server_addresses);
 -  SCK_Finalise();
 -  UTI_ResetGetRandomFunctions();
++static ChronyCallResultT<TrackingData>
++process_cmd_tracking()
++{
 +  TrackingData retVal;
 +  CMD_Request request;
 +  CMD_Reply reply;
