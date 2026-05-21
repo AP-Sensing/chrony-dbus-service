@@ -102,17 +102,18 @@ struct TrackingData
     {
         using serializer_type = simppl::dbus::make_serializer<std::time_t, std::int64_t>::type;
     } __attribute__((aligned(1)));
+    /// see leap indicator in https://datatracker.ietf.org/doc/html/rfc5905
     enum class LeapStatus : std::uint16_t  // NOLINT(performance-enum-size) The data type needs to be the same as the chrony equivalent
     {
         Normal = 0,         ///< synchronized
-        InsertSecond = 1,   ///< synchronized but behind reference
-        DeleteSecond = 2,   ///< synchronized but ahead reference
+        InsertSecond = 1,   ///< synchronized but last minute of the day has 61 seconds
+        DeleteSecond = 2,   ///< synchronized but last minute of the day has 59 seconds
         Unsynchronised = 3  ///< not synchronized
     };
 
     using serializer_type = simppl::dbus::make_serializer<double, double, double, double, double, double, double, double, double,
                                                           timespec_t, std::string, std::uint32_t, std::uint16_t, LeapStatus>::type;
-
+    /// difference between chrony and system clock?
     double currentCorrection{};
     /// estimated offset, positive value means ahead
     double lastOffset{};
@@ -155,13 +156,13 @@ INTERFACE(ChronyDBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is
     Method<simppl::dbus::in<std::vector<AddServersData>>, simppl::dbus::_throw<simppl::dbus::Error>> addServers;
     /// Deletes a list of servers with the given address string
     Method<simppl::dbus::in<std::vector<std::string>>, simppl::dbus::_throw<simppl::dbus::Error>> deleteServers;
-    /// Enables or disables manual time control (if enabled and a manual time is set, then that time is used as a reference instead of NTP
-    /// servers)
     /// Adds a manual time entry with the format "yyyy-mm-dd HH:MM:SS"
     Method<simppl::dbus::in<std::string>, simppl::dbus::_throw<simppl::dbus::Error>> addManualTime;
+    /// Clears all manual time entries
     Method<simppl::dbus::_throw<simppl::dbus::Error>> clearManualTimeList;
     /// Lists all manual time entries with the format "yyyy-mm-dd HH:MM:SS"
     Method<simppl::dbus::out<std::vector<std::string>>, simppl::dbus::_throw<simppl::dbus::Error>> getManualTimeList;
+    /// Enables or disables adding manual time entries
     /// @note Disabling manual time currently doesn't delete manual time entries
     Method<simppl::dbus::in<bool>, simppl::dbus::_throw<simppl::dbus::Error>> setManualTimeEnabled;
     /// Update the system time immediately
