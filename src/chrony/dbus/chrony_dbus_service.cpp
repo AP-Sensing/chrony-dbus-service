@@ -46,79 +46,79 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
 {
     getSources >> [this]()
     {
-        std::cout << ">> getSources enter" << "\n";
+        std::cout << ">> getSources enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.getSources")) { return; }
 
         if (!checkCommandSocket())
         {
-            std::cerr << "!! getSources error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! getSources error: chronyd command socket is unavailable!" << std::endl
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr, sourceList] = chrony::client::process_cmd_sources();
         if (success) { respond_with(getSources(sourceList)); }
         else
         {
-            std::cerr << "!! getSources error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            std::cerr << "!! getSources error: " << errStr.value_or("Invalid request or no response from chronyd!") << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              errStr.value_or("Invalid request or no response from chronyd!").c_str()));
         }
-        std::cout << "<< getSources exit" << "\n";
+        std::cout << "<< getSources exit" << std::endl;
     };
 
     getTrackingData >> [this]()
     {
-        std::cout << ">> getTrackingData enter" << "\n";
+        std::cout << ">> getTrackingData enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.getTrackingData")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! getTrackingData error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! getTrackingData error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr, trackingData] = chrony::client::process_cmd_tracking();
         if (success) { respond_with(getTrackingData(trackingData)); }
         else
         {
-            std::cerr << "!! getTrackingData error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            std::cerr << "!! getTrackingData error: " << errStr.value_or("Invalid request or no response from chronyd!") << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              errStr.value_or("Invalid request or no response from chronyd!").c_str()));
         }
-        std::cout << "<< getTrackingData exit" << "\n";
+        std::cout << "<< getTrackingData exit" << std::endl;
     };
 
     addServers >> [this](const std::vector<AddServersData> &serverList)
     {
-        std::cout << ">> addservers enter" << "\n";
+        std::cout << ">> addservers enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addServers")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! addservers error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! addservers error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         for (const auto &server : serverList)
         {
             std::cout << std::format("Adding server: {} port: {} flags: {}", server.name, server.port,
                                      static_cast<std::uint16_t>(server.flags))
-                      << "\n";
+                      << std::endl;
             const auto [success, errStr] = chrony::client::process_cmd_add_source(server);
             if (!success)
             {
-                std::cerr << "!! addservers error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+                std::cerr << "!! addservers error: " << errStr.value_or("Invalid request or no response from chronyd!") << std::endl;
                 respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                                  errStr.value_or("Invalid request or no response from chronyd!").c_str()));
                 return;
             }
         }
         respond_with(addServers());
-        std::cout << "<< addservers exit" << "\n";
+        std::cout << "<< addservers exit" << std::endl;
     };
 
     deleteServers >> [this](const std::vector<std::string> &serverList)
     {
-        std::cout << ">> deleteServers enter" << "\n";
+        std::cout << ">> deleteServers enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.deleteServers")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! deleteServers error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! deleteServers error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         for (const auto &server : serverList)
@@ -126,25 +126,25 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
             const auto [success, errStr] = chrony::client::process_cmd_delete(server);
             if (!success)
             {
-                std::cerr << "!! deleteServers error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+                std::cerr << "!! deleteServers error: " << errStr.value_or("Invalid request or no response from chronyd!") << std::endl;
                 respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                                  errStr.value_or("Invalid request or no response from chronyd!").c_str()));
                 return;
             }
         }
         respond_with(deleteServers());
-        std::cout << "<< deleteServers exit" << "\n";
+        std::cout << "<< deleteServers exit" << std::endl;
     };
 
     addManualTime >>
         [this](const std::string &
                    time)  // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
     {
-        std::cout << ">> addManualTime enter" << "\n";
+        std::cout << ">> addManualTime enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addManualTime")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! addManualTime error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! addManualTime error: chronyd command socket is unavailable!" << std::endl
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         /// @todo remove all other manual entries?
@@ -153,60 +153,60 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (success) { respond_with(addManualTime()); }
         else
         {
-            std::cerr << "!! addManualTime error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            std::cerr << "!! addManualTime error: " << errStr.value_or("Invalid request or no response from chronyd!") << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              errStr.value_or("Invalid request or no response from chronyd!").c_str()));
         }
-        std::cout << "<< addManualTime exit" << "\n";
+        std::cout << "<< addManualTime exit" << std::endl;
     };
 
     clearManualTimeList >> [this]()
     {
-        std::cout << ">> clearManualTimeList enter" << "\n";
+        std::cout << ">> clearManualTimeList enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.clearManualTimeList")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! clearManualTimeList error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! clearManualTimeList error: chronyd command socket is unavailable!" << std::endl
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr] = ::chrony::client::process_cmd_clear_manual_list();
         if (success) { respond_with(clearManualTimeList()); }
         else
         {
-            std::cerr << "!! clearManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            std::cerr << "!! clearManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              errStr.value_or("Invalid request or no response from chronyd!").c_str()));
         }
-        std::cout << "<< clearManualTimeList exit" << "\n";
+        std::cout << "<< clearManualTimeList exit" << std::endl;
     };
 
     getManualTimeList >> [this]()
     {
-        std::cout << ">> getManualTimeList enter" << "\n";
+        std::cout << ">> getManualTimeList enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.getManualTimeList")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! getManualTimeList error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! getManualTimeList error: chronyd command socket is unavailable!" << std::endl
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr, list] = chrony::client::process_cmd_manual_list();
         if (success) { respond_with(getManualTimeList(list)); }
         else
         {
-            std::cerr << "!! getManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << "\n";
+            std::cerr << "!! getManualTimeList error: " << errStr.value_or("Invalid request or no response from chronyd!") << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              errStr.value_or("Invalid request or no response from chronyd!").c_str()));
         }
-        std::cout << ">> getManualTimeList exit" << "\n";
+        std::cout << ">> getManualTimeList exit" << std::endl;
     };
 
     setManualTimeEnabled >> [this](bool enabled)
     {
-        std::cout << ">> setManualTimeEnabled enter" << "\n";
+        std::cout << ">> setManualTimeEnabled enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.setManualTimeEnabled")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! setManualTimeEnabled error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! setManualTimeEnabled error: chronyd command socket is unavailable!" << std::endl
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         CMD_Request request;
@@ -221,19 +221,19 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (success) { respond_with(setManualTimeEnabled()); }
         else
         {
-            std::cerr << "!! setManualTimeEnabled error: " << std::format("Error: chronyd returned status: {}", reply.status) << "\n";
+            std::cerr << "!! setManualTimeEnabled error: " << std::format("Error: chronyd returned status: {}", reply.status) << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              std::format("Error: chronyd returned status: {}", reply.status).c_str()));
         }
-        std::cout << "<< setManualTimeEnabled exit" << "\n";
+        std::cout << "<< setManualTimeEnabled exit" << std::endl;
     };
     makeStep >> [this]()
     {
-        std::cout << ">> makeStep enter" << "\n";
+        std::cout << ">> makeStep enter" << std::endl;
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.makeStep")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! makeStep error: chronyd command socket is unavailable!\n";
+            std::cerr << "!! makeStep error: chronyd command socket is unavailable!" << std::endl
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         CMD_Request request;
@@ -244,20 +244,20 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (success) { respond_with(makeStep()); }
         else
         {
-            std::cerr << "!! makeStep error: " << std::format("Error: chronyd returned status: {}", reply.status) << "\n";
+            std::cerr << "!! makeStep error: " << std::format("Error: chronyd returned status: {}", reply.status) << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed",
                                              std::format("Error: chronyd returned status: {}", reply.status).c_str()));
         }
-        std::cout << "<< makeStep exit" << "\n";
+        std::cout << "<< makeStep exit" << std::endl;
     };
 }
 
 bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
 {
     const std::string busName = dbus_message_get_sender(current_request().msg_);
-    std::cout << ">> checkPolkitPermissions enter" << "\n";
-    std::cout << "busName = " << busName << "\n";
-    std::cout << "actionId = " << actionId << "\n";
+    std::cout << ">> checkPolkitPermissions enter" << std::endl;
+    std::cout << "busName = " << busName << std::endl;
+    std::cout << "actionId = " << actionId << std::endl;
     simppl::dbus::Dispatcher dispatch("bus:system");
     simppl::dbus::Stub<org::freedesktop::PolicyKit1::Authority> polkitStub(dispatch, "org.freedesktop.PolicyKit1",
                                                                            "/org/freedesktop/PolicyKit1/Authority");
@@ -270,11 +270,11 @@ bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
         const org::freedesktop::PolicyKit1::AuthorizationResult authResult =
             polkitStub.CheckAuthorization(subject, actionId, details, org::freedesktop::PolicyKit1::CheckAuthorizationFlags::None,
                                           cancellationId);
-        std::cout << "authResult.is_authorized = " << authResult.is_authorized << "\n";
-        std::cout << "<< checkPolkitPermissions exit" << "\n";
+        std::cout << "authResult.is_authorized = " << authResult.is_authorized << std::endl;
+        std::cout << "<< checkPolkitPermissions exit" << std::endl;
         if (!authResult.is_authorized)
         {
-            std::cerr << "!! Polkit returned is_authorized = false for sender: " << busName << "\n";
+            std::cerr << "!! Polkit returned is_authorized = false for sender: " << busName << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org.freedesktop.PolicyKit1.CheckAuthorization failed!"));
             return false;
         }
@@ -282,8 +282,8 @@ bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
     }
     catch (simppl::dbus::Error &e)
     {
-        std::cout << "!! DBus error: " << e.what() << "\n";
-        std::cerr << "!! Polkit returned is_authorized = false for sender: " << busName << "\n";
+        std::cout << "!! DBus error: " << e.what() << std::endl;
+        std::cerr << "!! Polkit returned is_authorized = false for sender: " << busName << std::endl;
         respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "org.freedesktop.PolicyKit1.CheckAuthorization failed!"));
         return false;
     }
