@@ -51,7 +51,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
 
         if (!checkCommandSocket())
         {
-            std::cerr << "!! getSources error: chronyd command socket is unavailable!" << std::endl
+            std::cerr << "!! getSources error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr, sourceList] = chrony::client::process_cmd_sources();
@@ -144,7 +144,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addManualTime")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! addManualTime error: chronyd command socket is unavailable!" << std::endl
+            std::cerr << "!! addManualTime error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         /// @todo remove all other manual entries?
@@ -166,7 +166,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.clearManualTimeList")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! clearManualTimeList error: chronyd command socket is unavailable!" << std::endl
+            std::cerr << "!! clearManualTimeList error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr] = ::chrony::client::process_cmd_clear_manual_list();
@@ -186,7 +186,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.getManualTimeList")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! getManualTimeList error: chronyd command socket is unavailable!" << std::endl
+            std::cerr << "!! getManualTimeList error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         const auto [success, errStr, list] = chrony::client::process_cmd_manual_list();
@@ -206,7 +206,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.setManualTimeEnabled")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! setManualTimeEnabled error: chronyd command socket is unavailable!" << std::endl
+            std::cerr << "!! setManualTimeEnabled error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         CMD_Request request;
@@ -233,7 +233,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp)
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.makeStep")) { return; }
         if (!checkCommandSocket())
         {
-            std::cerr << "!! makeStep error: chronyd command socket is unavailable!" << std::endl
+            std::cerr << "!! makeStep error: chronyd command socket is unavailable!" << std::endl;
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         CMD_Request request;
