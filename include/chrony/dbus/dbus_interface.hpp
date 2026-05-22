@@ -113,7 +113,8 @@ struct TrackingData
 
     using serializer_type = simppl::dbus::make_serializer<double, double, double, double, double, double, double, double, double,
                                                           timespec_t, std::string, std::uint32_t, std::uint16_t, LeapStatus>::type;
-    /// difference between chrony and system clock?
+    /// difference between the virtual clock used by chrony and the system clock
+    /// most other values are relative to the virtual clock according to the chronyc manual
     double currentCorrection{};
     /// estimated offset, positive value means ahead
     double lastOffset{};
