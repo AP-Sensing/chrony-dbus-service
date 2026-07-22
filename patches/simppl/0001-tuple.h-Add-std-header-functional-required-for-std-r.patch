@@ -1,0 +1,24 @@
+From 24ff053d559bf77d65367d44b5faa26fe5a8efa2 Mon Sep 17 00:00:00 2001
+From: Samuel Stirtzel <s.stirtzel@googlemail.com>
+Date: Wed, 22 Jul 2026 11:33:52 +0200
+Subject: [PATCH] tuple.h: Add std header functional required for std::ref
+
+---
+ include/simppl/tuple.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/simppl/tuple.h b/include/simppl/tuple.h
+index 85dc3cd..bb7affa 100644
+--- a/include/simppl/tuple.h
++++ b/include/simppl/tuple.h
+@@ -2,6 +2,7 @@
+ #define SIMPPL_DBUS_TUPLE_H
+ 
+ 
++#include <functional>
+ #include <tuple>
+ 
+ #include "simppl/serialization.h"
+-- 
+2.55.0
+

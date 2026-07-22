@@ -244,9 +244,11 @@ clear_variable(DESTINATION CMAKE_CXX_CLANG_TIDY BACKUP CMAKE_CXX_CLANG_TIDY_BKP)
 include(FetchContent)
 
 # Simppl
+file(GLOB simppl_PATCH_FILES ${CMAKE_SOURCE_DIR}/patches/simppl/*.patch)
 set(SIMPPL_USE_POLL OFF CACHE INTERNAL " " FORCE)
 FetchContent_Declare(simppl GIT_REPOSITORY https://github.com/AP-Sensing/simppl.git
-                            GIT_TAG d6bd7cea0993e5b9aee8162935117ae03fe9d201
+                            GIT_TAG abee56a614535d5af88ea9423392bb62eaab1732
+                            PATCH_COMMAND git am ${simppl_PATCH_FILES}
                             SYSTEM)
 FetchContent_MakeAvailable(simppl)
 # Properly specify simppl to be installed else it will be missing when building an RPM
