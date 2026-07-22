@@ -16,7 +16,7 @@ jobs:
   ctest:
     runs-on: ubuntu-latest
     container:
-      image: fedora:42
+      image: fedora:44
 
     steps:
       - name: Install Dependencies

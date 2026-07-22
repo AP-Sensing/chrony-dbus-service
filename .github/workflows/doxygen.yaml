@@ -9,7 +9,7 @@ jobs:
   build-doxygen:
     runs-on: ubuntu-latest
     container:
-      image: fedora:42
+      image: fedora:44
     steps:
       - name: pepare-git
         run: |
