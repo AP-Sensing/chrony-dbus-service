@@ -1,4 +1,4 @@
-From 959b7bb38901ed777746dddee19156d72d8e3496 Mon Sep 17 00:00:00 2001
+From ddb66a41699f10a492e45ddc62f460bd7a3092ec Mon Sep 17 00:00:00 2001
 From: Samuel Stirtzel <s.stirtzel@googlemail.com>
 Date: Wed, 15 Oct 2025 15:21:09 +0200
 Subject: [PATCH 1/2] Modified the code to compile with the C++ based
@@ -7,12 +7,12 @@ Subject: [PATCH 1/2] Modified the code to compile with the C++ based
 ---
  addressing.h |    9 +-
  candm.h      |   61 +-
- client.c     | 4009 ++++++++------------------------------------------
+ client.c     | 4011 ++++++++------------------------------------------
  nameserv.c   |   75 +-
  pktlength.c  |   51 +-
- socket.c     | 1740 +---------------------
+ socket.c     | 1741 +---------------------
  util.c       | 1663 +++------------------
- 7 files changed, 958 insertions(+), 6650 deletions(-)
+ 7 files changed, 961 insertions(+), 6650 deletions(-)
 
 diff --git a/addressing.h b/addressing.h
 index 3e311fa..1bf70af 100644
@@ -269,7 +269,7 @@ index c120b0b..d160c65 100644
    uint8_t authentication;
    uint8_t leap;
 diff --git a/client.c b/client.c
-index f2625de..3d9c8e8 100644
+index f2625de..fc54f27 100644
 --- a/client.c
 +++ b/client.c
 @@ -1,3 +1,6 @@
@@ -279,7 +279,7 @@ index f2625de..3d9c8e8 100644
  /*
    chronyd/chronyc - Programs for keeping computer clocks accurate.
  
-@@ -27,222 +30,159 @@
+@@ -27,222 +30,161 @@
    from it whilst running.
    */
  
@@ -312,10 +312,12 @@ index f2625de..3d9c8e8 100644
 -    char *path;
 -  } addr;
 -};
++#include <iomanip>
 +#include <iostream>
 +#include <optional>
 +#include <random>
 +#include <tuple>
++#include <unistd.h>
 +
 +#include "chrony/addressing.hpp"
 +#include "chrony/nameserv.hpp"
@@ -634,7 +636,7 @@ index f2625de..3d9c8e8 100644
  
    return 1;
  }
-@@ -252,11 +192,9 @@ open_socket(struct Address *addr)
+@@ -252,11 +194,9 @@ open_socket(struct Address *addr)
  static void
  close_io(void)
  {
@@ -648,7 +650,7 @@ index f2625de..3d9c8e8 100644
    sock_fd = -1;
  }
  
-@@ -266,20 +204,24 @@ static int
+@@ -266,20 +206,24 @@ static int
  open_io(void)
  {
    static unsigned int address_index = 0;
@@ -679,7 +681,7 @@ index f2625de..3d9c8e8 100644
  
      close_io();
    }
-@@ -290,3314 +232,591 @@ open_io(void)
+@@ -290,3314 +234,591 @@ open_io(void)
    return 0;
  }
  
@@ -4713,7 +4715,7 @@ index d9348ef..6a3fd44 100644
 +}  // namespace chrony
 +#endif  // CHRONYPKTLENGTH_H
 diff --git a/socket.c b/socket.c
-index 13ea69f..5eb7a0c 100644
+index 13ea69f..2472539 100644
 --- a/socket.c
 +++ b/socket.c
 @@ -1,3 +1,6 @@
@@ -4723,7 +4725,7 @@ index 13ea69f..5eb7a0c 100644
  /*
    chronyd/chronyc - Programs for keeping computer clocks accurate.
  
-@@ -28,579 +31,48 @@
+@@ -28,579 +31,49 @@
  
    */
  
@@ -4731,6 +4733,7 @@ index 13ea69f..5eb7a0c 100644
 +#include <sys/socket.h>
 +#include <sys/stat.h>
 +#include <sys/un.h>
++#include <unistd.h>
  
 -#include "sysincl.h"
 +#include "chrony/addressing.hpp"
@@ -5335,7 +5338,7 @@ index 13ea69f..5eb7a0c 100644
  /* ================================================== */
  
  static socklen_t
-@@ -609,7 +81,7 @@ set_unix_sockaddr(struct sockaddr_un *sun, const char *addr)
+@@ -609,7 +82,7 @@ set_unix_sockaddr(struct sockaddr_un *sun, const char *addr)
    size_t len = strlen(addr);
  
    if (len + 1 > sizeof (sun->sun_path)) {
@@ -5344,7 +5347,7 @@ index 13ea69f..5eb7a0c 100644
      return 0;
    }
  
-@@ -625,7 +97,7 @@ set_unix_sockaddr(struct sockaddr_un *sun, const char *addr)
+@@ -625,7 +98,7 @@ set_unix_sockaddr(struct sockaddr_un *sun, const char *addr)
  static int
  bind_unix_address(int sock_fd, const char *addr, int flags)
  {
@@ -5353,7 +5356,7 @@ index 13ea69f..5eb7a0c 100644
    socklen_t saddr_len;
  
    saddr_len = set_unix_sockaddr(&saddr.un, addr);
-@@ -633,18 +105,18 @@ bind_unix_address(int sock_fd, const char *addr, int flags)
+@@ -633,18 +106,18 @@ bind_unix_address(int sock_fd, const char *addr, int flags)
      return 0;
  
    if (unlink(addr) < 0)
@@ -5377,7 +5380,7 @@ index 13ea69f..5eb7a0c 100644
    }
  
    return 1;
-@@ -653,80 +125,9 @@ bind_unix_address(int sock_fd, const char *addr, int flags)
+@@ -653,80 +126,9 @@ bind_unix_address(int sock_fd, const char *addr, int flags)
  /* ================================================== */
  
  static int
@@ -5460,7 +5463,7 @@ index 13ea69f..5eb7a0c 100644
  
    if (flags & SCK_FLAG_MSG_ERRQUEUE) {
  #ifdef MSG_ERRQUEUE
-@@ -741,1056 +142,8 @@ get_recv_flags(int flags)
+@@ -741,1056 +143,8 @@ get_recv_flags(int flags)
  
  /* ================================================== */
  
@@ -6518,7 +6521,7 @@ index 13ea69f..5eb7a0c 100644
  {
    switch (ip_sa->ip_addr.family) {
      case IPADDR_INET4:
-@@ -1826,3 +179,6 @@ SCK_IPSockAddrToSockaddr(IPSockAddr *ip_sa, struct sockaddr *sa, int sa_length)
+@@ -1826,3 +180,6 @@ SCK_IPSockAddrToSockaddr(IPSockAddr *ip_sa, struct sockaddr *sa, int sa_length)
        return 0;
    }
  }
@@ -8362,5 +8365,5 @@ index 26eaa35..7e57988 100644
 -}
 +#endif  // CHRONYUTIL_H
 -- 
-2.54.0
+2.55.0
 
