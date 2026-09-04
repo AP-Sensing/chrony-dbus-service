@@ -16,7 +16,7 @@ jobs:
   build-gcc:
     runs-on: ubuntu-latest
     container:
-      image: fedora:44
+      image: fedora:42
     steps:
       - name: Install Dependencies
         id: install-dependencies

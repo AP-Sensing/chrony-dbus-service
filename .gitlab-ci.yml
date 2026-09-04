@@ -1,6 +1,6 @@
 variables:
   BUILD_WORKSPACE: "build"
-  CONTAINER_BUILD_IMAGE: "fedora:44"
+  CONTAINER_BUILD_IMAGE: "fedora:42"
   CTEST:
     value: "--parallel 16 --schedule-random"
     description: "Here you can set the options for ctest-unittests. By default test involving dbus are excluded since they are not supported inside a container image."
