@@ -160,8 +160,7 @@ build (s)rpm:
     - mkdir -p $BUILD_WORKSPACE/RPM
     - rm -rf $BUILD_WORKSPACE/RPM/*
     - mv $BUILD_WORKSPACE/*.rpm $BUILD_WORKSPACE/RPM
-  needs:
-    - "build release gcc"
+  needs: []
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_SHORT_SHA}"
     expose_as: "Release Build S_RPM"
