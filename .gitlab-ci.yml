@@ -153,25 +153,13 @@ build (s)rpm:
     - popd
     - cp -r ./packaging/selinux/ $BUILD_WORKSPACE/
     - pushd $BUILD_WORKSPACE/selinux/
-    - echo "=== Before SELinux build ==="
-    - pwd
-    - find . -maxdepth 2 -type f -print
     - ../../scripts/build_selinux_policy.sh
-    - echo "=== RPMs produced by SELinux build ==="
-    - find . -maxdepth 2 -type f -name '*.rpm' -print
-    - echo "=== Moving SELinux RPMs to BUILD_WORKSPACE ==="
-    - mv *.rpm $BUILD_WORKSPACE
-    - mv noarch/*.rpm $BUILD_WORKSPACE
+    - mv *.rpm ..
+    - mv noarch/*.rpm ..
     - popd
-    - echo "=== RPMs in BUILD_WORKSPACE after SELinux move ==="
-    - find "$BUILD_WORKSPACE" -maxdepth 1 -type f -name '*.rpm' -print
     - mkdir -p $BUILD_WORKSPACE/RPM
     - rm -rf $BUILD_WORKSPACE/RPM/*
     - mv $BUILD_WORKSPACE/*.rpm $BUILD_WORKSPACE/RPM
-    - echo "=== Final artifact directory ==="
-    - ls -la "$BUILD_WORKSPACE/RPM"
-    - echo "=== Final RPM files ==="
-    - find "$BUILD_WORKSPACE/RPM" -maxdepth 1 -type f -name '*.rpm' -print
   needs:
     - "build release gcc"
   artifacts:
