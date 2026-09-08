@@ -154,14 +154,13 @@ build (s)rpm:
     - cp -r ./packaging/selinux/ $BUILD_WORKSPACE/
     - pushd $BUILD_WORKSPACE/selinux/
     - ../../scripts/build_selinux_policy.sh
-    - mv *.rpm $BUILD_WORKSPACE
-    - mv noarch/*.rpm $BUILD_WORKSPACE
+    - mv *.rpm ..
+    - mv noarch/*.rpm ..
     - popd
     - mkdir -p $BUILD_WORKSPACE/RPM
     - rm -rf $BUILD_WORKSPACE/RPM/*
     - mv $BUILD_WORKSPACE/*.rpm $BUILD_WORKSPACE/RPM
-  needs:
-    - "build release gcc"
+  needs: []
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_SHORT_SHA}"
     expose_as: "Release Build S_RPM"
