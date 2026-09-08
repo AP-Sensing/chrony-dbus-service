@@ -25,7 +25,7 @@ include:
 
   - component: $CI_SERVER_FQDN/infrastructure/ppos/rpm-gitops/publish-n56@1.4.1
     inputs:
-      rpm_build_job_name: "build (s)rpm"
+      rpm_build_job_name: "build rpms"
 
 # Prevents all jobs that extend this stage will not run during nightly builds.
 .to_manual_rule_template:
@@ -136,8 +136,8 @@ build release test gcc:
 # 🚧 Build Stage 2
 ######################################
 
-# Build (S)RPM
-build (s)rpm:
+# Build RPMs
+build rpms:
   extends:
     - .container_image_template
     - .skip_manual_for_pr_template
@@ -146,11 +146,6 @@ build (s)rpm:
     - sudo dnf install -y rpmdevtools systemd-rpm-macros selinux-policy-devel
     - sed -i "s/set(CPACK_RPM_PACKAGE_RELEASE \"[0-9]\+\")/set(CPACK_RPM_PACKAGE_RELEASE \"${CI_PIPELINE_IID}\")/" packaging/rpm/cpack_config.cmake
     - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=RPM
-    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-    - pushd $BUILD_WORKSPACE
-    - ../scripts/build_rpm.sh
-    - popd
-    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=SRPM
     - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
     - pushd $BUILD_WORKSPACE
     - ../scripts/build_rpm.sh
