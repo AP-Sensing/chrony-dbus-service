@@ -153,7 +153,6 @@ build rpms:
     - cp -r ./packaging/selinux/ $BUILD_WORKSPACE/
     - pushd $BUILD_WORKSPACE/selinux/
     - ../../scripts/build_selinux_policy.sh
-    - mv *.rpm ..
     - mv noarch/*.rpm ..
     - popd
     - mkdir -p $BUILD_WORKSPACE/RPM
