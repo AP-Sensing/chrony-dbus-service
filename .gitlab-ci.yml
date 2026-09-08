@@ -23,6 +23,10 @@ include:
   - project: "devops/docker"
     file: "/templates/global.yml"
 
+  - component: $CI_SERVER_FQDN/infrastructure/ppos/rpm-gitops/publish-n56@1.4.1
+    inputs:
+      rpm_build_job_name: "build (s)rpm"
+
 # Prevents all jobs that extend this stage will not run during nightly builds.
 .to_manual_rule_template:
   extends:
