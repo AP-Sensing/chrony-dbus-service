@@ -28,3 +28,9 @@ To compile completely in C++ the chrony sources are downloaded and [patched](./p
 
 You can use any DBus compatible library like e.g. libdbus-c++ or simppl.
 For an example see [chronydbustest.cpp](src/tests/chronydbustest.cpp).
+
+## How to update the chrony patches
+
+Check out the chrony sources ( https://gitlab.com/chrony/chrony ) with the 4.7 tag, apply the patches from patches/chrony and then make the changes.
+To make it easier to see what changes are made to chrony, it is possible to commit with `git commit --fixup=` against the 'Modified the code to compile with the C++ based chrony-dbus-service' commit and use `git rebase --autosquash 4.7` to merge the commits together.
+Afterwards use `git format-patch -2` to create .patch files for the last 2 commits.
