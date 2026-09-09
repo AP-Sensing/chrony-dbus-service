@@ -23,6 +23,10 @@ include:
   - project: "devops/docker"
     file: "/templates/global.yml"
 
+  - component: $CI_SERVER_FQDN/infrastructure/ppos/rpm-gitops/publish-n56@1.4.1
+    inputs:
+      rpm_build_job_name: "build rpms"
+
 # Prevents all jobs that extend this stage will not run during nightly builds.
 .to_manual_rule_template:
   extends:
@@ -132,8 +136,8 @@ build release test gcc:
 # 🚧 Build Stage 2
 ######################################
 
-# Build (S)RPM
-build (s)rpm:
+# Build RPMs
+build rpms:
   extends:
     - .container_image_template
     - .skip_manual_for_pr_template
@@ -146,15 +150,9 @@ build (s)rpm:
     - pushd $BUILD_WORKSPACE
     - ../scripts/build_rpm.sh
     - popd
-    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=SRPM
-    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-    - pushd $BUILD_WORKSPACE
-    - ../scripts/build_rpm.sh
-    - popd
     - cp -r ./packaging/selinux/ $BUILD_WORKSPACE/
     - pushd $BUILD_WORKSPACE/selinux/
     - ../../scripts/build_selinux_policy.sh
-    - mv *.rpm ..
     - mv noarch/*.rpm ..
     - popd
     - mkdir -p $BUILD_WORKSPACE/RPM
