@@ -1,4 +1,4 @@
-From 53e5e655a611178c714a9c658b1bd47b6e6e274e Mon Sep 17 00:00:00 2001
+From 13284a0c0e47baa019a53071e7d92c3cd48df0b5 Mon Sep 17 00:00:00 2001
 From: Samuel Stirtzel <s.stirtzel@googlemail.com>
 Date: Wed, 15 Oct 2025 15:23:42 +0200
 Subject: [PATCH 2/2] Renamed files to .hpp to enable including them as a
