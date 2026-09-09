@@ -151,16 +151,10 @@ build (s)rpm:
     - pushd $BUILD_WORKSPACE
     - ../scripts/build_rpm.sh
     - popd
-    - cmake . -B $BUILD_WORKSPACE -DAPS_CHRONY_DBUS_SERVICE_FETCH_CONTENT_USE_GITLAB_CI_TOKEN=ON -DCMAKE_BUILD_TYPE=Release -DAPS_CHRONY_DBUS_SERVICE_BUILD_TESTS=OFF -DAPS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE=SRPM
-    - cmake --build $BUILD_WORKSPACE --parallel $PARALLEL
-    - pushd $BUILD_WORKSPACE
-    - ../scripts/build_rpm.sh
-    - popd
     - cp -r ./packaging/selinux/ $BUILD_WORKSPACE/
     - pushd $BUILD_WORKSPACE/selinux/
     - ../../scripts/build_selinux_policy.sh
-    - mv *.rpm $BUILD_WORKSPACE
-    - mv noarch/*.rpm $BUILD_WORKSPACE
+    - mv noarch/*.rpm ..
     - popd
     - mkdir -p $BUILD_WORKSPACE/RPM
     - rm -rf $BUILD_WORKSPACE/RPM/*
