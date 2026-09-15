@@ -11,6 +11,3 @@ KillMode=process
 TimeoutSec=infinity
 User=root
 Group=root
-
-[Install]
-WantedBy=chronyd.service
