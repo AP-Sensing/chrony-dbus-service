@@ -1,8 +1,7 @@
 [Unit]
 Description=A service that forwards the chronyd command socket via DBus
+BindsTo=chronyd.service
 After=chronyd.service
-Requires=chronyd.service
-PartOf=chronyd.service
 
 [Service]
 ExecStart=/usr/bin/chrony-dbus-service
@@ -12,6 +11,3 @@ KillMode=process
 TimeoutSec=infinity
 User=root
 Group=root
-
-[Install]
-WantedBy=network.target
