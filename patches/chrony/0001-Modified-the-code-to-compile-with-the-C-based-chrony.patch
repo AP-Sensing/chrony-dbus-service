@@ -4460,7 +4460,7 @@ index f2625de..14528e9 100644
 +  retVal.lastOffset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.last_offset);
 +  retVal.rmsOffset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.rms_offset);
 +  retVal.frequencyPPM = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.freq_ppm);
-+  retVal.residualFreqquencyPPM = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.resid_freq_ppm);
++  retVal.residualFrequencyPPM = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.resid_freq_ppm);
 +  retVal.skewPPM = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.skew_ppm);
 +  retVal.rootDelay = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.root_delay);
 +  retVal.rootDispersion = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.root_dispersion);
