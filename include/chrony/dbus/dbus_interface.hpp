@@ -14,8 +14,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // required for serializer_type to work
 #include <simppl/any.h>
+#include <simppl/bool.h>
 #include <simppl/interface.h>
+#include <simppl/string.h>
 #include <simppl/struct.h>
+#include <simppl/vector.h>
+#include <cstdint>
+#include <ctime>
+#include <string>
+#include <vector>
 
 // see man `chrony.conf` and `man chronyc`
 
@@ -38,7 +45,7 @@ struct ChronySourceData
         SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
 
-    using serializer_type = simppl::dbus::make_serializer<std::string, std::int32_t, std::uint32_t, SelectionState, SourceMode,
+    using serializer_type = simppl::dbus::make_serializer<std::string, std::int32_t, std::uint16_t, SelectionState, SourceMode,
                                                           std::uint32_t, std::uint16_t, bool, std::uint32_t>::type;
 
     /// can be either a hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789)
@@ -82,7 +89,7 @@ struct AddServersData
     };
 
     using serializer_type =
-        simppl::dbus::make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, std::uint32_t, ServerFlags>::type;
+        simppl::dbus::make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, ServerFlags>::type;
 
     /// can be either a hostname or IP address
     std::string name;
@@ -106,8 +113,8 @@ struct TrackingData
     enum class LeapStatus : std::uint16_t  // NOLINT(performance-enum-size) The data type needs to be the same as the chrony equivalent
     {
         Normal = 0,         ///< synchronized
-        InsertSecond = 1,   ///< synchronized but last minute of the day has 61 seconds
-        DeleteSecond = 2,   ///< synchronized but last minute of the day has 59 seconds
+        InsertSecond = 1,   ///< synchronized and last minute of the day has 61 seconds
+        DeleteSecond = 2,   ///< synchronized and last minute of the day has 59 seconds
         Unsynchronised = 3  ///< not synchronized
     };
 
@@ -123,7 +130,7 @@ struct TrackingData
     /// frequency difference that is actually corrected by chrony
     double frequencyPPM{};
     /// remainder of frequency difference not corrected by chrony (caused e.g. by smoothing)
-    double residualFreqquencyPPM{};
+    double residualFrequencyPPM{};
     /// error bound of the frequency
     double skewPPM{};
     /// accumulated network delay of the path to a stratum 1 host
