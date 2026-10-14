@@ -1,7 +1,7 @@
-From 13284a0c0e47baa019a53071e7d92c3cd48df0b5 Mon Sep 17 00:00:00 2001
+From 47c2c8f06f3b14e120e4d18e812b77625c52641b Mon Sep 17 00:00:00 2001
 From: Samuel Stirtzel <s.stirtzel@googlemail.com>
 Date: Wed, 15 Oct 2025 15:23:42 +0200
-Subject: [PATCH 2/2] Renamed files to .hpp to enable including them as a
+Subject: [PATCH 2/3] Renamed files to .hpp to enable including them as a
  header only library
 
 ---
@@ -50,5 +50,5 @@ similarity index 100%
 rename from util.c
 rename to include/chrony/util.hpp
 -- 
-2.55.0
+2.52.0
 
