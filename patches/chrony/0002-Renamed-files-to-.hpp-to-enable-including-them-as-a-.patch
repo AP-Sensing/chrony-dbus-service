@@ -1,7 +1,7 @@
 From 0b0416a3fe999a4dc0debe7627ab3299db0af084 Mon Sep 17 00:00:00 2001
 From: Samuel Stirtzel <s.stirtzel@googlemail.com>
 Date: Wed, 15 Oct 2025 15:23:42 +0200
-Subject: [PATCH 2/3] Renamed files to .hpp to enable including them as a
+Subject: [PATCH 2/4] Renamed files to .hpp to enable including them as a
  header only library
 
 ---

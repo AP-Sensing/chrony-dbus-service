@@ -13,14 +13,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 // required for serializer_type to work
+#include <cstdint>
+#include <ctime>
 #include <simppl/any.h>
 #include <simppl/bool.h>
 #include <simppl/interface.h>
 #include <simppl/string.h>
 #include <simppl/struct.h>
 #include <simppl/vector.h>
-#include <cstdint>
-#include <ctime>
 #include <string>
 #include <vector>
 
@@ -28,14 +28,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 struct ChronySourceData
 {
-    enum class SourceMode : std::uint8_t
+    enum class SourceMode : std::int32_t  // NOLINT(performance-enum-size) simppl serialization expects enums to be int32
     {
         Server = 0,         ///< Source is an NTP server
         Peer = 1,           ///< Used if chrony is configured to relay time to other peers
         ReferenceClock = 2  ///< Source is a reference clock e.g. a GPS or an IEEE 1588 PTP hardware clock with PHC driver
     };
 
-    enum class SelectionState : std::uint8_t
+    enum class SelectionState : std::int32_t  // NOLINT(performance-enum-size) simppl serialization expects enums to be int32
     {
         Selected = 0,            ///< Source is used to sync time
         Unselectable = 1,        ///< Source is configured to be never used unless manually specified
@@ -64,11 +64,11 @@ struct ChronySourceData
     bool ntsEnabled{false};
     /// NTS certificate ID
     std::uint32_t ntsCertId{0};
-} __attribute__((aligned(64)));
+};
 
 struct AddServersData
 {
-    enum ServerFlags : std::uint16_t
+    enum ServerFlags : std::int32_t  // NOLINT(performance-enum-size) simppl serialization encodes expects enums to be int32
     {
         None = 0x0,              ///< just for completeness
         Online = 0x1,            ///< default for added sources
@@ -101,16 +101,16 @@ struct AddServersData
     std::uint32_t ntsCertificateSet = 0;
     /// config flags determine how chronyd communicates with this server
     ServerFlags flags = ServerFlags::Online;
-} __attribute__((aligned(64)));
+};
 
 struct TrackingData
 {
-    struct timespec_t : std::timespec  // NOLINT(altera-struct-pack-align) Can't fix since it is inside
+    struct timespec_t : std::timespec
     {
         using serializer_type = simppl::dbus::make_serializer<std::time_t, std::int64_t>::type;
-    } __attribute__((aligned(1)));
+    };
     /// see leap indicator in https://datatracker.ietf.org/doc/html/rfc5905
-    enum class LeapStatus : std::uint16_t  // NOLINT(performance-enum-size) The data type needs to be the same as the chrony equivalent
+    enum class LeapStatus : std::int32_t  // NOLINT(performance-enum-size) simppl serialization expects enums to be int32
     {
         Normal = 0,         ///< synchronized
         InsertSecond = 1,   ///< synchronized and last minute of the day has 61 seconds
@@ -140,7 +140,7 @@ struct TrackingData
     /// interval between the last two updates
     double lastUpdateInterval{};
     /// UTC time of the last measurement point
-    std::timespec refTime{};
+    timespec_t refTime{};
     /// can be either a hostname or IP address
     std::string name;
     /// the reference ID of the source (chrony internal)
@@ -150,11 +150,11 @@ struct TrackingData
     std::uint16_t stratum{};
     LeapStatus leapStatus{};
 
-} __attribute__((aligned(128)));
+};
 
 namespace org::freedesktop
 {
-INTERFACE(ChronyDBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is inside simppl
+INTERFACE(ChronyDBus)
 {
     /// Returns a list of NTP servers that chrony uses to sync time
     Method<simppl::dbus::out<std::vector<ChronySourceData>>, simppl::dbus::_throw<simppl::dbus::Error>> getSources;

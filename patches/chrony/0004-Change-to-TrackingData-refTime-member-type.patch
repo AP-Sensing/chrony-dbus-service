@@ -1,0 +1,26 @@
+From 5b22120831621eb8d7a172d76978c3ed62dbee2a Mon Sep 17 00:00:00 2001
+From: John Fletcher <john.fletcher@apsensing.com>
+Date: Thu, 15 Oct 2026 23:30:10 +0000
+Subject: [PATCH 4/4] Change to TrackingData refTime member type
+
+---
+ include/chrony/client.hpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/chrony/client.hpp b/include/chrony/client.hpp
+index a385b30..8e78932 100644
+--- a/include/chrony/client.hpp
++++ b/include/chrony/client.hpp
+@@ -816,7 +816,8 @@ process_cmd_tracking()
+ 
+   retVal.referenceId = reply.data.tracking.ref_id;
+   retVal.stratum = ntohs(reply.data.tracking.stratum);
+-  retVal.refTime = ref_time;
++  retVal.refTime.tv_sec = ref_time.tv_sec;
++  retVal.refTime.tv_nsec = ref_time.tv_nsec;
+   retVal.currentCorrection = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.current_correction);
+   retVal.lastOffset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.last_offset);
+   retVal.rmsOffset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.rms_offset);
+-- 
+2.52.0
+
