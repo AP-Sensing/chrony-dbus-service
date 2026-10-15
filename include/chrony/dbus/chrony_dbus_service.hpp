@@ -8,7 +8,7 @@
 class ChronyDBusService : simppl::dbus::Skeleton<org::freedesktop::ChronyDBus>
 {
    public:
-    explicit ChronyDBusService(simppl::dbus::Dispatcher &disp);
+    explicit ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool debugLoggingIsEnabled = false);
     ~ChronyDBusService() override = default;
 
    private:
