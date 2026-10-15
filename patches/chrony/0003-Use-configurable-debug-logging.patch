@@ -1,4 +1,4 @@
-From 34868728af73844bf35d251b98779cb72f28b1c0 Mon Sep 17 00:00:00 2001
+From b5f95364b6124a9afa75f2cd390be68b9fbb7b44 Mon Sep 17 00:00:00 2001
 From: John Fletcher <john.fletcher@apsensing.com>
 Date: Wed, 14 Oct 2026 18:16:20 +0000
 Subject: [PATCH 3/3] Use configurable debug logging
@@ -266,7 +266,7 @@ index e022cfe..a385b30 100644
  
 diff --git a/include/chrony/logging.hpp b/include/chrony/logging.hpp
 new file mode 100644
-index 0000000..2064811
+index 0000000..0228a60
 --- /dev/null
 +++ b/include/chrony/logging.hpp
 @@ -0,0 +1,31 @@
@@ -283,7 +283,7 @@ index 0000000..2064811
 +void logTo(std::ostream& output, Args&&... args)
 +{
 +    (output << ... << std::forward<Args>(args));
-+    output << '\n';
++    output << std::endl;
 +}
 +
 +template<typename... Args>
