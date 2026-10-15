@@ -2,7 +2,6 @@
 
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
-#include <iosfwd>
 
 #include "chrony/dbus/dbus_interface.hpp"
 

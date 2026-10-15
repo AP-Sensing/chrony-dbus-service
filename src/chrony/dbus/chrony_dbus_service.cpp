@@ -3,6 +3,7 @@
 #include <chrony/candm.hpp>
 #include <chrony/client.hpp>
 #include <chrony/logging.hpp>
+#include <dbus/dbus.h>
 #include <netinet/in.h>
 #include <simppl/dispatcher.h>
 #include <simppl/skeleton.h>
@@ -12,11 +13,9 @@
 #include <cstdint>
 #include <filesystem>
 #include <format>
-#include <iostream>
 #include <map>
 #include <string>
 #include <thread>
-#include <utility>
 #include <vector>
 
 #include "chrony/dbus/dbus_interface.hpp"
@@ -260,6 +259,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
 
 bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
 {
+    // NOLINTNEXTLINE(misc-include-cleaner) We are including the recommended header <dbus/dbus.h>
     const std::string busName = dbus_message_get_sender(current_request().msg_);
     logging::debugLog(">> checkPolkitPermissions enter");
     logging::debugLog("busName = ", busName);
