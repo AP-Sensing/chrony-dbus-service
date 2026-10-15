@@ -1,16 +1,16 @@
-From 3dc3dc9427d4e90c7c14e3656d7091f95f5585f6 Mon Sep 17 00:00:00 2001
+From 34868728af73844bf35d251b98779cb72f28b1c0 Mon Sep 17 00:00:00 2001
 From: John Fletcher <john.fletcher@apsensing.com>
 Date: Wed, 14 Oct 2026 18:16:20 +0000
-Subject: [PATCH 3/4] Use configurable debug logging
+Subject: [PATCH 3/3] Use configurable debug logging
 
 ---
- include/chrony/client.hpp  | 67 +++++++++++++++++++-------------------
+ include/chrony/client.hpp  | 66 +++++++++++++++++++-------------------
  include/chrony/logging.hpp | 31 ++++++++++++++++++
- 2 files changed, 65 insertions(+), 33 deletions(-)
+ 2 files changed, 64 insertions(+), 33 deletions(-)
  create mode 100644 include/chrony/logging.hpp
 
 diff --git a/include/chrony/client.hpp b/include/chrony/client.hpp
-index e022cfe..3ec83b8 100644
+index e022cfe..a385b30 100644
 --- a/include/chrony/client.hpp
 +++ b/include/chrony/client.hpp
 @@ -38,6 +38,7 @@
@@ -134,7 +134,7 @@ index e022cfe..3ec83b8 100644
  
      timeout = initial_timeout / 1000.0 * (1U << (n_attempts - 1)) - ::chrony::util::UTI_DiffTimespecsToDouble(&ts_now, &ts_start);
 -    std::cerr << "submit_request(): Timeout " << timeout << " seconds" << "\n";
-+    logging::errorLog("submit_request(): Timeout ", timeout, " seconds");
++    logging::debugLog("submit_request(): Timeout ", timeout, " seconds");
  
      /* Avoid calling select() with an invalid timeout */
      if (timeout <= 0.0)
@@ -171,7 +171,7 @@ index e022cfe..3ec83b8 100644
            continue;
          }
  
-@@ -400,14 +401,14 @@ submit_request(CMD_Request *request, CMD_Reply *reply)
+@@ -400,14 +401,13 @@ submit_request(CMD_Request *request, CMD_Reply *reply)
             length is zero. */
          if (read_length < ::chrony::pktlength::PKL_ReplyLength(reply))
          {
@@ -184,12 +184,11 @@ index e022cfe..3ec83b8 100644
          /* Good packet received, print out results */
 -        std::cerr << "Reply cmd=" << ntohs(reply->command) << " reply=" << ntohs(reply->command) << " stat=" << ntohs(reply->status)
 -                  << "\n";
-+        logging::errorLog("Reply cmd=", ntohs(reply->command), " reply=", ntohs(reply->command), " stat=", ntohs(reply->status)
-+                 );
++        logging::debugLog("Reply cmd=", ntohs(reply->command), " reply=", ntohs(reply->command), " stat=", ntohs(reply->status));
          break;
        }
      }
-@@ -424,7 +425,7 @@ request_reply(CMD_Request *request, CMD_Reply *reply, int requested_reply, int v
+@@ -424,7 +424,7 @@ request_reply(CMD_Request *request, CMD_Reply *reply, int requested_reply, int v
    // when chrony restarts during a request the data received is useless so the reply is checked here as part of the loop
    while (!submit_request(request, reply))
    {
@@ -198,7 +197,7 @@ index e022cfe..3ec83b8 100644
        /* Try connecting to other addresses before giving up */
        if (open_io()) continue;
        printf("506 Cannot talk to daemon\n");
-@@ -432,7 +433,7 @@ request_reply(CMD_Request *request, CMD_Reply *reply, int requested_reply, int v
+@@ -432,7 +432,7 @@ request_reply(CMD_Request *request, CMD_Reply *reply, int requested_reply, int v
    }
  
    status = ntohs(reply->status);
@@ -207,7 +206,7 @@ index e022cfe..3ec83b8 100644
  
    if (verbose || status != STT_SUCCESS)
    {
-@@ -525,7 +526,7 @@ static ChronyCallResultT<std::vector<ChronySourceData>>
+@@ -525,7 +525,7 @@ static ChronyCallResultT<std::vector<ChronySourceData>>
  process_cmd_sources()
  {
    std::vector<ChronySourceData> retVal;
@@ -216,7 +215,7 @@ index e022cfe..3ec83b8 100644
    CMD_Request request;
    CMD_Reply reply;
    ::chrony::addressing::IPAddr ip_addr;
-@@ -536,7 +537,7 @@ process_cmd_sources()
+@@ -536,7 +536,7 @@ process_cmd_sources()
        return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), retVal};
  
    n_sources = ntohl(reply.data.n_sources.n_sources);
@@ -225,7 +224,7 @@ index e022cfe..3ec83b8 100644
  
    for (i = 0; i < n_sources; i++)
    {
-@@ -548,7 +549,7 @@ process_cmd_sources()
+@@ -548,7 +548,7 @@ process_cmd_sources()
      mode = ntohs(reply.data.source_data.mode);
  
      ::chrony::util::UTI_IPNetworkToHost(&reply.data.source_data.ip_addr, &ip_addr);
@@ -234,7 +233,7 @@ index e022cfe..3ec83b8 100644
      ChronySourceData data;
      data.sourceMode = static_cast<ChronySourceData::SourceMode>(mode);
      data.selectionState = static_cast<ChronySourceData::SelectionState>(ntohs(reply.data.source_data.state));
-@@ -561,7 +562,7 @@ process_cmd_sources()
+@@ -561,7 +561,7 @@ process_cmd_sources()
      {
        // for some reason the name is encoded as IPv4 address
        data.name = ::chrony::util::UTI_RefidToString(ip_addr.addr.in4);
@@ -243,7 +242,7 @@ index e022cfe..3ec83b8 100644
        retVal.push_back(data);
        continue;
      }
-@@ -674,7 +675,7 @@ process_cmd_delete(const std::string &serverAddress)
+@@ -674,7 +674,7 @@ process_cmd_delete(const std::string &serverAddress)
    request.command = htons(REQ_DEL_SOURCE);
    if (!::chrony::client::parse_source_address(serverAddress.c_str(), &address))
    {
@@ -252,7 +251,7 @@ index e022cfe..3ec83b8 100644
      return {0, "Error: Could not parse server address"};
    }
    else { chrony::util::UTI_IPHostToNetwork(&address, &request.data.del_source.ip_addr); }
-@@ -757,10 +758,10 @@ process_cmd_settime(const std::string &newTimeString)
+@@ -757,10 +757,10 @@ process_cmd_settime(const std::string &newTimeString)
    std::istringstream timeStream(newTimeString);
    timeStream >> std::get_time(&timeTemp, "%Y-%m-%d %H:%M:%S");
    timeTemp.tm_isdst = 0; // input is in UTC and this needs to be set explicitly
