@@ -105,10 +105,6 @@ struct AddServersData
 
 struct TrackingData
 {
-    struct timespec_t : std::timespec
-    {
-        using serializer_type = simppl::dbus::make_serializer<std::time_t, std::int64_t>::type;
-    };
     /// see leap indicator in https://datatracker.ietf.org/doc/html/rfc5905
     enum class LeapStatus : std::int32_t  // NOLINT(performance-enum-size) simppl serialization expects enums to be int32
     {
@@ -119,7 +115,7 @@ struct TrackingData
     };
 
     using serializer_type = simppl::dbus::make_serializer<double, double, double, double, double, double, double, double, double,
-                                                          timespec_t, std::string, std::uint32_t, std::uint16_t, LeapStatus>::type;
+                                                          std::int64_t, std::string, std::uint32_t, std::uint16_t, LeapStatus>::type;
     /// difference between the virtual clock used by chrony and the system clock
     /// most other values are relative to the virtual clock according to the chronyc manual
     double currentCorrection{};
@@ -139,9 +135,9 @@ struct TrackingData
     double rootDispersion{};
     /// interval between the last two updates
     double lastUpdateInterval{};
-    /// UTC time of the last measurement point
-    timespec_t refTime{};
-    /// can be either a hostname or IP address
+    /// UTC time of the last measurement point as nanoseconds since epoch
+    std::int64_t refTime_ns{};
+    /// the name of the source
     std::string name;
     /// the reference ID of the source (chrony internal)
     std::uint32_t referenceId{};

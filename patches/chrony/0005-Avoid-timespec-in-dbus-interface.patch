@@ -1,0 +1,27 @@
+From 889c9890b94741f9da256bdef864ebc2775e1ddf Mon Sep 17 00:00:00 2001
+From: John Fletcher <john.fletcher@apsensing.com>
+Date: Tue, 20 Oct 2026 06:44:27 +0000
+Subject: [PATCH 5/5] Avoid timespec in dbus interface
+
+---
+ include/chrony/client.hpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/chrony/client.hpp b/include/chrony/client.hpp
+index 8e78932..a0d79f5 100644
+--- a/include/chrony/client.hpp
++++ b/include/chrony/client.hpp
+@@ -816,8 +816,8 @@ process_cmd_tracking()
+ 
+   retVal.referenceId = reply.data.tracking.ref_id;
+   retVal.stratum = ntohs(reply.data.tracking.stratum);
+-  retVal.refTime.tv_sec = ref_time.tv_sec;
+-  retVal.refTime.tv_nsec = ref_time.tv_nsec;
++  constexpr std::int64_t nanosecondsInOneSecond = 1'000'000'000;
++  retVal.refTime_ns = ref_time.tv_sec * nanosecondsInOneSecond + ref_time.tv_nsec;
+   retVal.currentCorrection = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.current_correction);
+   retVal.lastOffset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.last_offset);
+   retVal.rmsOffset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.tracking.rms_offset);
+-- 
+2.52.0
+
