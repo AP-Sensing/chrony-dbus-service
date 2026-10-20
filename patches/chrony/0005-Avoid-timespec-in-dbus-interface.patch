@@ -1,17 +1,97 @@
-From 889c9890b94741f9da256bdef864ebc2775e1ddf Mon Sep 17 00:00:00 2001
+From 07ca7bf8f1f18549e51b87f6cb7e01548e12425b Mon Sep 17 00:00:00 2001
 From: John Fletcher <john.fletcher@apsensing.com>
 Date: Tue, 20 Oct 2026 06:44:27 +0000
 Subject: [PATCH 5/5] Avoid timespec in dbus interface
 
 ---
- include/chrony/client.hpp | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/chrony/client.hpp | 62 ++++++++++++++-------------------------
+ 1 file changed, 22 insertions(+), 40 deletions(-)
 
 diff --git a/include/chrony/client.hpp b/include/chrony/client.hpp
-index 8e78932..a0d79f5 100644
+index 8e78932..5bf5eb9 100644
 --- a/include/chrony/client.hpp
 +++ b/include/chrony/client.hpp
-@@ -816,8 +816,8 @@ process_cmd_tracking()
+@@ -30,6 +30,7 @@
+   from it whilst running.
+   */
+ 
++#include <chrono>
+ #include <iomanip>
+ #include <iostream>
+ #include <optional>
+@@ -739,52 +740,33 @@ process_cmd_manual_list()
+ }
+ 
+ static ChronyCallResult
+-process_cmd_settime(const std::string &newTimeString)
++process_cmd_settime(const std::int64_t time_ns)
+ {
+-  struct timespec ts;
+-  time_t utc_time, local_time;
+-  CMD_Request request;
+-  CMD_Reply reply;
+-  double dfreq_ppm, new_afreq_ppm;
+-  double offset;
+-
+ #ifndef __USE_TIME_BITS64
+   /// @note if this static_assert fails then this code will not work because of the year 2038 problem.
+   static_assert(sizeof(std::time_t) == sizeof(std::uint64_t));
+ #endif
++  const std::chrono::nanoseconds elapsed{time_ns};
++  const auto seconds = std::chrono::floor<std::chrono::seconds>(elapsed);
+ 
+-  std::tm timeTemp = {};
+-  std::istringstream timeStream(newTimeString);
+-  timeStream >> std::get_time(&timeTemp, "%Y-%m-%d %H:%M:%S");
+-  timeTemp.tm_isdst = 0; // input is in UTC and this needs to be set explicitly
+-  logging::debugLog("Received time: ", std::put_time(&timeTemp, "%c %Z"));
+-  utc_time = mktime(&timeTemp);
+-  std::tm localTemp = *std::localtime(&utc_time);
+-  logging::debugLog("Setting time to: ", std::put_time(&localTemp, "%c %Z"));
+-  // chrony assumes the given time is for the current time zone
+-  local_time = mktime(&localTemp);
+-
+-  if (local_time == -1)
+-  {
+-    printf("510 - Could not parse date string\n");
+-    return {0, "Error: Could not parse date string"};
+-  }
+-  else
++  struct timespec ts{};
++  ts.tv_sec = static_cast<std::time_t>(seconds.count());
++  ts.tv_nsec = static_cast<long>((elapsed - seconds).count());
++
++  CMD_Request request;
++  CMD_Reply reply;
++  ::chrony::util::UTI_TimespecHostToNetwork(&ts, &request.data.settime.ts);
++  request.command = htons(REQ_SETTIME);
++
++  if (::chrony::client::request_reply(&request, &reply, RPY_MANUAL_TIMESTAMP2, 1))
+   {
+-    ts.tv_sec = local_time;
+-    ts.tv_nsec = 0;
+-    ::chrony::util::UTI_TimespecHostToNetwork(&ts, &request.data.settime.ts);
+-    request.command = htons(REQ_SETTIME);
+-    if (::chrony::client::request_reply(&request, &reply, RPY_MANUAL_TIMESTAMP2, 1))
+-    {
+-      offset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.offset);
+-      dfreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.dfreq_ppm);
+-      new_afreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.new_afreq_ppm);
+-      printf("Clock was %.2f seconds fast.  Frequency change = %.2fppm, new frequency = %.2fppm\n", offset, dfreq_ppm, new_afreq_ppm);
+-      return {1, std::nullopt};
+-    }
+-    else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
++    double offset = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.offset);
++    double dfreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.dfreq_ppm);
++    double new_afreq_ppm = ::chrony::util::UTI_FloatNetworkToHost(reply.data.manual_timestamp.new_afreq_ppm);
++    printf("Clock was %.2f seconds fast.  Frequency change = %.2fppm, new frequency = %.2fppm\n", offset, dfreq_ppm, new_afreq_ppm);
++    return {1, std::nullopt};
+   }
++  else { return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status))}; }
+ }
+ 
+ static ChronyCallResultT<TrackingData>
+@@ -816,8 +798,8 @@ process_cmd_tracking()
  
    retVal.referenceId = reply.data.tracking.ref_id;
    retVal.stratum = ntohs(reply.data.tracking.stratum);

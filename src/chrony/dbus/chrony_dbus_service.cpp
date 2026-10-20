@@ -142,8 +142,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
     };
 
     addManualTime >>
-        [this](const std::string &
-                   time)  // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
+        [this](const std::int64_t time_ns)
     {
         logging::debugLog(">> addManualTime enter");
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addManualTime")) { return; }
@@ -153,8 +152,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
         /// @todo remove all other manual entries?
-        const auto [success, errStr] = chrony::client::process_cmd_settime(
-            time);  // cppcheck-suppress y2038-unsafe-call // the code will refuse to compile in cases where the y2038 problem applies
+        const auto [success, errStr] = chrony::client::process_cmd_settime(time_ns);
         if (success) { respond_with(addManualTime()); }
         else
         {

@@ -160,8 +160,8 @@ INTERFACE(ChronyDBus)
     Method<simppl::dbus::in<std::vector<AddServersData>>, simppl::dbus::_throw<simppl::dbus::Error>> addServers;
     /// Deletes a list of servers with the given address string
     Method<simppl::dbus::in<std::vector<std::string>>, simppl::dbus::_throw<simppl::dbus::Error>> deleteServers;
-    /// Adds a manual time entry with the format "yyyy-mm-dd HH:MM:SS"
-    Method<simppl::dbus::in<std::string>, simppl::dbus::_throw<simppl::dbus::Error>> addManualTime;
+    /// Adds a manual time entry using integer nanoseconds since epoch
+    Method<simppl::dbus::in<std::int64_t>, simppl::dbus::_throw<simppl::dbus::Error>> addManualTime;
     /// Clears all manual time entries
     Method<simppl::dbus::_throw<simppl::dbus::Error>> clearManualTimeList;
     /// Lists all manual time entries with the format "yyyy-mm-dd HH:MM:SS"
