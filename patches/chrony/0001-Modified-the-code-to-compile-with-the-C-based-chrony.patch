@@ -1,7 +1,7 @@
-From 5a1c5760426211ff208e4ada32d0b76af1627c5f Mon Sep 17 00:00:00 2001
+From dfb16995a33d39a0ac994d1f2c7e1f4ee19db88f Mon Sep 17 00:00:00 2001
 From: Samuel Stirtzel <s.stirtzel@googlemail.com>
 Date: Wed, 15 Oct 2025 15:21:09 +0200
-Subject: [PATCH 1/4] Modified the code to compile with the C++ based
+Subject: [PATCH 1/5] Modified the code to compile with the C++ based
  chrony-dbus-service
 
 ---

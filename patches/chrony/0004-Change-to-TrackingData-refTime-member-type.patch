@@ -1,7 +1,7 @@
-From 5b22120831621eb8d7a172d76978c3ed62dbee2a Mon Sep 17 00:00:00 2001
+From 32b16c32943b07e6670b789e42e8f1856e1f1b9c Mon Sep 17 00:00:00 2001
 From: John Fletcher <john.fletcher@apsensing.com>
 Date: Thu, 15 Oct 2026 23:30:10 +0000
-Subject: [PATCH 4/4] Change to TrackingData refTime member type
+Subject: [PATCH 4/5] Change to TrackingData refTime member type
 
 ---
  include/chrony/client.hpp | 3 ++-

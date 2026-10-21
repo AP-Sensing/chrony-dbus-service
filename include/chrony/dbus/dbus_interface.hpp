@@ -105,10 +105,6 @@ struct AddServersData
 
 struct TrackingData
 {
-    struct timespec_t : std::timespec
-    {
-        using serializer_type = simppl::dbus::make_serializer<std::time_t, std::int64_t>::type;
-    };
     /// see leap indicator in https://datatracker.ietf.org/doc/html/rfc5905
     enum class LeapStatus : std::int32_t  // NOLINT(performance-enum-size) simppl serialization expects enums to be int32
     {
@@ -119,7 +115,7 @@ struct TrackingData
     };
 
     using serializer_type = simppl::dbus::make_serializer<double, double, double, double, double, double, double, double, double,
-                                                          timespec_t, std::string, std::uint32_t, std::uint16_t, LeapStatus>::type;
+                                                          std::int64_t, std::string, std::uint32_t, std::uint16_t, LeapStatus>::type;
     /// difference between the virtual clock used by chrony and the system clock
     /// most other values are relative to the virtual clock according to the chronyc manual
     double currentCorrection{};
@@ -139,9 +135,9 @@ struct TrackingData
     double rootDispersion{};
     /// interval between the last two updates
     double lastUpdateInterval{};
-    /// UTC time of the last measurement point
-    timespec_t refTime{};
-    /// can be either a hostname or IP address
+    /// UTC time of the last measurement point as nanoseconds since epoch
+    std::int64_t refTime_ns{};
+    /// the name of the source
     std::string name;
     /// the reference ID of the source (chrony internal)
     std::uint32_t referenceId{};
@@ -164,8 +160,8 @@ INTERFACE(ChronyDBus)
     Method<simppl::dbus::in<std::vector<AddServersData>>, simppl::dbus::_throw<simppl::dbus::Error>> addServers;
     /// Deletes a list of servers with the given address string
     Method<simppl::dbus::in<std::vector<std::string>>, simppl::dbus::_throw<simppl::dbus::Error>> deleteServers;
-    /// Adds a manual time entry with the format "yyyy-mm-dd HH:MM:SS"
-    Method<simppl::dbus::in<std::string>, simppl::dbus::_throw<simppl::dbus::Error>> addManualTime;
+    /// Adds a manual time entry using integer nanoseconds since epoch
+    Method<simppl::dbus::in<std::int64_t>, simppl::dbus::_throw<simppl::dbus::Error>> addManualTime;
     /// Clears all manual time entries
     Method<simppl::dbus::_throw<simppl::dbus::Error>> clearManualTimeList;
     /// Lists all manual time entries with the format "yyyy-mm-dd HH:MM:SS"
