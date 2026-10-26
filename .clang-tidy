@@ -27,6 +27,7 @@ Checks: '*,
 -readability-identifier-length,
 -altera-unroll-loops,
 -altera-id-dependent-backward-branch,
+-altera-struct-pack-align,
 -bugprone-easily-swappable-parameters,
 -modernize-return-braced-init-list,
 -cppcoreguidelines-avoid-magic-numbers,
@@ -54,9 +55,11 @@ Checks: '*,
 -android-cloexec-open,
 -llvm-header-guard,
 -llvmlibc-inline-function-decl,
+-llvm-prefer-static-over-anonymous-namespace,
+-portability-avoid-pragma-once,
 -readability-function-cognitive-complexity
 '
 WarningsAsErrors: '*'
-ExcludeHeaderFilterRegex: '.*\/build\/include\/.*'
+ExcludeHeaderFilterRegex: '.*/(build|build-tidy)/include/.*'
 HeaderFilterRegex: '.*\.hpp'
 FormatStyle: file

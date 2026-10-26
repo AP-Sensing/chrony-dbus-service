@@ -29,7 +29,7 @@ INTERFACE(DBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is insid
 
 namespace PolicyKit1
 {
-enum CheckAuthorizationFlags : std::uint32_t
+enum class CheckAuthorizationFlags : std::uint32_t  // NOLINT(performance-enum-size) using uint32_t for compatibility with polkit d-bus interface
 {
     None = 0x00000000,                 ///< No flags set.
     AllowUserInteraction = 0x00000001  ///< Can obtain the authorization through authentication via authentication agent
@@ -39,14 +39,14 @@ struct AuthorizationResult
 {
     using serializer_type = simppl::dbus::make_serializer<bool, bool, std::map<std::string, std::string>>::type;
 
-    bool is_authorized;  ///< true if authentication succeeded
-    bool is_challenge;   ///< no suitable authentication agent available or AllowUserInteraction was not set
+    bool is_authorized{};  ///< true if authentication succeeded
+    bool is_challenge{};   ///< no suitable authentication agent available or AllowUserInteraction was not set
     /// possible keys:
     /// polkit.temporary_authorization_id
     /// polkit.retains_authorization_after_challenge
     /// polkit.dismissed
     std::map<std::string, std::string> details;
-} __attribute__((aligned(64)));
+};
 
 struct Subject
 {
@@ -56,7 +56,7 @@ struct Subject
     /// system-bus-name (value type)keys: (string)name
     std::string subject_kind;
     std::map<std::string, simppl::dbus::Any> subject_details;
-} __attribute__((aligned(64)));
+};
 
 /// @note this is an interface in an interface, use the second parameter of the simppl::dbus::Stub
 /// @example simppl::dbus::Stub<org::freedesktop::PolicyKit1::Authority> polkitStub(d, "org.freedesktop.PolicyKit1",

@@ -1,7 +1,7 @@
-From 07ca7bf8f1f18549e51b87f6cb7e01548e12425b Mon Sep 17 00:00:00 2001
+From de1f4e7f501e176508419443ffa75cd790036ba9 Mon Sep 17 00:00:00 2001
 From: John Fletcher <john.fletcher@apsensing.com>
 Date: Tue, 20 Oct 2026 06:44:27 +0000
-Subject: [PATCH 5/5] Avoid timespec in dbus interface
+Subject: [PATCH 5/6] Avoid timespec in dbus interface
 
 ---
  include/chrony/client.hpp | 62 ++++++++++++++-------------------------

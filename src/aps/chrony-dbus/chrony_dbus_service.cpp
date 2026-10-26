@@ -1,5 +1,6 @@
-#include "chrony/dbus/chrony_dbus_service.hpp"
+#include "aps/chrony-dbus/chrony_dbus_service.hpp"
 
+#define HAVE_LONG_TIME_T  // Indicate to chrony that it should use/expect long time_t (64bit) values.
 #include <chrony/candm.hpp>
 #include <chrony/client.hpp>
 #include <chrony/logging.hpp>
@@ -16,10 +17,11 @@
 #include <map>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
-#include "chrony/dbus/dbus_interface.hpp"
-#include "chrony/dbus/polkit_interface.hpp"
+#include "aps/chrony-dbus/ChronyDbusInterface.hpp"
+#include "aps/chrony-dbus/polkit_interface.hpp"
 
 using namespace std::chrono_literals;
 
@@ -272,7 +274,7 @@ bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
     try
     {
         const org::freedesktop::PolicyKit1::AuthorizationResult authResult =
-            polkitStub.CheckAuthorization(subject, actionId, details, org::freedesktop::PolicyKit1::CheckAuthorizationFlags::None,
+            polkitStub.CheckAuthorization(subject, actionId, details, std::to_underlying(org::freedesktop::PolicyKit1::CheckAuthorizationFlags::None),
                                           cancellationId);
         logging::debugLog("authResult.is_authorized = ", authResult.is_authorized);
         logging::debugLog("<< checkPolkitPermissions exit");
