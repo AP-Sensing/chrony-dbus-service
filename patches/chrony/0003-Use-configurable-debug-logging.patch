@@ -1,7 +1,7 @@
-From cb92b5642d8f88cbbc7258a841b8d69d60157ca1 Mon Sep 17 00:00:00 2001
+From 8562e943713d825b96c67561f4c88a0f98e6d871 Mon Sep 17 00:00:00 2001
 From: John Fletcher <john.fletcher@apsensing.com>
 Date: Wed, 14 Oct 2026 18:16:20 +0000
-Subject: [PATCH 3/5] Use configurable debug logging
+Subject: [PATCH 3/6] Use configurable debug logging
 
 ---
  include/chrony/client.hpp  | 66 +++++++++++++++++++-------------------

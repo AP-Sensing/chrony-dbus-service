@@ -45,30 +45,46 @@ struct ChronySourceData
         SelectableCombined = 5,  ///< Source is used in combination with other sources to sync time
     };
 
-    using serializer_type = simppl::dbus::make_serializer<std::string, std::int32_t, std::uint16_t, SelectionState, SourceMode,
-                                                          std::uint32_t, std::uint16_t, bool, std::uint32_t>::type;
+    /// Authentication mode
+    enum class AuthMode : std::int32_t  // NOLINT(performance-enum-size) simppl serialization expects enums to be int32
+    {
+        None = 0,         ///< None
+        Symmetric = 1,    ///< Symmetric key
+        NTS = 2           ///< NTS
+    };
 
-    /// can be either a hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789)
+    using serializer_type = simppl::dbus::make_serializer<std::string, std::int32_t, std::uint16_t, SelectionState, SourceMode, std::uint16_t, std::uint32_t, std::uint16_t, bool, std::uint32_t>::type;
+
+    /// Name, which can be hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789).
     std::string name;
-    /// pow(2, X) seconds, e.g. pollRatePow2 = -1 -> 0.5 seconds
-    std::int32_t pollRatePow2{0};
-    /// stratum is the distance to a reference clock in the measurement chain, stratum 1 is directly connected to a reference clock
+
+    /// Poll interval as base-2 logarithm of the interval in seconds, e.g. log2PollInterval = -1 => poll interval = 0.5 seconds
+    std::int32_t log2PollInterval{0};
+
+    /// Stratum, as reported in the most recently received sample.
+    /// Stratum is the distance to a reference clock in the synchronization chain. Stratum 1 indicates a source with a locally attached reference clock. A source that is synchronised to a stratum 1 source is at stratum 2, and so on.
     std::uint16_t stratum{0};
+
+    /// Selection state
     SelectionState selectionState{SelectionState::Selected};
+
+    /// Source mode
     SourceMode sourceMode{SourceMode::Server};
-    /// last synchronization time, this can be 10 minutes or more depending on the /etc/chrony.conf
+
+    /// Reachability register
+    /// The register has 8 bits. It is shifted to left by one bit with each poll and it is updated by 1 when a valid NTP response, or just a sample in case of a reference clock, is received from the source.
+    std::uint16_t reachability{0};
+
+    /// Duration since last good sample was received. This can be 10 minutes or more depending on the chrony configuration.
     std::uint32_t secondsSinceLastSample{0};
-    /// ntp server port
-    std::uint16_t port{0};
-    /// NTS status
-    bool ntsEnabled{false};
-    /// NTS certificate ID
-    std::uint32_t ntsCertId{0};
+
+    /// Authentication mode
+    AuthMode authMode{AuthMode::None};
 };
 
 struct AddServersData
 {
-    enum ServerFlags : std::int32_t  // NOLINT(performance-enum-size) simppl serialization encodes expects enums to be int32
+    enum class ServerFlags : std::int32_t  // NOLINT(performance-enum-size) simppl serialization encodes expects enums to be int32
     {
         None = 0x0,              ///< just for completeness
         Online = 0x1,            ///< default for added sources

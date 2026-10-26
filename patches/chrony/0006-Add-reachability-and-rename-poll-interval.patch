@@ -1,0 +1,101 @@
+From 410a7c4aea6cedf595b060071d23a3a6d5414f74 Mon Sep 17 00:00:00 2001
+From: John Fletcher <john.fletcher@apsensing.com>
+Date: Thu, 22 Oct 2026 10:18:41 +0000
+Subject: [PATCH 6/6] Add reachability and rename poll interval
+
+---
+ include/chrony/client.hpp | 30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
+
+diff --git a/include/chrony/client.hpp b/include/chrony/client.hpp
+index 5bf5eb9..fdbdf3a 100644
+--- a/include/chrony/client.hpp
++++ b/include/chrony/client.hpp
+@@ -532,6 +532,7 @@ process_cmd_sources()
+   ::chrony::addressing::IPAddr ip_addr;
+   uint32_t i, mode, n_sources;
+ 
++  // Get the number of sources.
+   request.command = htons(REQ_N_SOURCES);
+   if (!::chrony::client::request_reply(&request, &reply, RPY_N_SOURCES, 0))
+       return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(reply.status)), retVal};
+@@ -539,8 +540,10 @@ process_cmd_sources()
+   n_sources = ntohl(reply.data.n_sources.n_sources);
+   logging::debugLog("process_cmd_sources(): n_sources: ", n_sources);
+ 
++  // Iterate through the sources.
+   for (i = 0; i < n_sources; i++)
+   {
++    // Get source data.
+     request.command = htons(REQ_SOURCE_DATA);
+     request.data.source_data.index = htonl(i);
+     if (!::chrony::client::request_reply(&request, &reply, RPY_SOURCE_DATA, 0))
+@@ -553,47 +556,38 @@ process_cmd_sources()
+     ChronySourceData data;
+     data.sourceMode = static_cast<ChronySourceData::SourceMode>(mode);
+     data.selectionState = static_cast<ChronySourceData::SelectionState>(ntohs(reply.data.source_data.state));
+-    data.pollRatePow2 = ntohl(reply.data.source_data.poll);
++    data.log2PollInterval = ntohl(reply.data.source_data.poll);
+     data.stratum = ntohs(reply.data.source_data.stratum);
++    data.reachability = ntohs(reply.data.source_data.reachability);
+     data.secondsSinceLastSample = ntohl(reply.data.source_data.since_sample);
+ 
+ 
+     if (mode != RPY_SD_MD_CLIENT && mode != RPY_SD_MD_PEER)
+     {
+-      // for some reason the name is encoded as IPv4 address
++      // If source is a reference clock, get the name.
+       data.name = ::chrony::util::UTI_RefidToString(ip_addr.addr.in4);
+       logging::debugLog("process_cmd_sources(): Source ", i, " is not NTP based, skipping NTP related data");
+       retVal.push_back(data);
+       continue;
+     }
+-    // ip address
++    // If source is NTP (server or peer), get further information.
++    // hostname or ip address
+     {
+       char tmpName[256];
+       // try to get the hostname for the ip_addr
+       if (::chrony::nameserv::DNS_IPAddress2Name(&ip_addr, tmpName, sizeof(tmpName))) { data.name = tmpName; }
+       else { data.name = ::chrony::util::UTI_IPToString(&ip_addr); }
+     }
+-    // ntpdata
+-    {
+-      CMD_Reply replyNtpData;
+-      request.command = htons(REQ_NTP_DATA);
+-      request.data.ntp_data.ip_addr = reply.data.source_data.ip_addr;
+-      if (!::chrony::client::request_reply(&request, &replyNtpData, RPY_NTP_DATA2, 0))
+-          return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(replyNtpData.status)), retVal};
+-      data.port = ntohs(replyNtpData.data.ntp_data.remote_port);
+-    }
+-    // authdata
++    // authentication data
+     {
+       CMD_Reply replyAuthData;
+       request.command = htons(REQ_AUTH_DATA);
+       request.data.auth_data.ip_addr = reply.data.source_data.ip_addr;
+       if (!::chrony::client::request_reply(&request, &replyAuthData, RPY_AUTH_DATA, 0))
+           return {0, std::format("Error: chronyd returned status: {}", statusToErrorString(replyAuthData.status)), retVal};
+-      data.ntsEnabled = (ntohs(replyAuthData.data.auth_data.mode) == RPY_AD_MD_NTS);
+-      data.ntsCertId = ntohl(replyAuthData.data.auth_data.key_id);
++      data.authMode = static_cast<ChronySourceData::AuthMode>(ntohs(replyAuthData.data.auth_data.mode));
+     }
+     retVal.push_back(data);
+-    if (ip_addr.family == IPADDR_ID) continue;
+   }
+ 
+   return {1, std::nullopt, retVal};
+@@ -621,8 +615,8 @@ process_cmd_add_source(const AddServersData &data)
+ 
+   std::uint32_t additionalFlags = 0;
+   // set ipv4 / ipv6 flags depending on the address family of the resolved ip_addr
+-  additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET4 ? AddServersData::ServerFlags::IPv4 : 0);
+-  additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET6 ? AddServersData::ServerFlags::IPv6 : 0);
++  additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET4 ? std::to_underlying(AddServersData::ServerFlags::IPv4) : 0);
++  additionalFlags = additionalFlags | (ip_addr.family == IPADDR_INET6 ? std::to_underlying(AddServersData::ServerFlags::IPv6) : 0);
+ 
+   request.data.ntp_source.port = htonl(data.port);
+   request.data.ntp_source.minpoll = htonl(SRC_DEFAULT_MINPOLL);
+-- 
+2.52.0
+
