@@ -6,13 +6,14 @@
 
 #include <cassert>
 #include <chrono>  // NOLINT(misc-include-cleaner)
+#include <cstdint>
 #include <format>
 #include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
 
-#include "chrony/dbus/dbus_interface.hpp"
+#include "aps/chrony-dbus/ChronyDbusInterface.hpp"
 
 using namespace std::chrono_literals;
 
@@ -40,7 +41,8 @@ TEST(ChronyDBusService, AddClearManualTime)
         simppl::dbus::Dispatcher dispatch("bus:system");
         simppl::dbus::Stub<org::freedesktop::ChronyDBus> stub(dispatch, "chronyDBusServer");
         const std::string targetTime = "2026-01-01 09:00:00";
-        const std::string otherTime = "2026-01-01 10:00:00";
+        constexpr std::int64_t targetNanosecondsSinceEpoch = 1'767'258'000'000'000'000;
+        constexpr std::int64_t otherNanosecondsSinceEpoch = 1'767'261'600'000'000'000;
 
         // add manual time
         stub.setManualTimeEnabled(true);
@@ -65,12 +67,12 @@ TEST(ChronyDBusService, AddClearManualTime)
         while (!foundTarget && tries < 2)
         {
             stub.clearManualTimeList();
-            stub.addManualTime(otherTime);
+            stub.addManualTime(otherNanosecondsSinceEpoch);
             // NOLINTNEXTLINE(misc-include-cleaner)
             std::this_thread::sleep_for(250ms);
 
             stub.clearManualTimeList();
-            stub.addManualTime(targetTime);
+            stub.addManualTime(targetNanosecondsSinceEpoch);
             // NOLINTNEXTLINE(misc-include-cleaner)
             std::this_thread::sleep_for(250ms);
 
