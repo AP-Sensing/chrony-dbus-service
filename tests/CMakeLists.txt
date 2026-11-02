@@ -32,8 +32,8 @@ endfunction()
 ##########################################
 
 add_chrony_dbus_service_test_executable(NAME "chrony_dbus_service_test"
-                                        SRCS "${PROJECT_SOURCE_DIR}/src/chrony/dbus/chrony_dbus_service.Test.cpp"
+                                        SRCS "${PROJECT_SOURCE_DIR}/src/aps/chrony-dbus/chrony_dbus_service.Test.cpp"
                                         LIBS Simppl::simppl
-                                             chrony::dbus
+                                             aps::chronydbus
                                              ${DBUS_LIBRARIES})
 

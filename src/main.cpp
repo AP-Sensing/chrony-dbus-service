@@ -1,19 +1,24 @@
 #include <simppl/dispatcher.h>
 
 #include <cstdlib>
+#include <iostream>
+#include <ostream>
 #include <print>
+#include <string_view>
 
 #include "chrony/dbus/version/Version.hpp"
 
-#define HAVE_LONG_TIME_T  // Indicate to chrony that it should use/expect long time_t (64bit) values.
-#include "chrony/dbus/chrony_dbus_service.hpp"
+#include "aps/chrony-dbus/chrony_dbus_service.hpp"
 
+namespace
+{
 void printUsage(std::ostream& output, std::string_view program)
 {
     output << "Usage: " << program << " [-d] [-h]\n"
            << "  -d  Enable debug logging\n"
            << "  -h  Show this help and exit\n";
 }
+};  //namespace
 
 int main(int argc, char* argv[])
 {

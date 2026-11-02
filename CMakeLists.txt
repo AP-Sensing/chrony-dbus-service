@@ -34,7 +34,7 @@ message(STATUS "${PROJECT_NAME} project version: ${${PROJECT_NAME}_VERSION_FULL_
 set(VERSION_FILE_INCLUDE_PATH "${${PROJECT_NAME}_BINARY_DIR}/include/chrony/dbus/version")
 configure_file("${${PROJECT_NAME}_SOURCE_DIR}/cmake/Version.hpp.in" "${VERSION_FILE_INCLUDE_PATH}/Version.hpp")
 add_library(chrony_dbus_version INTERFACE)
-add_library(chrony::dbus::version ALIAS chrony_dbus_version)
+add_library(aps::chronydbus::version ALIAS chrony_dbus_version)
 target_sources(chrony_dbus_version INTERFACE
                                    FILE_SET HEADERS
                                    BASE_DIRS ${${PROJECT_NAME}_BINARY_DIR}/include
