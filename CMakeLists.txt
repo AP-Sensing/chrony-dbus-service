@@ -137,6 +137,8 @@ aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ADDR
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_LEAK "Enables the LeakSanitizer for debug builds." OFF)
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_UB "Enables the UndefinedBehaviorSanitizer for debug builds." OFF)
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ALL "Enables all sanitizers for debug builds except the ThreadSanitizer since it is incompatible with the other sanitizers." OFF)
+
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL "Set to ON to enable using the system provided simppl package" OFF)
 message(STATUS "=======================================================")
 
 ##########################################
@@ -227,35 +229,41 @@ endif()
 set(CMAKE_PREFIX_PATH "${ROOT_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/generators")
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 
-find_package(PkgConfig REQUIRED)
-# DBus include directory may vary depending on the distro so let packageconfig handle this
-pkg_check_modules(DBUS REQUIRED dbus-1)
-include_directories(SYSTEM ${DBUS_INCLUDE_DIRS})
+if(NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL OR NOT APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL)
+    find_package(PkgConfig REQUIRED)
+    # DBus include directory may vary depending on the distro so let packageconfig handle this
+    pkg_check_modules(DBUS REQUIRED dbus-1)
+    include_directories(SYSTEM ${DBUS_INCLUDE_DIRS})
 
-##########################################
-# Misc Dependencies
-##########################################
+    ##########################################
+    # Misc Dependencies
+    ##########################################
 
-include(clear_variable)
+    include(clear_variable)
 
-# Disable linting for external dependencies to prevent linting them
-clear_variable(DESTINATION CMAKE_CXX_CLANG_TIDY BACKUP CMAKE_CXX_CLANG_TIDY_BKP)
+    # Disable linting for external dependencies to prevent linting them
+    clear_variable(DESTINATION CMAKE_CXX_CLANG_TIDY BACKUP CMAKE_CXX_CLANG_TIDY_BKP)
 
-include(FetchContent)
+    include(FetchContent)
 
-# Simppl
-file(GLOB simppl_PATCH_FILES ${CMAKE_SOURCE_DIR}/patches/simppl/*.patch)
-set(SIMPPL_USE_POLL OFF CACHE INTERNAL " " FORCE)
-FetchContent_Declare(simppl GIT_REPOSITORY https://github.com/AP-Sensing/simppl.git
-                            GIT_TAG abee56a614535d5af88ea9423392bb62eaab1732
-                            PATCH_COMMAND git am ${simppl_PATCH_FILES}
-                            SYSTEM)
-FetchContent_MakeAvailable(simppl)
-# Properly specify simppl to be installed else it will be missing when building an RPM
-install(TARGETS simppl LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    # Simppl
+    file(GLOB simppl_PATCH_FILES ${CMAKE_CURRENT_SOURCE_DIR}/patches/simppl/*.patch)
+    set(SIMPPL_USE_POLL OFF CACHE INTERNAL " " FORCE)
+    FetchContent_Declare(simppl GIT_REPOSITORY https://github.com/AP-Sensing/simppl.git
+                                GIT_TAG abee56a614535d5af88ea9423392bb62eaab1732
+                                PATCH_COMMAND git am ${simppl_PATCH_FILES}
+                                SYSTEM)
+    FetchContent_MakeAvailable(simppl)
+    # Properly specify simppl to be installed else it will be missing when building an RPM
+    install(TARGETS simppl LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+else()
+    message(STATUS "APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL is defined. Skipping custom build of simppl for chrony-dbus-service")
+    find_package(Simppl CONFIG REQUIRED)
+endif()
 
+message(WARNING "fetching and patching chrony sources")
 # the patches allow us to use some of the chrony sources as header-only library
-file(GLOB chrony_PATCH_FILES ${CMAKE_SOURCE_DIR}/patches/chrony/*.patch)
+file(GLOB chrony_PATCH_FILES ${CMAKE_CURRENT_SOURCE_DIR}/patches/chrony/*.patch)
 FetchContent_Declare(chrony GIT_REPOSITORY https://gitlab.com/chrony/chrony/
                             GIT_TAG 1bcbea9bd2601fd25ea3dff311f7f258bce76f95 # 4.7
                             PATCH_COMMAND git am ${chrony_PATCH_FILES}
