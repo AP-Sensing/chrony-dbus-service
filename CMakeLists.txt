@@ -261,7 +261,6 @@ else()
     find_package(Simppl CONFIG REQUIRED)
 endif()
 
-message(WARNING "fetching and patching chrony sources")
 # the patches allow us to use some of the chrony sources as header-only library
 file(GLOB chrony_PATCH_FILES ${CMAKE_CURRENT_SOURCE_DIR}/patches/chrony/*.patch)
 FetchContent_Declare(chrony GIT_REPOSITORY https://gitlab.com/chrony/chrony/
