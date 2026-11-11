@@ -6,7 +6,11 @@
 #include <print>
 #include <string_view>
 
+#if APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD
 #include "chrony/dbus/version/Version.hpp"
+#else
+#include "aps/chronydbus/Version.hpp"
+#endif
 
 #include "aps/chrony-dbus/chrony_dbus_service.hpp"
 
@@ -22,8 +26,11 @@ void printUsage(std::ostream& output, std::string_view program)
 
 int main(int argc, char* argv[])
 {
+#if APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD
     std::println("Starting chrony DBus service version {0}", APS_CHRONY_DBUS_SERVICE_VERSION_FULL_STRING);
-
+#else
+    std::println("Starting chrony DBus service version {0}", aps::version::chronydbusservice::FullVersion);
+#endif
     // Command line arguments
     bool debugLoggingIsEnabled = false;
     for (int i = 1; i < argc; ++i)

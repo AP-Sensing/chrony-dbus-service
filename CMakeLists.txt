@@ -16,6 +16,7 @@ set(PROJECT_HOMEPAGE_URL "https://github.com/AP-Sensing/chrony-dbus-service")
 
 project("${PROJECT_NAME}" DESCRIPTION "${PROJECT_DESCRIPTION}"
                           HOMEPAGE_URL "${PROJECT_HOMEPAGE_URL}"
+                          VERSION 0.2.0
                           LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -24,21 +25,27 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # Setup Version
 ##########################################
 
-include(version_setup)
-message(STATUS "${PROJECT_NAME} project version: ${${PROJECT_NAME}_VERSION_FULL_STRING}")
+# aps_generate_version_target is not available in the standalone build
+if(COMMAND aps_generate_version_target)
+  aps_generate_version_target(TARGET "aps::chronydbus::version")
+else()
+  include(version_setup)
+  message(STATUS "${PROJECT_NAME} project version: ${${PROJECT_NAME}_VERSION_FULL_STRING}")
 
-##########################################
-# Configure Version
-##########################################
+  ##########################################
+  # Configure Version
+  ##########################################
 
-set(VERSION_FILE_INCLUDE_PATH "${${PROJECT_NAME}_BINARY_DIR}/include/chrony/dbus/version")
-configure_file("${${PROJECT_NAME}_SOURCE_DIR}/cmake/Version.hpp.in" "${VERSION_FILE_INCLUDE_PATH}/Version.hpp")
-add_library(chrony_dbus_version INTERFACE)
-add_library(aps::chronydbus::version ALIAS chrony_dbus_version)
-target_sources(chrony_dbus_version INTERFACE
-                                   FILE_SET HEADERS
-                                   BASE_DIRS ${${PROJECT_NAME}_BINARY_DIR}/include
-                                   FILES ${VERSION_FILE_INCLUDE_PATH}/Version.hpp)
+  set(VERSION_FILE_INCLUDE_PATH "${${PROJECT_NAME}_BINARY_DIR}/include/chrony/dbus/version")
+  configure_file("${${PROJECT_NAME}_SOURCE_DIR}/cmake/Version.hpp.in" "${VERSION_FILE_INCLUDE_PATH}/Version.hpp")
+  add_library(chrony_dbus_version INTERFACE)
+  add_library(aps::chronydbus::version ALIAS chrony_dbus_version)
+  target_sources(chrony_dbus_version INTERFACE
+                                     FILE_SET HEADERS
+                                     BASE_DIRS ${${PROJECT_NAME}_BINARY_DIR}/include
+                                     FILES ${VERSION_FILE_INCLUDE_PATH}/Version.hpp)
+endif()
+
 
 
 ##########################################
@@ -139,6 +146,7 @@ aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_UB "
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ALL "Enables all sanitizers for debug builds except the ThreadSanitizer since it is incompatible with the other sanitizers." OFF)
 
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL "Set to ON to enable using the system provided simppl package" OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD "Set to OFF when not building this project standalone" ON)
 message(STATUS "=======================================================")
 
 ##########################################
@@ -160,13 +168,6 @@ include(clang_tidy)
 if(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK)
     include(cmake/cppcheck.cmake)
 endif()
-
-##########################################
-# Packaging
-##########################################
-
-include(GNUInstallDirs)
-add_subdirectory(packaging)
 
 ##########################################
 # Compiler-options
@@ -286,6 +287,13 @@ endif()
 ##########################################
 
 add_subdirectory(src)
+
+##########################################
+# Packaging
+##########################################
+
+include(GNUInstallDirs)
+add_subdirectory(packaging)
 
 ##########################################
 # Tests
