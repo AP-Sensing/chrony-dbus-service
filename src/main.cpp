@@ -24,6 +24,7 @@ void printUsage(std::ostream& output, std::string_view program)
 }
 };  // namespace
 
+// cppcheck-suppress constParameter
 int main(int argc, char* argv[])
 {
 #if APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD

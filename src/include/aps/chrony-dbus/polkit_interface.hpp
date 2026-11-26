@@ -10,7 +10,7 @@
 
 namespace org::freedesktop
 {
-INTERFACE(DBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is inside simppl
+INTERFACE(DBus)
 {
     /// Returns the connection credentials
     /// documentation at https://dbus.freedesktop.org/doc/dbus-specification.html
@@ -62,7 +62,8 @@ struct Subject
 /// @note this is an interface in an interface, use the second parameter of the simppl::dbus::Stub
 /// @example simppl::dbus::Stub<org::freedesktop::PolicyKit1::Authority> polkitStub(d, "org.freedesktop.PolicyKit1",
 /// "/org/freedesktop/PolicyKit1/Authority");
-INTERFACE(Authority)  // NOLINT(altera-struct-pack-align) Can't fix since it is inside simppl
+// cppcheck-suppress syntaxError
+INTERFACE(Authority)
 {
     /// Returns the authorization result
     /// documentation at
