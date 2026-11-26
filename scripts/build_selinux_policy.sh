@@ -7,13 +7,6 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 
-ret=$?
-if [ $ret -ne 0 ]; then
-    printf "❌ ${RED}Building Policy failed.?${NC}\n"
-else
-    printf "✅ ${GREEN}Policy build successfully. Output: $(pwd)${NC}\n"
-fi
-
 printf "🗂️  Building Policy RPM...\n"
 
 pwd=$(pwd)
