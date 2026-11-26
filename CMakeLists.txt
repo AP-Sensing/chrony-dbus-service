@@ -260,7 +260,12 @@ if(NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL OR NOT APS_CHRONY_DB
     set(SIMPPL_USE_POLL OFF CACHE INTERNAL " " FORCE)
     FetchContent_Declare(simppl GIT_REPOSITORY https://github.com/AP-Sensing/simppl.git
                                 GIT_TAG abee56a614535d5af88ea9423392bb62eaab1732
-                                PATCH_COMMAND git am ${simppl_PATCH_FILES}
+                                PATCH_COMMAND
+                                    "${CMAKE_COMMAND}" -E env
+                                    "GIT_COMMITTER_NAME=simppl build"
+                                    "GIT_COMMITTER_EMAIL=simppl-build@example.com"
+                                    --
+                                    git am ${simppl_PATCH_FILES}
                                 SYSTEM)
     FetchContent_MakeAvailable(simppl)
     # Properly specify simppl to be installed else it will be missing when building an RPM
@@ -274,7 +279,12 @@ endif()
 file(GLOB chrony_PATCH_FILES ${CMAKE_CURRENT_SOURCE_DIR}/patches/chrony/*.patch)
 FetchContent_Declare(chrony GIT_REPOSITORY https://gitlab.com/chrony/chrony/
                             GIT_TAG 1bcbea9bd2601fd25ea3dff311f7f258bce76f95 # 4.7
-                            PATCH_COMMAND git am ${chrony_PATCH_FILES}
+                            PATCH_COMMAND
+                                "${CMAKE_COMMAND}" -E env
+                                "GIT_COMMITTER_NAME=chrony build"
+                                "GIT_COMMITTER_EMAIL=chrony-build@example.com"
+                                --
+                                git am ${chrony_PATCH_FILES}
                             EXCLUDE_FROM_ALL
                             SYSTEM)
 FetchContent_MakeAvailable(chrony)
