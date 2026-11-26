@@ -6,18 +6,18 @@ restorecon -R /usr/bin/chrony-dbus-service; \
 
 %define selinux_policyver 40.30-1
 
-Name:   chrony-dbus-service-selinux
+Name:	 chrony-dbus-service-selinux
 Version:	1.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	SELinux policy module for chrony_dbus_service
 
 Group:	System Environment/Base
 License:	GPLv2+
 
 URL:		https://github.com/AP-Sensing/chrony-dbus-service
-Source0:	chrony_dbus_service.pp
+Source0:	chrony_dbus_service.fc
 Source1:	chrony_dbus_service.if
-
+Source2:	chrony_dbus_service.te
 
 Requires: policycoreutils-python-utils, libselinux-utils
 Requires(post): selinux-policy-base >= %{selinux_policyver}, policycoreutils-python-utils
@@ -26,11 +26,19 @@ Requires(post): chrony-dbus-service, chrony-dbus-service, chrony-dbus-service
 BuildArch: noarch
 
 %description
-This package installs and sets up the  SELinux policy security module for chrony_dbus_service.
+This package installs and sets up the	SELinux policy security module for chrony_dbus_service.
+
+%prep
+
+%build
+cp %{SOURCE0} chrony_dbus_service.fc
+cp %{SOURCE1} chrony_dbus_service.if
+cp %{SOURCE2} chrony_dbus_service.te
+make -f /usr/share/selinux/devel/Makefile chrony_dbus_service.pp
 
 %install
 install -d %{buildroot}%{_datadir}/selinux/packages
-install -m 644 %{SOURCE0} %{buildroot}%{_datadir}/selinux/packages
+install -m 644 chrony_dbus_service.pp %{buildroot}%{_datadir}/selinux/packages
 install -d %{buildroot}%{_datadir}/selinux/devel/include/contrib
 install -m 644 %{SOURCE1} %{buildroot}%{_datadir}/selinux/devel/include/contrib/
 
@@ -38,19 +46,18 @@ install -m 644 %{SOURCE1} %{buildroot}%{_datadir}/selinux/devel/include/contrib/
 semodule -n -i %{_datadir}/selinux/packages/chrony_dbus_service.pp
 
 if /usr/sbin/selinuxenabled ; then
-    /usr/sbin/load_policy
-    %relabel_files
+		/usr/sbin/load_policy
+		%relabel_files
 fi;
 exit 0
 
 %postun
 if [ $1 -eq 0 ]; then
-
-    semodule -n -r chrony_dbus_service
-    if /usr/sbin/selinuxenabled ; then
-       /usr/sbin/load_policy
-       %relabel_files
-    fi;
+		semodule -n -r chrony_dbus_service
+		if /usr/sbin/selinuxenabled ; then
+				/usr/sbin/load_policy
+				%relabel_files
+		fi;
 fi;
 exit 0
 
@@ -58,8 +65,11 @@ exit 0
 %attr(0600,root,root) %{_datadir}/selinux/packages/chrony_dbus_service.pp
 %{_datadir}/selinux/devel/include/contrib/chrony_dbus_service.if
 
+%check
 
 %changelog
+* Thu Nov 26 2026 Samuel Stirtzel <s.stirtzel@googlemail.com> 1.0-2
+- Added build section instead of running make in build_selinux_policy.sh
 * Thu Mar 26 2026 Samuel Stirtzel <s.stirtzel@googlemail.com> 1.0-1
 - Initial version
 

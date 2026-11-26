@@ -23,3 +23,8 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/org.freedesktop.ChronyDBus.policy"
                     GROUP_READ
                     WORLD_READ
                     COMPONENT "${PROJECT_NAME}")
+
+# the standalone build uses scripts/build_selinux_policy.sh
+if(NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD OR NOT APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD)
+    add_subdirectory(selinux)
+endif() # NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD OR NOT APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD
