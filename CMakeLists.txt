@@ -145,12 +145,15 @@ aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_LEAK
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_UB "Enables the UndefinedBehaviorSanitizer for debug builds." OFF)
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ALL "Enables all sanitizers for debug builds except the ThreadSanitizer since it is incompatible with the other sanitizers." OFF)
 
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL "Set to ON to enable using the system provided simppl package" OFF)
 if(PROJECT_IS_TOP_LEVEL)
+    set(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL_DEFAULT OFF)
     set(APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD_DEFAULT ON)
 else() # PROJECT_IS_TOP_LEVEL
+    set(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL_DEFAULT ON)
     set(APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD_DEFAULT OFF)
 endif() # PROJECT_IS_TOP_LEVEL
+
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL "Set to ON to enable using the system provided simppl package" ${APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL_DEFAULT})
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD "Set to OFF when not building this project standalone" ${APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD_DEFAULT})
 message(STATUS "=======================================================")
 
