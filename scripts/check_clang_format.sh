@@ -10,23 +10,23 @@ printf "📑  Checking if your code fulfills all clang-format rules...\n"
 RET_CODE=0
 
 function format() {
-    for f in $(find $@ -name '*.h' -or -name '*.hpp' -or -name '*.c' -or -name '*.cpp'); do 
-        clang-format -i --dry-run --Werror --style=file ${f};
+    for f in $(find $@ -name '*.h' -or -name '*.hpp' -or -name '*.c' -or -name '*.cpp'); do
+        clang-format -i --dry-run --Werror --style=file ${f}
         ret=$?
         if [ $ret -ne 0 ]; then
             RET_CODE=$ret
         fi
     done
 
-    echo "~~~ $@ directory checked ~~~";
+    echo "~~~ $@ directory checked ~~~"
 }
 
 # Check all of the arguments first to make sure they're all directories
 for dir in "$@"; do
     if [ ! -d "${dir}" ]; then
-        echo "${dir} is not a directory";
+        echo "${dir} is not a directory"
     else
-        format ${dir};
+        format ${dir}
     fi
 done
 

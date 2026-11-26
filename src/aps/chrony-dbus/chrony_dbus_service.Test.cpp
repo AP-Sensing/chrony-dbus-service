@@ -28,7 +28,7 @@ TEST(ChronyDBusService, GetSources)
 
         EXPECT_GT(sources.size(), 0);
     }
-    catch (const simppl::dbus::Error &e)
+    catch (const simppl::dbus::Error& e)
     {
         FAIL() << "Aborting after DBus error: '" << e.name() << "' message: '" << e.message() << "'\n";
     }
@@ -78,10 +78,13 @@ TEST(ChronyDBusService, AddClearManualTime)
 
             manualTimeList = stub.getManualTimeList();
             // find our targetTime
-            for (const auto &timeStr : manualTimeList)
+            for (const auto& timeStr : manualTimeList)
             {
                 if (timeStr == targetTime) { foundTarget = true; }
-                else { std::cout << "found unexpected time: " << timeStr << "\n"; }
+                else
+                {
+                    std::cout << "found unexpected time: " << timeStr << "\n";
+                }
             }
             // NOLINTNEXTLINE(misc-include-cleaner)
             std::this_thread::sleep_for(500ms);
@@ -95,7 +98,7 @@ TEST(ChronyDBusService, AddClearManualTime)
         manualTimeList = stub.getManualTimeList();
         EXPECT_EQ(manualTimeList.size(), 0);
     }
-    catch (const simppl::dbus::Error &e)
+    catch (const simppl::dbus::Error& e)
     {
         FAIL() << "Aborting after DBus error: '" << e.name() << "' message: '" << e.message() << "'\n";
     }
@@ -114,14 +117,14 @@ TEST(ChronyDBusService, AddDeleteServers)
         s1.name = "time1.uni-paderborn.de";
         newServers.push_back(s1);
 
-        for (const auto &server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
+        for (const auto& server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
         stub.addServers(newServers);
         // NOLINTNEXTLINE(misc-include-cleaner)
         std::this_thread::sleep_for(250ms);
         const std::vector<ChronySourceData> sourcesAfterAdd = stub.getSources();
         bool foundAddedServer = false;
 
-        for (const auto &sourceData : sourcesAfterAdd)
+        for (const auto& sourceData : sourcesAfterAdd)
         {
             if (sourceData.name == s1.name)
             {
@@ -133,7 +136,7 @@ TEST(ChronyDBusService, AddDeleteServers)
 
         // delete server
         const std::vector<std::string> delServers = {{s1.name}};
-        for (const auto &serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
+        for (const auto& serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
         stub.deleteServers(delServers);
         // NOLINTNEXTLINE(misc-include-cleaner)
         std::this_thread::sleep_for(250ms);
@@ -141,7 +144,7 @@ TEST(ChronyDBusService, AddDeleteServers)
         const std::vector<ChronySourceData> sourcesAfterDelete = stub.getSources();
         bool foundDeletedServer = false;
 
-        for (const auto &sourceData : sourcesAfterDelete)
+        for (const auto& sourceData : sourcesAfterDelete)
         {
             if (sourceData.name == s1.name)
             {
@@ -151,7 +154,7 @@ TEST(ChronyDBusService, AddDeleteServers)
         }
         EXPECT_FALSE(foundDeletedServer);
     }
-    catch (const simppl::dbus::Error &e)
+    catch (const simppl::dbus::Error& e)
     {
         FAIL() << "Aborting after DBus error: '" << e.name() << "' message: '" << e.message() << "'\n";
     }
@@ -170,7 +173,7 @@ TEST(ChronyDBusService, GetTrackingData)
         s1.name = "time1.uni-paderborn.de";
         newServers.push_back(s1);
 
-        for (const auto &server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
+        for (const auto& server : newServers) { std::cout << "adding new server: " << server.name << "\n"; }
         stub.addServers(newServers);
         std::this_thread::sleep_for(250ms);
 
@@ -194,10 +197,10 @@ TEST(ChronyDBusService, GetTrackingData)
 
         // delete server
         const std::vector<std::string> delServers = {{s1.name}};
-        for (const auto &serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
+        for (const auto& serverName : delServers) { std::cout << "deleting server: " << serverName << "\n"; }
         stub.deleteServers(delServers);
     }
-    catch (const simppl::dbus::Error &e)
+    catch (const simppl::dbus::Error& e)
     {
         FAIL() << "Aborting after DBus error: '" << e.name() << "' message: '" << e.message() << "'\n";
     }

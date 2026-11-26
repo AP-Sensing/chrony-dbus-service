@@ -7,20 +7,20 @@
 printf "📝  Running clang-format...\n"
 
 function format() {
-    for f in $(find $@ -name '*.h' -or -name '*.hpp' -or -name '*.c' -or -name '*.cpp'); do 
-        echo "format ${f}";
-        clang-format -i --style=file ${f};
+    for f in $(find $@ -name '*.h' -or -name '*.hpp' -or -name '*.c' -or -name '*.cpp'); do
+        echo "format ${f}"
+        clang-format -i --style=file ${f}
     done
 
-    echo "~~~ $@ directory formatted ~~~";
+    echo "~~~ $@ directory formatted ~~~"
 }
 
 # Check all of the arguments first to make sure they're all directories
 for dir in "$@"; do
     if [ ! -d "${dir}" ]; then
-        echo "${dir} is not a directory";
+        echo "${dir} is not a directory"
     else
-        format ${dir};
+        format ${dir}
     fi
 done
 

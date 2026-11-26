@@ -3,28 +3,26 @@ cmake_minimum_required(VERSION 3.22)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cpack_config.cmake)
 
 install(TARGETS "${PROJECT_NAME}" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT "${PROJECT_NAME}")
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/chrony-dbus-service.service"
-        DESTINATION "/usr/lib/systemd/system"
-        PERMISSIONS OWNER_READ OWNER_WRITE
-                    GROUP_READ
-                    WORLD_READ
-                    COMPONENT "${PROJECT_NAME}")
+install(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/chrony-dbus-service.service"
+    DESTINATION "/usr/lib/systemd/system"
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    COMPONENT "${PROJECT_NAME}")
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/org.freedesktop.ChronyDBus.conf"
-        DESTINATION "/usr/share/dbus-1/system.d/"
-        PERMISSIONS OWNER_READ OWNER_WRITE
-                    GROUP_READ
-                    WORLD_READ
-                    COMPONENT "${PROJECT_NAME}")
+install(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/org.freedesktop.ChronyDBus.conf"
+    DESTINATION "/usr/share/dbus-1/system.d/"
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    COMPONENT "${PROJECT_NAME}")
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/org.freedesktop.ChronyDBus.policy"
-        DESTINATION "/usr/share/polkit-1/actions"
-        PERMISSIONS OWNER_READ OWNER_WRITE
-                    GROUP_READ
-                    WORLD_READ
-                    COMPONENT "${PROJECT_NAME}")
+install(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/org.freedesktop.ChronyDBus.policy"
+    DESTINATION "/usr/share/polkit-1/actions"
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    COMPONENT "${PROJECT_NAME}")
 
 # the standalone build uses scripts/build_selinux_policy.sh
 if(NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD OR NOT APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD)
     add_subdirectory(selinux)
-endif() # NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD OR NOT APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD
+endif() # NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD OR NOT
+        # APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD

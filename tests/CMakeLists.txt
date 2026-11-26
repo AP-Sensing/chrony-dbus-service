@@ -12,14 +12,9 @@ function(add_chrony_dbus_service_test_executable)
 
     add_executable(${TEST_NAME})
     target_sources(${TEST_NAME} PRIVATE ${TEST_SRCS})
-    target_link_libraries(${TEST_NAME} PRIVATE ${TEST_LIBS}
-                                               GTest::gtest_main
-                                               GTest::gtest
-                                               simppl
-                                               ${DBUS_LIBRARIES})
-    gtest_discover_tests(${TEST_NAME}
-                         TEST_PREFIX "aps_chrony_dbus_service_"
-                         XML_OUTPUT_DIR "${PROJECT_BINARY_DIR}/results")
+    target_link_libraries(${TEST_NAME} PRIVATE ${TEST_LIBS} GTest::gtest_main GTest::gtest simppl ${DBUS_LIBRARIES})
+    gtest_discover_tests(${TEST_NAME} TEST_PREFIX "aps_chrony_dbus_service_" XML_OUTPUT_DIR
+                                                                             "${PROJECT_BINARY_DIR}/results")
 
     # Group under the "tests" project folder in IDEs such as Visual Studio
     set_property(TARGET ${TEST_NAME} PROPERTY FOLDER "tests")
@@ -27,13 +22,16 @@ function(add_chrony_dbus_service_test_executable)
     message(STATUS "Added APS chrony_dbus_service test executable: ${TEST_NAME}.")
 endfunction()
 
-##########################################
+# ######################################################################################################################
 # Tests
-##########################################
+# ######################################################################################################################
 
-add_chrony_dbus_service_test_executable(NAME "chrony_dbus_service_test"
-                                        SRCS "${PROJECT_SOURCE_DIR}/src/aps/chrony-dbus/chrony_dbus_service.Test.cpp"
-                                        LIBS Simppl::simppl
-                                             aps::chronydbus
-                                             ${DBUS_LIBRARIES})
-
+add_chrony_dbus_service_test_executable(
+    NAME
+    "chrony_dbus_service_test"
+    SRCS
+    "${PROJECT_SOURCE_DIR}/src/aps/chrony-dbus/chrony_dbus_service.Test.cpp"
+    LIBS
+    Simppl::simppl
+    aps::chronydbus
+    ${DBUS_LIBRARIES})

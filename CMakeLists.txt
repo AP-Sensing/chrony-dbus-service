@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.27)
 
-##########################################
+# ######################################################################################################################
 # General Project Settings
-##########################################
+# ######################################################################################################################
 
 # ******************************************************************
 # Only touch these macros, when creating a release or hotfix
@@ -14,47 +14,45 @@ set(PROJECT_NAME "chrony-dbus-service")
 set(PROJECT_DESCRIPTION "Code for a chrony DBus service.")
 set(PROJECT_HOMEPAGE_URL "https://github.com/AP-Sensing/chrony-dbus-service")
 
-project("${PROJECT_NAME}" DESCRIPTION "${PROJECT_DESCRIPTION}"
-                          HOMEPAGE_URL "${PROJECT_HOMEPAGE_URL}"
-                          VERSION 0.2.0
-                          LANGUAGES CXX)
+project(
+    "${PROJECT_NAME}"
+    DESCRIPTION "${PROJECT_DESCRIPTION}"
+    HOMEPAGE_URL "${PROJECT_HOMEPAGE_URL}"
+    VERSION 0.2.0
+    LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-##########################################
+# ######################################################################################################################
 # Setup Version
-##########################################
+# ######################################################################################################################
 
 # aps_generate_version_target is not available in the standalone build
 if(COMMAND aps_generate_version_target)
-  aps_generate_version_target(TARGET "aps::chronydbus::version")
+    aps_generate_version_target(TARGET "aps::chronydbus::version")
 else()
-  include(version_setup)
-  message(STATUS "${PROJECT_NAME} project version: ${${PROJECT_NAME}_VERSION_FULL_STRING}")
+    include(version_setup)
+    message(STATUS "${PROJECT_NAME} project version: ${${PROJECT_NAME}_VERSION_FULL_STRING}")
 
-  ##########################################
-  # Configure Version
-  ##########################################
+    # ##################################################################################################################
+    # Configure Version
+    # ##################################################################################################################
 
-  set(VERSION_FILE_INCLUDE_PATH "${${PROJECT_NAME}_BINARY_DIR}/include/chrony/dbus/version")
-  configure_file("${${PROJECT_NAME}_SOURCE_DIR}/cmake/Version.hpp.in" "${VERSION_FILE_INCLUDE_PATH}/Version.hpp")
-  add_library(chrony_dbus_version INTERFACE)
-  add_library(aps::chronydbus::version ALIAS chrony_dbus_version)
-  target_sources(chrony_dbus_version INTERFACE
-                                     FILE_SET HEADERS
-                                     BASE_DIRS ${${PROJECT_NAME}_BINARY_DIR}/include
-                                     FILES ${VERSION_FILE_INCLUDE_PATH}/Version.hpp)
+    set(VERSION_FILE_INCLUDE_PATH "${${PROJECT_NAME}_BINARY_DIR}/include/chrony/dbus/version")
+    configure_file("${${PROJECT_NAME}_SOURCE_DIR}/cmake/Version.hpp.in" "${VERSION_FILE_INCLUDE_PATH}/Version.hpp")
+    add_library(chrony_dbus_version INTERFACE)
+    add_library(aps::chronydbus::version ALIAS chrony_dbus_version)
+    target_sources(chrony_dbus_version INTERFACE FILE_SET HEADERS BASE_DIRS ${${PROJECT_NAME}_BINARY_DIR}/include FILES
+                                                 ${VERSION_FILE_INCLUDE_PATH}/Version.hpp)
 endif()
 
-
-
-##########################################
+# ######################################################################################################################
 # C++ Standard
-##########################################
+# ######################################################################################################################
 
 if(PARENT_CXX_STANDARD)
     # Don't set CMAKE_CXX_STANDARD if it is already set by parent project
-    if (PARENT_CXX_STANDARD LESS 23)
+    if(PARENT_CXX_STANDARD LESS 23)
         message(FATAL_ERROR "${PROJECT_NAME} does not support ${PARENT_CXX_STANDARD}.")
     endif()
 else()
@@ -64,9 +62,9 @@ else()
     set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-##########################################
+# ######################################################################################################################
 # Build Type
-##########################################
+# ######################################################################################################################
 
 if(NOT DEFINED CMAKE_BUILD_TYPE OR NOT CMAKE_BUILD_TYPE)
     if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
@@ -77,9 +75,9 @@ if(NOT DEFINED CMAKE_BUILD_TYPE OR NOT CMAKE_BUILD_TYPE)
 endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-##########################################
+# ######################################################################################################################
 # Project Options
-##########################################
+# ######################################################################################################################
 
 macro(aps_chrony_dbus_service_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
     option(${OPTION_NAME} ${OPTION_TEXT} ${OPTION_DEFAULT})
@@ -97,7 +95,9 @@ macro(aps_chrony_dbus_service_option OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
 endmacro()
 
 macro(aps_chrony_dbus_service_option_string OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
-    set(${OPTION_NAME} ${OPTION_DEFAULT} CACHE STRING ${OPTION_TEXT})
+    set(${OPTION_NAME}
+        ${OPTION_DEFAULT}
+        CACHE STRING ${OPTION_TEXT})
 
     if(DEFINED ENV{${OPTION_NAME}})
         # Allow setting the option through an environment variable
@@ -112,8 +112,20 @@ macro(aps_chrony_dbus_service_option_string OPTION_NAME OPTION_TEXT OPTION_DEFAU
 endmacro()
 
 macro(aps_template_log_level OPTION_NAME OPTION_TEXT OPTION_DEFAULT)
-    set(${OPTION_NAME} ${OPTION_DEFAULT} CACHE STRING ${OPTION_TEXT})
-    set_property(CACHE ${OPTION_NAME} PROPERTY STRINGS DEFAULT TRACE DEBUG INFO WARN ERROR FATAL OFF)
+    set(${OPTION_NAME}
+        ${OPTION_DEFAULT}
+        CACHE STRING ${OPTION_TEXT})
+    set_property(
+        CACHE ${OPTION_NAME}
+        PROPERTY STRINGS
+                 DEFAULT
+                 TRACE
+                 DEBUG
+                 INFO
+                 WARN
+                 ERROR
+                 FATAL
+                 OFF)
 
     if(DEFINED ENV{${OPTION_NAME}})
         # Allow setting the option through an environment variable
@@ -129,21 +141,43 @@ endmacro()
 
 message(STATUS "=======================================================")
 message(STATUS "Project Options:")
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS "Set to ON to enable the GCC >= 10 static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK have to be disabled." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY "Set to ON to enable clang-tidy code linting. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS have to be disabled." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY_FIX "Set to ON to enable automatic fixing of errors, notes and suggestions found by Clang-Tidy." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK "Set to ON to enable cppcheck static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYZE have to be disabled." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE "Set to ON to enable cppcheck exhaustive check. This requires APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK to be enabled and will take a loooong time. Recommended for nightly builds." OFF)
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS
+    "Set to ON to enable the GCC >= 10 static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK have to be disabled."
+    OFF)
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY
+    "Set to ON to enable clang-tidy code linting. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS have to be disabled."
+    OFF)
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY_FIX
+    "Set to ON to enable automatic fixing of errors, notes and suggestions found by Clang-Tidy." OFF)
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK
+    "Set to ON to enable cppcheck static code analysis. If enabled, APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY and APS_CHRONY_DBUS_SERVICE_STATIC_ANALYZE have to be disabled."
+    OFF)
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK_EXHAUSTIVE
+    "Set to ON to enable cppcheck exhaustive check. This requires APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK to be enabled and will take a loooong time. Recommended for nightly builds."
+    OFF)
 
-aps_chrony_dbus_service_option_string(APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE "Define wether to build a RPM or SRPM package. Default: RPM" RPM)
+aps_chrony_dbus_service_option_string(APS_CHRONY_DBUS_SERVICE_CPACK_RPM_TYPE
+                                      "Define wether to build a RPM or SRPM package. Default: RPM" RPM)
 
 aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_BUILD_TESTS "Set to ON to build tests." OFF)
 
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_THREAD "Enables the ThreadSanitizer for debug builds." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ADDR "Enables the AddressSanitizer for debug builds." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_LEAK "Enables the LeakSanitizer for debug builds." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_UB "Enables the UndefinedBehaviorSanitizer for debug builds." OFF)
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ALL "Enables all sanitizers for debug builds except the ThreadSanitizer since it is incompatible with the other sanitizers." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_THREAD
+                               "Enables the ThreadSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ADDR
+                               "Enables the AddressSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_LEAK
+                               "Enables the LeakSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_UB
+                               "Enables the UndefinedBehaviorSanitizer for debug builds." OFF)
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_DEBUG_SANITIZER_FLAG_ALL
+    "Enables all sanitizers for debug builds except the ThreadSanitizer since it is incompatible with the other sanitizers."
+    OFF)
 
 if(PROJECT_IS_TOP_LEVEL)
     set(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL_DEFAULT OFF)
@@ -153,39 +187,43 @@ else() # PROJECT_IS_TOP_LEVEL
     set(APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD_DEFAULT OFF)
 endif() # PROJECT_IS_TOP_LEVEL
 
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL "Set to ON to enable using the system provided simppl package" ${APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL_DEFAULT})
-aps_chrony_dbus_service_option(APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD "Set to OFF when not building this project standalone" ${APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD_DEFAULT})
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL "Set to ON to enable using the system provided simppl package"
+    ${APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL_DEFAULT})
+aps_chrony_dbus_service_option(
+    APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD "Set to OFF when not building this project standalone"
+    ${APS_CHRONY_DBUS_SERVICE_ENABLE_STANDALONE_BUILD_DEFAULT})
 message(STATUS "=======================================================")
 
-##########################################
+# ######################################################################################################################
 # Sanitizer
-##########################################
+# ######################################################################################################################
 
 include(sanitizer)
 
-##########################################
+# ######################################################################################################################
 # Linting
-##########################################
+# ######################################################################################################################
 
 include(clang_tidy)
 
-##########################################
+# ######################################################################################################################
 # Cppcheck
-##########################################
+# ######################################################################################################################
 
 if(APS_CHRONY_DBUS_SERVICE_ENABLE_CPPCHECK)
     include(cmake/cppcheck.cmake)
 endif()
 
-##########################################
+# ######################################################################################################################
 # Compiler-options
-##########################################
+# ######################################################################################################################
 
 # Enable chrony ipv6 support
 add_compile_definitions("FEAT_IPV6")
 
-
-# -pipe: Run compiler and assembler in parallel and do not use a temporary file for the assembler input. This can improve compilation performance. (This does not affect code generation.)
+# -pipe: Run compiler and assembler in parallel and do not use a temporary file for the assembler input. This can
+# improve compilation performance. (This does not affect code generation.)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror=format-security -pipe")
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts-diagnostics-depth=10")
@@ -194,16 +232,17 @@ endif()
 # Output performance optimization flags
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=generic -flto=auto -march=x86-64-v3")
 
-# Binary hardening flags based on:
-# https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc
+# Binary hardening flags based on: https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc
 # https://src.fedoraproject.org/rpms/redhat-rpm-config/blob/rawhide/f/buildflags.md
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fstack-protector-strong -fstack-clash-protection -fcf-protection -fstack-protector-all -D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS")
+set(CMAKE_CXX_FLAGS_RELEASE
+    "${CMAKE_CXX_FLAGS_RELEASE} -fstack-protector-strong -fstack-clash-protection -fcf-protection -fstack-protector-all -D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS"
+)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT APS_CHRONY_DBUS_SERVICE_ENABLE_CLANG_TIDY)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -ffat-lto-objects")
 endif()
 
-# Configure position independent code manually since `CMAKE_POSITION_INDEPENDENT_CODE` did not work.
-# PIE can be enabled for all builds (debug and release).
+# Configure position independent code manually since `CMAKE_POSITION_INDEPENDENT_CODE` did not work. PIE can be enabled
+# for all builds (debug and release).
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE -fPIC")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie")
@@ -224,9 +263,9 @@ else()
     add_compile_definitions(DEBUG)
 endif()
 
-##########################################
+# ######################################################################################################################
 # Dependencies
-##########################################
+# ######################################################################################################################
 
 set(ROOT_BINARY_DIR "${PROJECT_BINARY_DIR}")
 # Ensure we get the root binary directory here
@@ -244,9 +283,9 @@ if(NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL OR NOT APS_CHRONY_DB
     pkg_check_modules(DBUS REQUIRED dbus-1)
     include_directories(SYSTEM ${DBUS_INCLUDE_DIRS})
 
-    ##########################################
+    # ##################################################################################################################
     # Misc Dependencies
-    ##########################################
+    # ##################################################################################################################
 
     include(clear_variable)
 
@@ -257,65 +296,64 @@ if(NOT DEFINED APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL OR NOT APS_CHRONY_DB
 
     # Simppl
     file(GLOB simppl_PATCH_FILES ${CMAKE_CURRENT_SOURCE_DIR}/patches/simppl/*.patch)
-    set(SIMPPL_USE_POLL OFF CACHE INTERNAL " " FORCE)
-    FetchContent_Declare(simppl GIT_REPOSITORY https://github.com/AP-Sensing/simppl.git
-                                GIT_TAG abee56a614535d5af88ea9423392bb62eaab1732
-                                PATCH_COMMAND
-                                    "${CMAKE_COMMAND}" -E env
-                                    "GIT_COMMITTER_NAME=simppl build"
-                                    "GIT_COMMITTER_EMAIL=simppl-build@example.com"
-                                    --
-                                    git am ${simppl_PATCH_FILES}
-                                SYSTEM)
+    set(SIMPPL_USE_POLL
+        OFF
+        CACHE INTERNAL " " FORCE)
+    FetchContent_Declare(
+        simppl
+        GIT_REPOSITORY https://github.com/AP-Sensing/simppl.git
+        GIT_TAG abee56a614535d5af88ea9423392bb62eaab1732
+        PATCH_COMMAND "${CMAKE_COMMAND}" -E env "GIT_COMMITTER_NAME=simppl build"
+                      "GIT_COMMITTER_EMAIL=simppl-build@example.com" -- git am ${simppl_PATCH_FILES} SYSTEM)
     FetchContent_MakeAvailable(simppl)
     # Properly specify simppl to be installed else it will be missing when building an RPM
     install(TARGETS simppl LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 else()
-    message(STATUS "APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL is defined. Skipping custom build of simppl for chrony-dbus-service")
+    message(
+        STATUS
+            "APS_CHRONY_DBUS_SERVICE_ENABLE_SYSTEM_SIMPPL is defined. Skipping custom build of simppl for chrony-dbus-service"
+    )
     find_package(Simppl CONFIG REQUIRED)
 endif()
 
 # the patches allow us to use some of the chrony sources as header-only library
 file(GLOB chrony_PATCH_FILES ${CMAKE_CURRENT_SOURCE_DIR}/patches/chrony/*.patch)
-FetchContent_Declare(chrony GIT_REPOSITORY https://gitlab.com/chrony/chrony/
-                            GIT_TAG 1bcbea9bd2601fd25ea3dff311f7f258bce76f95 # 4.7
-                            PATCH_COMMAND
-                                "${CMAKE_COMMAND}" -E env
-                                "GIT_COMMITTER_NAME=chrony build"
-                                "GIT_COMMITTER_EMAIL=chrony-build@example.com"
-                                --
-                                git am ${chrony_PATCH_FILES}
-                            EXCLUDE_FROM_ALL
-                            SYSTEM)
+FetchContent_Declare(
+    chrony
+    GIT_REPOSITORY https://gitlab.com/chrony/chrony/
+    GIT_TAG 1bcbea9bd2601fd25ea3dff311f7f258bce76f95 # 4.7
+    PATCH_COMMAND
+        "${CMAKE_COMMAND}" -E env "GIT_COMMITTER_NAME=chrony build" "GIT_COMMITTER_EMAIL=chrony-build@example.com" --
+        git am ${chrony_PATCH_FILES} EXCLUDE_FROM_ALL SYSTEM)
 FetchContent_MakeAvailable(chrony)
 
 restore_variable(DESTINATION CMAKE_CXX_CLANG_TIDY BACKUP CMAKE_CXX_CLANG_TIDY_BKP)
 
-##########################################
+# ######################################################################################################################
 # Static Code Analysis
-##########################################
+# ######################################################################################################################
 
 if(APS_CHRONY_DBUS_SERVICE_STATIC_ANALYSIS)
     # Has to be defined here at the bottom to prevent analyzing our dependencies, tests or gtest
     include(gcc_static_analysis)
 endif()
 
-##########################################
+# ######################################################################################################################
 # Application
-##########################################
+# ######################################################################################################################
 
 add_subdirectory(src)
 
-##########################################
+# ######################################################################################################################
 # Packaging
-##########################################
+# ######################################################################################################################
 
 include(GNUInstallDirs)
 add_subdirectory(packaging)
 
-##########################################
+# ######################################################################################################################
 # Tests
-##########################################
+# ######################################################################################################################
 
 if(APS_CHRONY_DBUS_SERVICE_BUILD_TESTS)
     # Needs to be called in the root dir for ctest to discover it inside the build directory

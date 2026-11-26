@@ -13,14 +13,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 // required for serializer_type to work
-#include <cstdint>
-#include <ctime>
 #include <simppl/any.h>
 #include <simppl/bool.h>
 #include <simppl/interface.h>
 #include <simppl/string.h>
 #include <simppl/struct.h>
 #include <simppl/vector.h>
+
+#include <cstdint>
+#include <ctime>
 #include <string>
 #include <vector>
 
@@ -48,12 +49,13 @@ struct ChronySourceData
     /// Authentication mode
     enum class AuthMode : std::int32_t  // NOLINT(performance-enum-size) simppl serialization expects enums to be int32
     {
-        None = 0,         ///< None
-        Symmetric = 1,    ///< Symmetric key
-        NTS = 2           ///< NTS
+        None = 0,       ///< None
+        Symmetric = 1,  ///< Symmetric key
+        NTS = 2         ///< NTS
     };
 
-    using serializer_type = simppl::dbus::make_serializer<std::string, std::int32_t, std::uint16_t, SelectionState, SourceMode, std::uint16_t, std::uint32_t, std::uint16_t, bool, std::uint32_t>::type;
+    using serializer_type = simppl::dbus::make_serializer<std::string, std::int32_t, std::uint16_t, SelectionState, SourceMode,
+                                                          std::uint16_t, std::uint32_t, std::uint16_t, bool, std::uint32_t>::type;
 
     /// Name, which can be hostname / IP address, reference clock name or internal identifier (e.g. ID#123456789).
     std::string name;
@@ -62,7 +64,8 @@ struct ChronySourceData
     std::int32_t log2PollInterval{0};
 
     /// Stratum, as reported in the most recently received sample.
-    /// Stratum is the distance to a reference clock in the synchronization chain. Stratum 1 indicates a source with a locally attached reference clock. A source that is synchronised to a stratum 1 source is at stratum 2, and so on.
+    /// Stratum is the distance to a reference clock in the synchronization chain. Stratum 1 indicates a source with a locally attached
+    /// reference clock. A source that is synchronised to a stratum 1 source is at stratum 2, and so on.
     std::uint16_t stratum{0};
 
     /// Selection state
@@ -72,7 +75,8 @@ struct ChronySourceData
     SourceMode sourceMode{SourceMode::Server};
 
     /// Reachability register
-    /// The register has 8 bits. It is shifted to left by one bit with each poll and it is updated by 1 when a valid NTP response, or just a sample in case of a reference clock, is received from the source.
+    /// The register has 8 bits. It is shifted to left by one bit with each poll and it is updated by 1 when a valid NTP response, or just a
+    /// sample in case of a reference clock, is received from the source.
     std::uint16_t reachability{0};
 
     /// Duration since last good sample was received. This can be 10 minutes or more depending on the chrony configuration.
@@ -104,8 +108,7 @@ struct AddServersData
         IPv6 = 0x4000            ///< added source is IPv6 reachable
     };
 
-    using serializer_type =
-        simppl::dbus::make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, ServerFlags>::type;
+    using serializer_type = simppl::dbus::make_serializer<std::string, std::uint16_t, std::uint16_t, std::uint32_t, ServerFlags>::type;
 
     /// can be either a hostname or IP address
     std::string name;
@@ -161,7 +164,6 @@ struct TrackingData
     /// reference clock
     std::uint16_t stratum{};
     LeapStatus leapStatus{};
-
 };
 
 namespace org::freedesktop

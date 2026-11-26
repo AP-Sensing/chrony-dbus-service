@@ -44,7 +44,7 @@ bool checkCommandSocket()
 }
 }  // namespace
 
-ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool debugLoggingIsEnabled)
+ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher& disp, const bool debugLoggingIsEnabled)
     : simppl::dbus::Skeleton<ChronyDBus>(disp, "chronyDBusServer")
 {
     // Control debug logging.
@@ -92,7 +92,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
         logging::debugLog("<< getTrackingData exit");
     };
 
-    addServers >> [this](const std::vector<AddServersData> &serverList)
+    addServers >> [this](const std::vector<AddServersData>& serverList)
     {
         logging::debugLog(">> addservers enter");
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addServers")) { return; }
@@ -101,11 +101,10 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
             logging::errorLog("!! addservers error: chronyd command socket is unavailable!");
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
-        for (const auto &server : serverList)
+        for (const auto& server : serverList)
         {
             logging::debugLog(std::format("Adding server: {} port: {} flags: {}", server.name, server.port,
-                                     static_cast<std::uint16_t>(server.flags))
-                     );
+                                          static_cast<std::uint16_t>(server.flags)));
             const auto [success, errStr] = chrony::client::process_cmd_add_source(server);
             if (!success)
             {
@@ -119,7 +118,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
         logging::debugLog("<< addservers exit");
     };
 
-    deleteServers >> [this](const std::vector<std::string> &serverList)
+    deleteServers >> [this](const std::vector<std::string>& serverList)
     {
         logging::debugLog(">> deleteServers enter");
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.deleteServers")) { return; }
@@ -128,7 +127,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
             logging::errorLog("!! deleteServers error: chronyd command socket is unavailable!");
             respond_with(simppl::dbus::Error("org.freedesktop.DBus.Error.Failed", "The chronyd command socket is unavailable!"));
         }
-        for (const auto &server : serverList)
+        for (const auto& server : serverList)
         {
             const auto [success, errStr] = chrony::client::process_cmd_delete(server);
             if (!success)
@@ -143,8 +142,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
         logging::debugLog("<< deleteServers exit");
     };
 
-    addManualTime >>
-        [this](const std::int64_t time_ns)
+    addManualTime >> [this](const std::int64_t time_ns)
     {
         logging::debugLog(">> addManualTime enter");
         if (!checkPolkitPermissions("org.freedesktop.ChronyDBus.chronyDBusServer.addManualTime")) { return; }
@@ -257,7 +255,7 @@ ChronyDBusService::ChronyDBusService(simppl::dbus::Dispatcher &disp, const bool 
     };
 }
 
-bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
+bool ChronyDBusService::checkPolkitPermissions(const std::string& actionId)
 {
     // NOLINTNEXTLINE(misc-include-cleaner) We are including the recommended header <dbus/dbus.h>
     const std::string busName = dbus_message_get_sender(current_request().msg_);
@@ -274,8 +272,8 @@ bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
     try
     {
         const org::freedesktop::PolicyKit1::AuthorizationResult authResult =
-            polkitStub.CheckAuthorization(subject, actionId, details, std::to_underlying(org::freedesktop::PolicyKit1::CheckAuthorizationFlags::None),
-                                          cancellationId);
+            polkitStub.CheckAuthorization(subject, actionId, details,
+                                          std::to_underlying(org::freedesktop::PolicyKit1::CheckAuthorizationFlags::None), cancellationId);
         logging::debugLog("authResult.is_authorized = ", authResult.is_authorized);
         logging::debugLog("<< checkPolkitPermissions exit");
         if (!authResult.is_authorized)
@@ -286,7 +284,7 @@ bool ChronyDBusService::checkPolkitPermissions(const std::string &actionId)
         }
         return true;
     }
-    catch (simppl::dbus::Error &e)
+    catch (simppl::dbus::Error& e)
     {
         logging::debugLog("!! DBus error: ", e.what());
         logging::errorLog("!! Polkit returned is_authorized = false for sender: ", busName);

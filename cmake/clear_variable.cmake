@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
-# File from: https://github.com/libcpr/cpr/blob/1.10.0/cmake/clear_variable.cmake
-# License (MIT) is no problem since I (Fabian Sauter) am the original author of this file.
+# File from: https://github.com/libcpr/cpr/blob/1.10.0/cmake/clear_variable.cmake License (MIT) is no problem since I
+# (Fabian Sauter) am the original author of this file.
 
 macro(clear_variable)
     cmake_parse_arguments(CLEAR_VAR "" "DESTINATION;BACKUP;REPLACE" "" ${ARGN})

@@ -29,7 +29,8 @@ INTERFACE(DBus)  // NOLINT(altera-struct-pack-align) Can't fix since it is insid
 
 namespace PolicyKit1
 {
-enum class CheckAuthorizationFlags : std::uint32_t  // NOLINT(performance-enum-size) using uint32_t for compatibility with polkit d-bus interface
+enum class CheckAuthorizationFlags : std::uint32_t  // NOLINT(performance-enum-size) using uint32_t for compatibility with polkit d-bus
+                                                    // interface
 {
     None = 0x00000000,                 ///< No flags set.
     AllowUserInteraction = 0x00000001  ///< Can obtain the authorization through authentication via authentication agent

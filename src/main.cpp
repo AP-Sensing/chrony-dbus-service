@@ -22,7 +22,7 @@ void printUsage(std::ostream& output, std::string_view program)
            << "  -d  Enable debug logging\n"
            << "  -h  Show this help and exit\n";
 }
-};  //namespace
+};  // namespace
 
 int main(int argc, char* argv[])
 {
@@ -37,10 +37,7 @@ int main(int argc, char* argv[])
     {
         const std::string_view argument{argv[i]};
 
-        if (argument == "-d")
-        {
-            debugLoggingIsEnabled = true;
-        }
+        if (argument == "-d") { debugLoggingIsEnabled = true; }
         else if (argument == "-h")
         {
             printUsage(std::cout, argv[0]);
